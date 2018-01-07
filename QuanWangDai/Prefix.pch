@@ -1,0 +1,100 @@
+//
+//  Prefix.pch
+//  QuanWangDai
+//
+//  Created by yanqb on 2017/11/1.
+//  Copyright © 2017年 kizy. All rights reserved.
+//
+
+#ifndef Prefix_pch
+#define Prefix_pch
+
+#import <Foundation/Foundation.h>
+#import "AFNetworking.h"
+#import "HYBNetworking.h"
+#import "MBProgressHUD.h"
+#import "Masonry.h"
+#import "UIImageView+WebCache.h"
+#import "MJExtension.h"
+#import "IQKeyboardManager.h"
+#import "MJRefresh.h"
+#import "SecurityUtil.h"
+#import "DateTools.h"
+#import "UIView+XWMExtension.h"
+#import "NSObject+Json.h"
+#import "InterfaceDefine.h"
+#import "YBPopupMenu.h"
+#import "TalkingData.h"
+
+/**
+ *  尺寸设置宏定义区
+ */
+//屏幕宽高度
+#define ScreenHeight [UIScreen mainScreen].bounds.size.height
+#define ScreenWidth [UIScreen mainScreen].bounds.size.width
+
+// 根据屏幕宽度适配宽度,参数a是在iphone 6(即375宽度)情况下的宽
+#define AdaptationWidth(a) ceilf(a * (ScreenWidth/375))
+// 根据屏幕宽度适配高度,参数a是在iphone 6(即667高度)情况下的高
+#define AdaptationHeight(a) ceilf(a * (ScreenHeight/667))
+//frame
+#define XWMRectMake(x,y,w,h) CGRectMake((x)*XWMSCREENSCALE, (y)*XWMSCREENSCALE, (w)*XWMSCREENSCALE, (h)*XWMSCREENSCALE)
+
+#endif /* Prefix_pch */
+
+//-------------------DEBUG模式下输出-------------------------
+#ifdef DEBUG
+//#define MyLog(...)  NSLog(__VA_ARGS__)
+#define MyLog(s, ... ) NSLog( @"[%@ in line %d] ===============>%@", [[NSString stringWithUTF8String:__FILE__] lastPathComponent], __LINE__, [NSString stringWithFormat:(s), ##__VA_ARGS__] )
+#else
+#define MyLog(...)
+#endif
+
+
+/** 颜色*/
+#define XColorWithRBBA(r,g,b,a) [UIColor colorWithRed:(r/255.0) green:(g/255.0) blue:(b/255.0) alpha:(a)]//通过R,G,B,A设置颜色
+#define XColorWithRGB(r,g,b)  [UIColor colorWithRed:(r/255.0) green:(g/255.0) blue:(b/255.0) alpha:1]//通过R,G,B设置颜色
+//16进制颜色
+#define XCGColorWithHexAndAlpha(hex,alpha) [[UIColor colorWithHexString:hex alpha:alpha] CGcolor];
+#define XColorWithHexAndAlpha(hex,alpha) [UIColor colorWithHexString:hex alpha:alpha]; //通过16进制和透明度设置颜色
+#define XCGColorWithHex(hex) [[UIColor colorWithHexString:hex] CGColor];
+#define XColorWithHex(hex) [UIColor colorWithHexString:hex];//通过16进制设置颜色
+
+/** 通知 */
+#define WDNotificationCenter [NSNotificationCenter defaultCenter]
+#define WDUserDefaults       [NSUserDefaults standardUserDefaults]
+
+/** 单例*/
+#define XSharedInstance(name)\
+static id _instance;\
++(instancetype)allocWithZone:(struct _NSZone *)zone\
+{\
+static dispatch_once_t onceToken;\
+dispatch_once(&onceToken, ^{\
+_instance = [super allocWithZone:zone];\
+});\
+return _instance;\
+}\
+\
++(instancetype)sharedInstance\
+{\
+return [[self alloc]init];\
+}\
+-(id)copyWithZone:(NSZone *)zone\
+{\
+return _instance;\
+}\
+\
+-(id)mutableCopyWithZone:(NSZone *)zone\
+{\
+return _instance;\
+}
+
+/** block self*/
+
+#define WEAKSELF typeof(self) __weak weakSelf = self;
+#define XBlockExec(block, ...) if (block) { block(__VA_ARGS__); };
+typedef void (^XBlock)(id result);
+typedef void (^XIntegerBlock)(NSInteger result);
+typedef void (^XBoolBlock)(BOOL bRet);
+typedef void (^XDoubleBlock)(id result1, id result2);
