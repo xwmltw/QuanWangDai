@@ -56,9 +56,6 @@
 		044F2E5F1FC2C93B00FCD249 /* H5Service.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 044F2E541FC2C93B00FCD249 /* H5Service.bundle */; };
 		044F2E601FC2C93B00FCD249 /* Poseidon.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 044F2E551FC2C93B00FCD249 /* Poseidon.bundle */; };
 		044F2E611FC2C93B00FCD249 /* ZMCreditSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 044F2E561FC2C93B00FCD249 /* ZMCreditSDK.framework */; };
-		044F2E621FC2C93B00FCD249 /* opencv2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 044F2E581FC2C93B00FCD249 /* opencv2.framework */; };
-		044F2E631FC2C93B00FCD249 /* Resource.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 044F2E591FC2C93B00FCD249 /* Resource.bundle */; };
-		044F2E641FC2C93B00FCD249 /* UDIDSDK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 044F2E5E1FC2C93B00FCD249 /* UDIDSDK.a */; };
 		044F2E681FC2CCC800FCD249 /* AlipaySDK.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 044F2E661FC2CCC700FCD249 /* AlipaySDK.bundle */; };
 		044F2E691FC2CCC800FCD249 /* AlipaySDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 044F2E671FC2CCC700FCD249 /* AlipaySDK.framework */; };
 		044F2E6B1FC2D3B400FCD249 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 044F2E6A1FC2D38300FCD249 /* CFNetwork.framework */; };
@@ -126,6 +123,9 @@
 		0494C6EF1FCD40E600FE3817 /* ProductModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 0494C6EE1FCD40E600FE3817 /* ProductModel.m */; };
 		0494C6F21FCD5CA500FE3817 /* XRootWebVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 0494C6F11FCD5CA500FE3817 /* XRootWebVC.m */; };
 		0494C6F51FCD7B3000FE3817 /* ProductListModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 0494C6F41FCD7B3000FE3817 /* ProductListModel.m */; };
+		04ADBB642006FB5400A8A764 /* opencv2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04ADBB5D2006FB5400A8A764 /* opencv2.framework */; };
+		04ADBB652006FB5400A8A764 /* Resource.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 04ADBB5E2006FB5400A8A764 /* Resource.bundle */; };
+		04ADBB662006FB5400A8A764 /* UDIDSDK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 04ADBB632006FB5400A8A764 /* UDIDSDK.a */; };
 		04D05E5F1FC7C27C00677647 /* IdCardModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 04D05E5E1FC7C27C00677647 /* IdCardModel.m */; };
 		04D05E621FC7CB8A00677647 /* ZMAuthorizeQryModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 04D05E611FC7CB8A00677647 /* ZMAuthorizeQryModel.m */; };
 		04D05E651FC7FC7900677647 /* CreditInfoModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 04D05E641FC7FC7900677647 /* CreditInfoModel.m */; };
@@ -282,13 +282,6 @@
 		044F2E541FC2C93B00FCD249 /* H5Service.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = H5Service.bundle; sourceTree = "<group>"; };
 		044F2E551FC2C93B00FCD249 /* Poseidon.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Poseidon.bundle; sourceTree = "<group>"; };
 		044F2E561FC2C93B00FCD249 /* ZMCreditSDK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = ZMCreditSDK.framework; sourceTree = "<group>"; };
-		044F2E581FC2C93B00FCD249 /* opencv2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = opencv2.framework; sourceTree = "<group>"; };
-		044F2E591FC2C93B00FCD249 /* Resource.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Resource.bundle; sourceTree = "<group>"; };
-		044F2E5A1FC2C93B00FCD249 /* UDIDSafeAuthEngine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UDIDSafeAuthEngine.h; sourceTree = "<group>"; };
-		044F2E5B1FC2C93B00FCD249 /* UDIDSafeDataDefine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UDIDSafeDataDefine.h; sourceTree = "<group>"; };
-		044F2E5C1FC2C93B00FCD249 /* UDIDSafeOCREngine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UDIDSafeOCREngine.h; sourceTree = "<group>"; };
-		044F2E5D1FC2C93B00FCD249 /* UDIDSafeVideoRecodeEngine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UDIDSafeVideoRecodeEngine.h; sourceTree = "<group>"; };
-		044F2E5E1FC2C93B00FCD249 /* UDIDSDK.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = UDIDSDK.a; sourceTree = "<group>"; };
 		044F2E661FC2CCC700FCD249 /* AlipaySDK.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = AlipaySDK.bundle; sourceTree = "<group>"; };
 		044F2E671FC2CCC700FCD249 /* AlipaySDK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = AlipaySDK.framework; sourceTree = "<group>"; };
 		044F2E6A1FC2D38300FCD249 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
@@ -393,6 +386,13 @@
 		0494C6F11FCD5CA500FE3817 /* XRootWebVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = XRootWebVC.m; sourceTree = "<group>"; };
 		0494C6F31FCD7B3000FE3817 /* ProductListModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ProductListModel.h; sourceTree = "<group>"; };
 		0494C6F41FCD7B3000FE3817 /* ProductListModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ProductListModel.m; sourceTree = "<group>"; };
+		04ADBB5D2006FB5400A8A764 /* opencv2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = opencv2.framework; sourceTree = "<group>"; };
+		04ADBB5E2006FB5400A8A764 /* Resource.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Resource.bundle; sourceTree = "<group>"; };
+		04ADBB5F2006FB5400A8A764 /* UDIDSafeAuthEngine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UDIDSafeAuthEngine.h; sourceTree = "<group>"; };
+		04ADBB602006FB5400A8A764 /* UDIDSafeDataDefine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UDIDSafeDataDefine.h; sourceTree = "<group>"; };
+		04ADBB612006FB5400A8A764 /* UDIDSafeOCREngine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UDIDSafeOCREngine.h; sourceTree = "<group>"; };
+		04ADBB622006FB5400A8A764 /* UDIDSafeVideoRecodeEngine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UDIDSafeVideoRecodeEngine.h; sourceTree = "<group>"; };
+		04ADBB632006FB5400A8A764 /* UDIDSDK.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = UDIDSDK.a; sourceTree = "<group>"; };
 		04D05E5D1FC7C27C00677647 /* IdCardModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IdCardModel.h; sourceTree = "<group>"; };
 		04D05E5E1FC7C27C00677647 /* IdCardModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IdCardModel.m; sourceTree = "<group>"; };
 		04D05E601FC7CB8A00677647 /* ZMAuthorizeQryModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZMAuthorizeQryModel.h; sourceTree = "<group>"; };
@@ -494,6 +494,7 @@
 				044F2E6D1FC2D3E100FCD249 /* MessageUI.framework in Frameworks */,
 				044F2E6B1FC2D3B400FCD249 /* CFNetwork.framework in Frameworks */,
 				04ED3E8D1FA9A228008C9FDE /* UIKit.framework in Frameworks */,
+				04ADBB662006FB5400A8A764 /* UDIDSDK.a in Frameworks */,
 				04ED3E8B1FA9A21F008C9FDE /* SystemConfiguration.framework in Frameworks */,
 				040A6FA31FDBDCEC001C2C65 /* libTalkingData.a in Frameworks */,
 				04ED3E891FA9A218008C9FDE /* Security.framework in Frameworks */,
@@ -501,9 +502,8 @@
 				044F2E751FC2D43800FCD249 /* libz.tbd in Frameworks */,
 				044F2E611FC2C93B00FCD249 /* ZMCreditSDK.framework in Frameworks */,
 				04ED3E851FA9A209008C9FDE /* MobileCoreServices.framework in Frameworks */,
-				044F2E621FC2C93B00FCD249 /* opencv2.framework in Frameworks */,
+				04ADBB642006FB5400A8A764 /* opencv2.framework in Frameworks */,
 				044F2E691FC2CCC800FCD249 /* AlipaySDK.framework in Frameworks */,
-				044F2E641FC2C93B00FCD249 /* UDIDSDK.a in Frameworks */,
 				04ED3E831FA9A1D8008C9FDE /* ImageIO.framework in Frameworks */,
 				04ED3E811FA9A1CF008C9FDE /* Foundation.framework in Frameworks */,
 				04ED3E7F1FA9A1C3008C9FDE /* CoreGraphics.framework in Frameworks */,
@@ -676,7 +676,6 @@
 			isa = PBXGroup;
 			children = (
 				0426006F1FB4314D0037954D /* Model */,
-				0426006E1FB431470037954D /* UIview */,
 				0426006D1FB431400037954D /* Controller */,
 			);
 			path = Thrid;
@@ -820,13 +819,6 @@
 				042600801FB432070037954D /* InformationViewController.m */,
 			);
 			path = Controller;
-			sourceTree = "<group>";
-		};
-		0426006E1FB431470037954D /* UIview */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = UIview;
 			sourceTree = "<group>";
 		};
 		0426006F1FB4314D0037954D /* Model */ = {
@@ -974,20 +966,6 @@
 			path = ZMCredit;
 			sourceTree = "<group>";
 		};
-		044F2E571FC2C93B00FCD249 /* UDSecurity */ = {
-			isa = PBXGroup;
-			children = (
-				044F2E581FC2C93B00FCD249 /* opencv2.framework */,
-				044F2E591FC2C93B00FCD249 /* Resource.bundle */,
-				044F2E5A1FC2C93B00FCD249 /* UDIDSafeAuthEngine.h */,
-				044F2E5B1FC2C93B00FCD249 /* UDIDSafeDataDefine.h */,
-				044F2E5C1FC2C93B00FCD249 /* UDIDSafeOCREngine.h */,
-				044F2E5D1FC2C93B00FCD249 /* UDIDSafeVideoRecodeEngine.h */,
-				044F2E5E1FC2C93B00FCD249 /* UDIDSDK.a */,
-			);
-			path = UDSecurity;
-			sourceTree = "<group>";
-		};
 		044F2E651FC2CCC700FCD249 /* AliPay */ = {
 			isa = PBXGroup;
 			children = (
@@ -1115,15 +1093,29 @@
 			path = Model;
 			sourceTree = "<group>";
 		};
+		04ADBB5C2006FB5400A8A764 /* UDSecurity */ = {
+			isa = PBXGroup;
+			children = (
+				04ADBB5D2006FB5400A8A764 /* opencv2.framework */,
+				04ADBB5E2006FB5400A8A764 /* Resource.bundle */,
+				04ADBB5F2006FB5400A8A764 /* UDIDSafeAuthEngine.h */,
+				04ADBB602006FB5400A8A764 /* UDIDSafeDataDefine.h */,
+				04ADBB612006FB5400A8A764 /* UDIDSafeOCREngine.h */,
+				04ADBB622006FB5400A8A764 /* UDIDSafeVideoRecodeEngine.h */,
+				04ADBB632006FB5400A8A764 /* UDIDSDK.a */,
+			);
+			path = UDSecurity;
+			sourceTree = "<group>";
+		};
 		04EBA75C1FBD4358008218F3 /* ToolKit */ = {
 			isa = PBXGroup;
 			children = (
+				04ADBB5C2006FB5400A8A764 /* UDSecurity */,
 				040A6F9E1FDBDCEB001C2C65 /* TalkingData */,
 				045FC32D1FD7BBC6007054A0 /* Iconfont */,
 				042338D51FD536BA007754D6 /* ProgressRolling */,
 				04799C4B1FCFA6D200245F93 /* OCR */,
 				044F2E651FC2CCC700FCD249 /* AliPay */,
-				044F2E571FC2C93B00FCD249 /* UDSecurity */,
 				044F2E531FC2C93B00FCD249 /* ZMCredit */,
 				0422521D1FAB039900324554 /* Security */,
 				0428904B1FB5560A00C7009A /* JSDropDownMenu */,
@@ -1321,7 +1313,7 @@
 				TargetAttributes = {
 					04ED3E431FA99DE8008C9FDE = {
 						CreatedOnToolsVersion = 9.0;
-						ProvisioningStyle = Manual;
+						ProvisioningStyle = Automatic;
 					};
 					04ED3E5E1FA99DE8008C9FDE = {
 						CreatedOnToolsVersion = 9.0;
@@ -1367,7 +1359,6 @@
 				044F2E4E1FC2B58F00FCD249 /* iconfont.ttf in Resources */,
 				04799C841FCFA6D200245F93 /* shot.png in Resources */,
 				048CF37A1FD7DB8100DEA212 /* SciFly-Sans.ttf in Resources */,
-				044F2E631FC2C93B00FCD249 /* Resource.bundle in Resources */,
 				04799C851FCFA6D200245F93 /* shot@2x.png in Resources */,
 				0426008F1FB47E900037954D /* RecommendCell.xib in Resources */,
 				044F2E601FC2C93B00FCD249 /* Poseidon.bundle in Resources */,
@@ -1378,6 +1369,7 @@
 				04799C8D1FCFA6D200245F93 /* touch_focus@2x.png in Resources */,
 				04ED3E571FA99DE8008C9FDE /* LaunchScreen.storyboard in Resources */,
 				040927861FCBEA9000203FC6 /* area.plist in Resources */,
+				04ADBB652006FB5400A8A764 /* Resource.bundle in Resources */,
 				04799C7B1FCFA6D200245F93 /* close_cha_h.png in Resources */,
 				04799C7E1FCFA6D200245F93 /* flashing_auto.png in Resources */,
 				04799C871FCFA6D200245F93 /* shot_h@2x.png in Resources */,
@@ -1746,8 +1738,8 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				CODE_SIGN_STYLE = Manual;
-				DEVELOPMENT_TEAM = "";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = RQY65ND65W;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1782,9 +1774,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
-				CODE_SIGN_STYLE = Manual;
-				DEVELOPMENT_TEAM = EJ59536L25;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = RQY65ND65W;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1807,8 +1799,8 @@
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = com.zyx.QuanWangDai2017;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "a0400a8e-d208-42e6-a892-bdd42698ad33";
-				PROVISIONING_PROFILE_SPECIFIER = quanwangdai_dis;
+				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				TARGETED_DEVICE_FAMILY = 1;
 				VALID_ARCHS = "arm64 armv7 armv7s";
 			};
