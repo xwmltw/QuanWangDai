@@ -10,7 +10,8 @@
 #import "XCountDownButton.h"
 #import "XControllerViewHelper.h"
 #import "ScanningBankDetailVC.h"
-
+#import "AuthorizationView.h"
+#import "XRootWebVC.h"
 typedef NS_ENUM(NSInteger ,AuthenticationBankRequest) {
     AuthenticationBankRequestPostInfo,
     AuthenticationBankRequestMessageCode,
@@ -19,6 +20,10 @@ typedef NS_ENUM(NSInteger ,AuthenticationBankRequest) {
 @interface AuthenticationBankVC ()
 @property (nonatomic ,strong) UILabel *lblLogin;
 @property (nonatomic ,strong) UILabel *textLogin;
+@property (nonatomic,strong)  UIScrollView *scrollView;
+@property (nonatomic,strong)  UIView *bgView;
+@property (nonatomic, strong) ClientGlobalInfoRM *clientGlobalInfoModel;
+@property (nonatomic, strong) AuthorizationView *authView;
 @end
 
 @implementation AuthenticationBankVC
@@ -29,15 +34,11 @@ typedef NS_ENUM(NSInteger ,AuthenticationBankRequest) {
     UITextField *_verificationText;
     XCountDownButton *_getVerificationCodeButton;
     NSDictionary *_bankInfoDict;//银行卡信息
-
-    
-
 }
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.bankInfoModel = [BankInfoModel new];
     [self setUI];
-
     
 }
 - (void)viewWillAppear:(BOOL)animated{
@@ -46,37 +47,30 @@ typedef NS_ENUM(NSInteger ,AuthenticationBankRequest) {
         [self setUI];
     }
 }
-//-(void)setBackNavigationBarItem
-//{
-//    UIView *view = [[UIView alloc]initWithFrame:CGRectMake(0, 0, 64, 44)];
-//    view.userInteractionEnabled = YES;
-//
-//    UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
-//    button.frame = CGRectMake(0, 0, 150, 44);
-//    button.tag = 9999;
-//    button.titleLabel.font = [UIFont fontWithName:@"PingFangSC-Medium" size:AdaptationWidth(17)];
-//    [button setTitle:@"银行卡认证" forState:UIControlStateNormal];
-//    [button setTitleColor:XColorWithRBBA(34, 58, 80, 0.8) forState:UIControlStateNormal];
-//    [button setImage:[UIImage imageNamed:@"btn_back"] forState:UIControlStateNormal];\
-//    button.titleEdgeInsets = UIEdgeInsetsMake(0, AdaptationWidth(28), 0, -AdaptationWidth(28));
-//    [button addTarget:self action:@selector(BarbuttonClick:) forControlEvents:UIControlEventTouchUpInside];
-//    [view addSubview:button];
-//    UIBarButtonItem *item = [[UIBarButtonItem alloc]initWithCustomView:view];
-//    self.navigationItem.leftBarButtonItem = item;
-//}
 
 - (void)setUI{
+    
+    self.scrollView = [[UIScrollView alloc]init];
+    self.scrollView.backgroundColor = [UIColor clearColor];
+    self.scrollView.contentSize = CGSizeMake(self.view.frame.size.width, self.view.frame.size.height );
+    self.scrollView.directionalLockEnabled  = YES;
+    self.scrollView.showsVerticalScrollIndicator = NO;
+    [self.view addSubview:self.scrollView];
+    [self.scrollView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.edges.mas_equalTo(self.view);
+    }];
+    self.bgView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, self.scrollView.contentSize.width, self.scrollView.contentSize.height)];
+    self.bgView.backgroundColor = [UIColor clearColor];
+    [self.scrollView addSubview:self.bgView];
     
     self.lblLogin = [[UILabel alloc]init];
     [self.lblLogin setText:@"银行卡认证"];
     [self.lblLogin setFont:[UIFont fontWithName:@"PingFangSC-Medium" size:30]];
     [self.lblLogin setTextColor:XColorWithRBBA(34, 58, 80, 0.8)];
-    [self.view addSubview:self.lblLogin];
-    
+    [self.bgView addSubview:self.lblLogin];
     [self.lblLogin mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.mas_equalTo(self.view).offset(AdaptationWidth(16));
-        make.left.mas_equalTo(self.view).offset(AdaptationWidth(24));
-//        make.height.mas_equalTo(AdaptationWidth(42));
+        make.top.mas_equalTo(self.bgView).offset(AdaptationWidth(16));
+        make.left.mas_equalTo(self.bgView).offset(AdaptationWidth(24));
     }];
     
     self.textLogin = [[UILabel alloc]init];
@@ -84,15 +78,13 @@ typedef NS_ENUM(NSInteger ,AuthenticationBankRequest) {
     self.textLogin.numberOfLines = 2;
     [self.textLogin setFont:[UIFont fontWithName:@"PingFangSC-Light" size:16]];
     [self.textLogin setTextColor:XColorWithRBBA(34, 58, 80, 0.8)];
-    [self.view addSubview:self.textLogin];
+    [self.scrollView addSubview:self.textLogin];
     [self.textLogin mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.mas_equalTo(self.lblLogin.mas_bottom).offset(AdaptationWidth(8));
-        make.left.mas_equalTo(self.view).offset(AdaptationWidth(24));
-        make.right.mas_equalTo(self.view).offset(-AdaptationWidth(24));
+        make.left.mas_equalTo(self.bgView).offset(AdaptationWidth(24));
+        make.right.mas_equalTo(self.bgView).offset(-AdaptationWidth(24));
     }];
 
-    
-    
     [self creatTextField];
 }
 - (void)creatTextField{
@@ -100,29 +92,28 @@ typedef NS_ENUM(NSInteger ,AuthenticationBankRequest) {
     [bankInfo setText:@"银行信息"];
     [bankInfo setTextColor:XColorWithRBBA(34, 58, 80, 0.8)];
     [bankInfo setFont:[UIFont systemFontOfSize:AdaptationWidth(14)]];
-    [self.view addSubview:bankInfo];
+    [self.bgView addSubview:bankInfo];
     
     bankNume = [[UILabel alloc]init];
     [bankNume setText:@"点击扫描您的银行卡"];
     [bankNume setTextColor:XColorWithRBBA(34, 58, 80, 0.8)];
     [bankNume setFont:[UIFont fontWithName:@"PingFangSC-Regular" size:AdaptationWidth(18)]];
-    [self.view addSubview:bankNume];
+    [self.bgView addSubview:bankNume];
     
-    
-    
+
     UIButton *btn = [[UIButton alloc]init];
     [btn  addTarget:self action:@selector(btnOnClick:) forControlEvents:UIControlEventTouchUpInside];
     [btn setImage:[UIImage imageNamed:@"credit_Scan"] forState:UIControlStateNormal];
-    [self.view addSubview:btn];
+    [self.bgView addSubview:btn];
     
     UIButton *btn2 = [[UIButton alloc]init];
     [btn2 setBackgroundImage:[XControllerViewHelper imageWithColor:XColorWithRBBA(248, 249, 250, 0.4)] forState:UIControlStateHighlighted];
     [btn2  addTarget:self action:@selector(btnOnClick:) forControlEvents:UIControlEventTouchUpInside];
-    [self.view addSubview:btn2];
+    [self.bgView addSubview:btn2];
     
     UIView *line = [[UIView alloc]init];
     line.backgroundColor = XColorWithRGB(233, 233, 235);
-    [self.view addSubview:line];
+    [self.bgView addSubview:line];
     
     _bankTextAccount = [[UITextField alloc]init];
     [_bankTextAccount setTextColor:XColorWithRGB(35, 58, 80)];
@@ -136,36 +127,36 @@ typedef NS_ENUM(NSInteger ,AuthenticationBankRequest) {
     _bankTextAccount.enabled = NO;
     _bankTextAccount.font = [UIFont systemFontOfSize:AdaptationWidth(18)];
 
-    [self.view addSubview:_bankTextAccount];
+    [self.bgView addSubview:_bankTextAccount];
     
     UILabel *lalPhone = [[UILabel alloc]init];
     [lalPhone setText:@"开户银行及卡号"];
     [lalPhone setTextColor:XColorWithRBBA(34, 58, 80, 0.8)];
     [lalPhone setFont:[UIFont systemFontOfSize:AdaptationWidth(14)]];
-    [self.view addSubview:lalPhone];
+    [self.bgView addSubview:lalPhone];
     
     
     UIView *lineView = [[UIView alloc]init];
     lineView.backgroundColor = XColorWithRGB(233, 233, 235);
-    [self.view addSubview:lineView];
+    [self.bgView addSubview:lineView];
     UIView *lineView2 = [[UIView alloc]init];
     lineView2.backgroundColor = XColorWithRGB(233, 233, 235);
-    [self.view addSubview:lineView2];
+    [self.bgView addSubview:lineView2];
     UIView *lineView3 = [[UIView alloc]init];
     lineView3.backgroundColor = XColorWithRGB(233, 233, 235);
-    [self.view addSubview:lineView3];
+    [self.bgView addSubview:lineView3];
     
     UILabel *lalVerification = [[UILabel alloc]init];
     [lalVerification setText:@"验证码"];
     [lalVerification setTextColor:XColorWithRBBA(34, 58, 80, 0.8)];
     [lalVerification setFont:[UIFont systemFontOfSize:AdaptationWidth(14)]];
-    [self.view addSubview:lalVerification];
+    [self.bgView addSubview:lalVerification];
     
     UILabel *lalPwd = [[UILabel alloc]init];
     [lalPwd setText:@"手机号"];
     [lalPwd setTextColor:XColorWithRBBA(34, 58, 80, 0.8)];
     [lalPwd setFont:[UIFont systemFontOfSize:AdaptationWidth(14)]];
-    [self.view addSubview:lalPwd];
+    [self.bgView addSubview:lalPwd];
     
     _verificationText = [[UITextField alloc]init];
     _verificationText.backgroundColor = [UIColor whiteColor];
@@ -175,7 +166,7 @@ typedef NS_ENUM(NSInteger ,AuthenticationBankRequest) {
 //    [_verificationText addTarget:self action:@selector(textFieldDidChange:) forControlEvents:UIControlEventEditingChanged];
     _verificationText.keyboardType = UIKeyboardTypeNumberPad;
     _verificationText.tag = 4;
-    [self.view addSubview:_verificationText];
+    [self.bgView addSubview:_verificationText];
     
     _getVerificationCodeButton = [XCountDownButton buttonWithType:UIButtonTypeCustom];
     _getVerificationCodeButton.frame = CGRectMake(0, 0, AdaptationWidth(94), AdaptationWidth(43));
@@ -197,7 +188,12 @@ typedef NS_ENUM(NSInteger ,AuthenticationBankRequest) {
     _phoneTextAccount.font = [UIFont systemFontOfSize:AdaptationWidth(18)];
     _phoneTextAccount.tag = 2;
     [_phoneTextAccount addTarget:self action:@selector(textFieldDidChange:) forControlEvents:UIControlEventEditingChanged];
-    [self.view addSubview:_phoneTextAccount];
+    [self.bgView addSubview:_phoneTextAccount];
+    
+    self.authView = [[AuthorizationView alloc]init];
+    [self.authView.AgreementBtn addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchUpInside];
+    [self.authView.TickBtn addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchUpInside];
+    [self.bgView addSubview:self.authView];
     
     UIButton *registerButton = [UIButton buttonWithType:UIButtonTypeCustom];
     registerButton.layer.cornerRadius = AdaptationWidth(4);
@@ -209,27 +205,27 @@ typedef NS_ENUM(NSInteger ,AuthenticationBankRequest) {
     registerButton.titleLabel.font = [UIFont systemFontOfSize:AdaptationWidth(18)];
     registerButton.tag = 300;
     [registerButton addTarget:self action:@selector(onButtonClick:) forControlEvents:UIControlEventTouchUpInside];
-    [self.view addSubview:registerButton];
+    [self.bgView addSubview:registerButton];
     
     
     [bankInfo mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.mas_equalTo(self.view).offset(AdaptationWidth(24));
+        make.left.mas_equalTo(self.bgView).offset(AdaptationWidth(24));
         make.top.mas_equalTo(self.textLogin.mas_bottom).offset(AdaptationWidth(32));
     }];
     [bankNume mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.mas_equalTo(self.view).offset(AdaptationWidth(24));
+        make.left.mas_equalTo(self.bgView).offset(AdaptationWidth(24));
         make.top.mas_equalTo(bankInfo.mas_bottom).offset(8);
         make.height.mas_equalTo(AdaptationWidth(30));
     }];
     [btn mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.right.mas_equalTo(self.view).offset(-AdaptationWidth(24));
+        make.right.mas_equalTo(self.bgView).offset(-AdaptationWidth(24));
         make.centerY.mas_equalTo(bankNume);
         make.width.height.mas_equalTo(AdaptationWidth(28));
     }];
     [btn2 mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.mas_equalTo(bankInfo.mas_bottom).offset(8);
-        make.left.mas_equalTo(self.view).offset(AdaptationWidth(24));
-        make.right.mas_equalTo(self.view).offset(-AdaptationWidth(24));
+        make.left.mas_equalTo(self.bgView).offset(AdaptationWidth(24));
+        make.right.mas_equalTo(self.bgView).offset(-AdaptationWidth(24));
         make.height.mas_equalTo(AdaptationWidth(45));
     }];
     [line mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -238,13 +234,13 @@ typedef NS_ENUM(NSInteger ,AuthenticationBankRequest) {
         make.height.mas_equalTo(0.5);
     }];
     [lalPhone mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.mas_equalTo(self.view).offset(AdaptationWidth(24));
+        make.left.mas_equalTo(self.bgView).offset(AdaptationWidth(24));
         make.top.mas_equalTo(line.mas_bottom).offset(AdaptationWidth(15));
     }];
     [_bankTextAccount mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.mas_equalTo(lalPhone.mas_bottom).offset(8);
         make.left.mas_equalTo(lalPhone);
-        make.right.mas_equalTo(self.view).offset(-AdaptationWidth(24));
+        make.right.mas_equalTo(self.bgView).offset(-AdaptationWidth(24));
         make.height.mas_equalTo(AdaptationWidth(30));
     }];
     [lineView mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -260,7 +256,7 @@ typedef NS_ENUM(NSInteger ,AuthenticationBankRequest) {
     [_phoneTextAccount mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.mas_equalTo(lalPwd.mas_bottom).offset(8);
         make.left.mas_equalTo(lalPwd);
-        make.right.mas_equalTo(self.view).offset(-AdaptationWidth(24));
+        make.right.mas_equalTo(self.bgView).offset(-AdaptationWidth(24));
         make.height.mas_equalTo(30);
     }];
     [lineView3 mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -275,7 +271,7 @@ typedef NS_ENUM(NSInteger ,AuthenticationBankRequest) {
     [_verificationText mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.mas_equalTo(lalVerification.mas_bottom).offset(8);
         make.left.mas_equalTo(lalVerification);
-        make.right.mas_equalTo(self.view).offset(-AdaptationWidth(24));
+        make.right.mas_equalTo(self.bgView).offset(-AdaptationWidth(24));
         make.height.mas_equalTo(AdaptationWidth(30));
     }];
     [lineView2 mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -283,8 +279,15 @@ typedef NS_ENUM(NSInteger ,AuthenticationBankRequest) {
         make.left.right.mas_equalTo(_verificationText);
         make.height.mas_equalTo(0.5);
     }];
-    [registerButton mas_makeConstraints:^(MASConstraintMaker *make) {
+    
+    [self.authView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.mas_equalTo(self.bgView);
+        make.right.mas_equalTo(self.bgView);
         make.top.mas_equalTo(lineView2.mas_bottom).offset(AdaptationWidth(16));
+        make.height.mas_equalTo(AdaptationWidth(68));
+    }];
+    [registerButton mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.mas_equalTo(self.authView.mas_bottom);
         make.left.right.mas_equalTo(lineView2);
         make.height.mas_equalTo(AdaptationWidth(50));
     }];
@@ -303,6 +306,10 @@ typedef NS_ENUM(NSInteger ,AuthenticationBankRequest) {
         [self setHudWithName:@"请输入短信验证码" Time:0.5 andType:1];
         return;
     }
+    if (!self.authView.AgreementBtn.selected) {
+        [XAlertView alertWithTitle:@"温馨提示" message:@"请您认真阅读《全网贷个人信息收集授权书》，若无异议请先勾选“我已同意《全网贷个人信息收集授权书》”，再重新提交资料" cancelButtonTitle:nil confirmButtonTitle:@"知道了" viewController:self completion:^(UIAlertAction *action, NSInteger buttonIndex) {}];
+        return;
+    }
     _bankInfoModel.phone = _phoneTextAccount.text;
     _bankInfoModel.sms_authentication_code = _verificationText.text;
     [self prepareDataWithCount:AuthenticationBankRequestPostInfo];
@@ -310,6 +317,25 @@ typedef NS_ENUM(NSInteger ,AuthenticationBankRequest) {
 - (void)getVerificationCodeClick:(XCountDownButton *)sender{
     [self beginCountDown];
     [self prepareDataWithCount:AuthenticationBankRequestMessageCode];
+}
+-(void)buttonClick:(UIButton*)button{
+    switch (button.tag) {
+        case AuthorizationBtnOnClickAgreement:
+        {
+            XRootWebVC *vc = [[XRootWebVC alloc]init];
+            vc.url = self.clientGlobalInfoModel.wap_url_list.collect_info_grant_authorization_url;
+            [self.navigationController pushViewController:vc animated:YES];
+        }
+            break;
+        case AuthorizationBtnOnClickTick:
+            button.selected = !button.selected;
+            self.authView.AgreementBtn.selected = button.selected;
+            //            NSLog(@"按钮");
+            break;
+            
+        default:
+            break;
+    }
 }
 #pragma mark - NSTimer
 - (void)beginCountDown
@@ -422,7 +448,12 @@ typedef NS_ENUM(NSInteger ,AuthenticationBankRequest) {
             break;
     }
 }
-
+-(ClientGlobalInfoRM *)clientGlobalInfoModel{
+    if (!_clientGlobalInfoModel) {
+        _clientGlobalInfoModel = [ClientGlobalInfoRM getClientGlobalInfoModel];
+    }
+    return _clientGlobalInfoModel;
+}
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.

@@ -25,7 +25,7 @@
 #import "CertifiedBankVC.h"
 #import "PlatformViewController.h"
 #import "WorkInfoVC.h"
-
+#import "ApplicantManVC.h"
 typedef NS_ENUM(NSInteger, SectionType) {
     SectionInfo,
     SectionChannel,
@@ -70,8 +70,7 @@ typedef NS_ENUM(NSInteger ,CreditRequest) {
 
     
 }
--(void)Refresh
-{
+-(void)Refresh{
     [self prepareDataWithCount:CreditRequestDetailInfo];
 }
 - (void)viewWillAppear:(BOOL)animated{
@@ -95,9 +94,9 @@ typedef NS_ENUM(NSInteger ,CreditRequest) {
     self.borrowDic = @{@"name":@[@"身份认证",@"芝麻信用认证",@"基本信息认证",@"运营商认证"],@"image":@[@"myData_identity",@"myData_ZMXY",@"myData_baseInfo",@"myData_YYS"],@"selectedimage":@[@"iconCardInfoP",@"iconZhimaInfoP",@"iconBaseInfoP",@"iconOperatorInfoP"]};
     
     if (self.clientGlobalInfoRM.recomment_entry_hide.integerValue == 1) {
-        self.improveDic = @{@"name":@[@"银行卡",@"工作信息"],@"image":@[@"myData_bank",@"myData_workInfo"],@"selectedimage":@[@"iconBankInfoP",@"iconWorkInfoP"]};
+        self.improveDic = @{@"name":@[@"银行卡",@"工作信息",@"申请人资质"],@"image":@[@"myData_bank",@"myData_workInfo",@"iconAuthorizationP"],@"selectedimage":@[@"iconBankInfoP",@"iconWorkInfoP",@"iconIdInfoP"]};
     }else{
-        self.improveDic = @{@"name":@[@"银行卡",@"借贷平台信息",@"工作信息"],@"image":@[@"myData_bank",@"myData_JieDaiInfo",@"myData_workInfo"],@"selectedimage":@[@"iconBankInfoP",@"iconLoanPlatformP",@"iconWorkInfoP"]};
+        self.improveDic = @{@"name":@[@"银行卡",@"借贷平台信息",@"工作信息",@"申请人资质"],@"image":@[@"myData_bank",@"myData_JieDaiInfo",@"myData_workInfo",@"iconAuthorizationP"],@"selectedimage":@[@"iconBankInfoP",@"iconLoanPlatformP",@"iconWorkInfoP",@"iconIdInfoP"]};
     }
 }
 
@@ -145,9 +144,9 @@ typedef NS_ENUM(NSInteger ,CreditRequest) {
             break;
         case SectionImprove:
             if (self.clientGlobalInfoRM.recomment_entry_hide.integerValue == 1){
-               count = 2;
-            }else{
                count = 3;
+            }else{
+               count = 4;
             }
             
             break;
@@ -264,6 +263,7 @@ typedef NS_ENUM(NSInteger ,CreditRequest) {
             case 2:{
                 if (creditModel.identity_status.integerValue == 1) {
                     BaseInfoVC *vc = [[BaseInfoVC alloc]init];
+                    vc.creditInfoModel = creditModel;
                     vc.hidesBottomBarWhenPushed = YES;
                     [self.navigationController pushViewController:vc animated:YES];
                 } else {
@@ -276,6 +276,7 @@ typedef NS_ENUM(NSInteger ,CreditRequest) {
                 if (creditModel.identity_status.integerValue == 1) {
                     if (creditModel.base_info_status.integerValue == 1) {
                         OperatorAuthenticationVC *vc = [[OperatorAuthenticationVC alloc]init];
+                        vc.creditInfoModel = creditModel;
                         vc.hidesBottomBarWhenPushed = YES;
                         [self.navigationController pushViewController:vc animated:YES];
                     }else{
@@ -310,6 +311,7 @@ typedef NS_ENUM(NSInteger ,CreditRequest) {
                 case 1:{
                     if (self.clientGlobalInfoRM.recomment_entry_hide.integerValue == 1){
                         WorkInfoVC *vc = [[WorkInfoVC alloc]init];
+                        vc.creditInfoModel = creditModel;
                         vc.hidesBottomBarWhenPushed = YES;
                         [self.navigationController pushViewController:vc animated:YES];
                     }else{
@@ -321,11 +323,25 @@ typedef NS_ENUM(NSInteger ,CreditRequest) {
                     
                     break;
                 case 2:{
-                    WorkInfoVC *vc = [[WorkInfoVC alloc]init];
+                    if (self.clientGlobalInfoRM.recomment_entry_hide.integerValue == 1){
+                        ApplicantManVC *vc = [[ApplicantManVC alloc]init];
+                        vc.creditInfoModel = creditModel;
+                        vc.hidesBottomBarWhenPushed = YES;
+                        [self.navigationController pushViewController:vc animated:YES];
+                    }else{
+                        WorkInfoVC *vc = [[WorkInfoVC alloc]init];
+                        vc.creditInfoModel = creditModel;
+                        vc.hidesBottomBarWhenPushed = YES;
+                        [self.navigationController pushViewController:vc animated:YES];
+                    }
+                }
+                    break;
+                case 3:{
+                    ApplicantManVC *vc = [[ApplicantManVC alloc]init];
+                    vc.creditInfoModel = creditModel;
                     vc.hidesBottomBarWhenPushed = YES;
                     [self.navigationController pushViewController:vc animated:YES];
                 }
-                    
                     break;
                     
                 default:

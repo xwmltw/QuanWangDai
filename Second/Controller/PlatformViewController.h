@@ -7,7 +7,5 @@
 //
 
 #import "XBaseViewController.h"
-
 @interface PlatformViewController : XBaseViewController
-
 @end

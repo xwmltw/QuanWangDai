@@ -11,10 +11,13 @@
 #import "RecommendTableViewCell.h"
 #import "ProductDetailVC.h"
 #import "ProductListModel.h"
+#import "LoanTypeInfo.h"
 
 typedef NS_ENUM(NSInteger ,AllDKViewRequest) {
     AllDKViewRequestProductList,
     AllDKViewRequestProductDetail,
+    AllDKViewRequestProductType,
+    AllDKViewRequestSpecialEntry,
 };
 @interface AllDKViewController ()<JSDropDownMenuDelegate,JSDropDownMenuDataSource>
 @property (nonatomic ,strong) JSDropDownMenu *dropDownMenu;
@@ -22,19 +25,23 @@ typedef NS_ENUM(NSInteger ,AllDKViewRequest) {
 @property (nonatomic ,strong) QueryParamModel *queryParamModel;
 @property (nonatomic ,strong) RecommendTableViewCell *cell;
 @property (nonatomic ,strong) JSIndexPath *jsIndexPath;
+@property (nonatomic ,strong) LoanTypeInfo *loanTypeInfo;
 @end
 
 @implementation AllDKViewController
 {
-    NSMutableArray *typeArry,*quotaArry,*dateArry,*sortArry;
-//    NSInteger typeIndex,quotaIndex,dataIndex,sortIndex;
+    NSMutableArray *typeArry,*quotaArry,*dateArry,*sortArry,*titleArry;
+    NSArray *specialArry;
     BOOL tpyeSelect,quotaSelect,dataSelect,sortSelect;
 }
 - (void)viewWillAppear:(BOOL)animated{
     if (self.typeIndex == 3 || self.typeIndex == 4) {
         self.productListModel.loan_pro_type = @(self.typeIndex);
     }
-    [self prepareDataWithCount:AllDKViewRequestProductList];
+    
+    [self prepareDataWithCount:AllDKViewRequestProductType];
+
+    
     [self.navigationController setNavigationBarHidden:NO animated:NO];
 }
 - (void)viewDidLoad {
@@ -43,7 +50,6 @@ typedef NS_ENUM(NSInteger ,AllDKViewRequest) {
     //talkingdata
     [TalkingData trackEvent:@"【贷款大全】页"];
     
-    [self setData];
     [self createTableViewWithFrame:CGRectZero];
     [self.tableView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.mas_equalTo(self.view).offset(45);
@@ -51,7 +57,7 @@ typedef NS_ENUM(NSInteger ,AllDKViewRequest) {
     }];
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     self.tableView.mj_footer.hidden = NO;
-    [self.view addSubview:self.dropDownMenu];
+    
     
 }
 
@@ -64,9 +70,13 @@ typedef NS_ENUM(NSInteger ,AllDKViewRequest) {
     button.frame = CGRectMake(0, 0, 104, 44);
     button.tag = 9999;
     button.titleLabel.font = [UIFont fontWithName:@"PingFangSC-Medium" size:AdaptationWidth(17)];
-    [button setTitle:@"贷款大全" forState:UIControlStateNormal];
+    if (self.titleStr.length) {
+        [button setTitle:self.titleStr forState:UIControlStateNormal];
+    }else{
+        [button setTitle:@"贷款大全" forState:UIControlStateNormal];
+    }
     [button setTitleColor:XColorWithRBBA(34, 58, 80, 0.8) forState:UIControlStateNormal];
-    [button setImage:[UIImage imageNamed:@"btn_back"] forState:UIControlStateNormal];\
+    [button setImage:[UIImage imageNamed:@"btn_back"] forState:UIControlStateNormal];
     button.titleEdgeInsets = UIEdgeInsetsMake(0, AdaptationWidth(28), 0, -AdaptationWidth(28));
     [button addTarget:self action:@selector(BarbuttonClick:) forControlEvents:UIControlEventTouchUpInside];
     [view addSubview:button];
@@ -78,10 +88,36 @@ typedef NS_ENUM(NSInteger ,AllDKViewRequest) {
     self.navigationItem.leftBarButtonItem = item;
 }
 - (void)setData{
-    typeArry = [NSMutableArray arrayWithObjects:@"不限",@"低息贷款",@"分期借贷",@"小额速贷",@"一定能贷", nil];
+    typeArry = [NSMutableArray array];
+    if (self.loan_product_type.integerValue) {//特色入口贷款类型id
+        if (self.loan_classify_ids_str.length) {
+            specialArry = [self.loan_classify_ids_str componentsSeparatedByString:@","];
+            [self.loanTypeInfo.loan_classify_list enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                for (int i = 0; specialArry.count > i; i++) {
+                    if ([specialArry[i] isEqualToString:[NSString stringWithFormat:@"%@",obj[@"loan_classify_id"]]]) {
+                        [typeArry addObject:obj];
+                    }
+                }
+            }];
+        }
+        if (typeArry.count > 1) {
+            titleArry = [NSMutableArray arrayWithObjects:@"贷款类型",@"可贷额度",@"借款期限",@"排序", nil];
+        }else{
+            titleArry = [NSMutableArray arrayWithObjects:@"可贷额度",@"借款期限",@"排序", nil];
+        }
+    }else{
+        typeArry = [NSMutableArray arrayWithArray:self.loanTypeInfo.loan_classify_list];
+        if (typeArry.count > 1) {
+            titleArry = [NSMutableArray arrayWithObjects:@"贷款类型",@"可贷额度",@"借款期限",@"排序", nil];
+        }else{
+            titleArry = [NSMutableArray arrayWithObjects:@"可贷额度",@"借款期限",@"排序", nil];
+        }
+    }
+
     quotaArry = [NSMutableArray arrayWithObjects:@"不限",@"2000元以下",@"2001~5000元",@"5001~10000元",@"10001~50000元",@"50001元以上", nil];
     dateArry = [NSMutableArray arrayWithObjects:@"不限",@"1个月内",@"1~6个月",@"6~12个月",@"超过12个月", nil];
     sortArry = [NSMutableArray arrayWithObjects:@"默认排序",@"贷款利率", nil];
+    [self.view addSubview:self.dropDownMenu];
 }
 #pragma mark - tableView Delegate
 - (UIView *)creatFooterView{
@@ -178,7 +214,12 @@ typedef NS_ENUM(NSInteger ,AllDKViewRequest) {
     return _dropDownMenu;
 }
 - (NSInteger)numberOfColumnsInMenu:(JSDropDownMenu *)menu{
-    return 4;
+    if (titleArry.count > 3) {
+        return 4;
+    }else{
+        return 3;
+    }
+    
 }
 - (BOOL)displayByCollectionViewInColumn:(NSInteger)column{
     
@@ -191,132 +232,210 @@ typedef NS_ENUM(NSInteger ,AllDKViewRequest) {
     return 1;
 }
 - (NSInteger)currentLeftSelectedRow:(NSInteger)column{
-    switch (column) {
-        case 0:
-            return _typeIndex;
-            break;
-        case 1:
-            return _quotaIndex;
-            break;
-        case 2:
-            return _dataIndex;
-            break;
-        case 3:
-            return _sortIndex;
-            break;
+    if (titleArry.count > 3) {
+        switch (column) {
+            case 0:
+                return _typeIndex;
+                break;
+            case 1:
+                return _quotaIndex;
+                break;
+            case 2:
+                return _dataIndex;
+                break;
+            case 3:
+                return _sortIndex;
+                break;
+                
+            default:
+                break;
+        }
+    }else{
+        switch (column) {
             
-        default:
-            break;
+            case 0:
+                return _quotaIndex;
+                break;
+            case 1:
+                return _dataIndex;
+                break;
+            case 2:
+                return _sortIndex;
+                break;
+                
+            default:
+                break;
+        }
     }
     return 0;
 }
 - (NSInteger)menu:(JSDropDownMenu *)menu numberOfRowsInColumn:(NSInteger)column leftOrRight:(NSInteger)leftOrRight leftRow:(NSInteger)leftRow{
-    switch (column) {
-        case 0:
-            return typeArry.count;
-            break;
-        case 1:
-            return quotaArry.count;
-            break;
-        case 2:
-            return dateArry.count;
-            break;
-        case 3:
-            return sortArry.count;
-            break;
-            
-        default:
-            break;
+    if (titleArry.count > 3) {
+        switch (column) {
+            case 0:
+                return typeArry.count;
+                break;
+            case 1:
+                return quotaArry.count;
+                break;
+            case 2:
+                return dateArry.count;
+                break;
+            case 3:
+                return sortArry.count;
+                break;
+                
+            default:
+                break;
+        }
+    }else{
+        switch (column) {
+        
+            case 0:
+                return quotaArry.count;
+                break;
+            case 1:
+                return dateArry.count;
+                break;
+            case 2:
+                return sortArry.count;
+                break;
+                
+            default:
+                break;
+        }
     }
     return 0;
 }
 
 -(NSString *)menu:(JSDropDownMenu *)menu titleForColumn:(NSInteger)column{
-    switch (column) {
-        case 0:
-            return @"贷款类型";
-            break;
-        case 1:
-            return @"可贷额度";
-            break;
-        case 2:
-            return @"借款期限";
-            break;
-        case 3:
-            return @"排序";
-            break;
-            
-        default:
-            break;
-    }
-    return nil;
+    
+    return titleArry[column];
 }
 - (NSString *)menu:(JSDropDownMenu *)menu titleForRowAtIndexPath:(JSIndexPath *)indexPath{
-    switch (indexPath.column) {
-        case 0:
-            return typeArry[indexPath.row];
-            break;
-        case 1:
-            return quotaArry[indexPath.row];
-            break;
-        case 2:
-            return dateArry[indexPath.row];
-            break;
-        case 3:
-            return sortArry[indexPath.row];
-            break;
-            
-        default:
-            break;
+    if (titleArry.count > 3) {
+        switch (indexPath.column) {
+            case 0:
+                return typeArry[indexPath.row][@"loan_classify_name"];
+                break;
+            case 1:
+                return quotaArry[indexPath.row];
+                break;
+            case 2:
+                return dateArry[indexPath.row];
+                break;
+            case 3:
+                return sortArry[indexPath.row];
+                break;
+                
+            default:
+                break;
+        }
+    }else{
+        switch (indexPath.column) {
+            case 0:
+                return quotaArry[indexPath.row];
+                break;
+            case 1:
+                return dateArry[indexPath.row];
+                break;
+            case 2:
+                return sortArry[indexPath.row];
+                break;
+                
+            default:
+                break;
+        }
     }
+    
     return @"xwm";
 }
 - (void)menu:(JSDropDownMenu *)menu didSelectRowAtIndexPath:(JSIndexPath *)indexPath{
-
-    switch (indexPath.column) {
-        case 0:
-            if (indexPath.row == 0) {
-                self.productListModel.loan_pro_type = nil;
-                tpyeSelect = NO;
-            }else{
+    if (titleArry.count > 3) {
+        switch (indexPath.column) {
+            case 0:
+                
                 self.productListModel.loan_pro_type = @(indexPath.row);
+                //                    if (self.special_entry_id.integerValue && self.loan_classify_ids_str.length) {
+                self.productListModel.loan_classify_id = typeArry[indexPath.row][@"loan_classify_id"];
+                //                    }else{
+                //                        self.productListModel.loan_classify_id = self.loanTypeInfo.loan_classify_list[indexPath.row][@"loan_classify_id"];
+                //                    }
                 tpyeSelect = YES;
-            }
-            self.typeIndex = indexPath.row;
-            break;
-        case 1:
-            if (indexPath.row == 0) {
-                quotaSelect = NO;
-                self.productListModel.loan_credit = nil;
-            }else{
-                quotaSelect = YES;
-                self.productListModel.loan_credit = @(indexPath.row);
-            }
-            self.quotaIndex = indexPath.row;
-            break;
-        case 2:
-            if (indexPath.row == 0) {
-                dataSelect = NO;
-                self.productListModel.loan_deadline = nil;
-            }else{
-                dataSelect = YES;
-                self.productListModel.loan_deadline = @(indexPath.row);
-            }
-            self.dataIndex = indexPath.row;
-            break;
-        case 3:
-            if (indexPath.row == 0) {
-                sortSelect = NO;
-                self.productListModel.order_type = nil;
-            }else{
-                sortSelect = YES;
-                self.productListModel.order_type = @(indexPath.row);
-            }
-            self.sortIndex = indexPath.row;
-            break;
-            
-        default:
-            break;
+                
+                self.typeIndex = indexPath.row;
+                break;
+            case 1:
+                if (indexPath.row == 0) {
+                    quotaSelect = NO;
+                    self.productListModel.loan_credit = nil;
+                }else{
+                    quotaSelect = YES;
+                    self.productListModel.loan_credit = @(indexPath.row);
+                }
+                self.quotaIndex = indexPath.row;
+                break;
+            case 2:
+                if (indexPath.row == 0) {
+                    dataSelect = NO;
+                    self.productListModel.loan_deadline = nil;
+                }else{
+                    dataSelect = YES;
+                    self.productListModel.loan_deadline = @(indexPath.row);
+                }
+                self.dataIndex = indexPath.row;
+                break;
+            case 3:
+                if (indexPath.row == 0) {
+                    sortSelect = NO;
+                    self.productListModel.order_type = nil;
+                }else{
+                    sortSelect = YES;
+                    self.productListModel.order_type = @(indexPath.row);
+                }
+                self.sortIndex = indexPath.row;
+                break;
+                
+            default:
+                break;
+        }
+    }else{
+        switch (indexPath.column) {
+                
+            case 0:
+                if (indexPath.row == 0) {
+                    quotaSelect = NO;
+                    self.productListModel.loan_credit = nil;
+                }else{
+                    quotaSelect = YES;
+                    self.productListModel.loan_credit = @(indexPath.row);
+                }
+                self.quotaIndex = indexPath.row;
+                break;
+            case 1:
+                if (indexPath.row == 0) {
+                    dataSelect = NO;
+                    self.productListModel.loan_deadline = nil;
+                }else{
+                    dataSelect = YES;
+                    self.productListModel.loan_deadline = @(indexPath.row);
+                }
+                self.dataIndex = indexPath.row;
+                break;
+            case 2:
+                if (indexPath.row == 0) {
+                    sortSelect = NO;
+                    self.productListModel.order_type = nil;
+                }else{
+                    sortSelect = YES;
+                    self.productListModel.order_type = @(indexPath.row);
+                }
+                self.sortIndex = indexPath.row;
+                break;
+                
+            default:
+                break;
+        }
     }
     [self prepareDataWithCount:AllDKViewRequestProductList];
 }
@@ -329,10 +448,23 @@ typedef NS_ENUM(NSInteger ,AllDKViewRequest) {
             self.productListModel.query_param = self.queryParamModel;
             self.dict = [self.productListModel mj_keyValues];
             break;
-        case AllDKViewRequestProductDetail:{
-            
+        case AllDKViewRequestProductType:{
+            self.cmd = XGetLoanClassifyList;
+            if (self.loanTypeInfo.md5_hash.length) {
+                self.dict = @{@"md5_hash":self.loanTypeInfo.md5_hash};
+            }else{
+                self.dict = @{@"md5_hash":@""};
+            }
         }
             break;
+        case AllDKViewRequestSpecialEntry:{
+            self.cmd = XQuerySpecialEntryLoanProductList;
+            
+            self.dict =@{@"special_entry_id":self.special_entry_id,
+                         @"query_param":[self.queryParamModel mj_keyValues]
+                         };
+        }
+            return;
         default:
             break;
     }
@@ -340,10 +472,37 @@ typedef NS_ENUM(NSInteger ,AllDKViewRequest) {
 - (void)requestSuccessWithDictionary:(XResponse *)response{
     switch (self.requestCount) {
         case AllDKViewRequestProductList:{
-            [self.tableView.mj_footer endRefreshing];
-            if (response.content.count < self.queryParamModel.page_size.intValue) {
-                [self.tableView.mj_footer endRefreshingWithNoMoreData];
+            
+//            if (response.content.count < self.queryParamModel.page_size.intValue) {
+//                [self.tableView.mj_footer resetNoMoreData];
+//            }
+            if (self.dataSourceArr.count) {
+                [self.dataSourceArr removeAllObjects];
             }
+            [self.dataSourceArr addObjectsFromArray:response.content[@"loan_pro_list"]];
+            if (!self.dataSourceArr.count) {
+                self.tableView.tableFooterView = [self creatFooterView];
+            }else{
+                self.tableView.tableFooterView = nil;
+            }
+            [self.tableView reloadData];
+            
+        }
+            break;
+        case AllDKViewRequestProductType:{
+            if (![self.loanTypeInfo.md5_hash isEqualToString:response.content[@"md5_hash"]]) {
+                [[LoanTypeInfo sharedInstance]saveLoanTypeInfo:[LoanTypeInfo mj_objectWithKeyValues:response.content]];
+            }
+            
+            [self setData];
+            if (self.loan_product_type.integerValue) {
+                [self prepareDataWithCount:AllDKViewRequestSpecialEntry];
+            }else{
+                [self prepareDataWithCount:AllDKViewRequestProductList];
+            }
+        }
+            break;
+        case AllDKViewRequestSpecialEntry:{
             if (self.dataSourceArr.count) {
                 [self.dataSourceArr removeAllObjects];
             }
@@ -355,23 +514,22 @@ typedef NS_ENUM(NSInteger ,AllDKViewRequest) {
             }
             [self.tableView reloadData];
         }
-            break;
-        case AllDKViewRequestProductDetail:{
-            
-        }
-            break;
+            return;
         default:
             break;
     }
 }
 
 - (void)headerRefresh{
-    [self prepareDataWithCount:AllDKViewRequestProductList];
+    [self.tableView.mj_header endRefreshing];
 }
 - (void)footerRefresh{
-    [self.tableView.mj_footer beginRefreshing];
-    self.queryParamModel.page_num = @(self.queryParamModel.page_num.integerValue+1);
-    [self prepareDataWithCount:AllDKViewRequestProductList];
+    if (self.loan_product_type.integerValue) {
+        [self prepareDataWithCount:AllDKViewRequestSpecialEntry];
+    }else{
+        self.queryParamModel.page_num = @(self.queryParamModel.page_num.integerValue+1);
+        [self prepareDataWithCount:AllDKViewRequestProductList];
+    }
 }
 - (ProductListModel *)productListModel{
     if (!_productListModel) {
@@ -391,6 +549,12 @@ typedef NS_ENUM(NSInteger ,AllDKViewRequest) {
         _jsIndexPath.column = 0;
     }
     return _jsIndexPath;
+}
+- (LoanTypeInfo *)loanTypeInfo{
+    if (!_loanTypeInfo) {
+        _loanTypeInfo = [[LoanTypeInfo sharedInstance]getLoanTypeInfo];
+    }
+    return _loanTypeInfo;
 }
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];

@@ -9,10 +9,13 @@
 #import "PlatformDetailViewController.h"
 // model
 #import "PlatformModel.h"
-
+#import "AuthorizationView.h"
+#import "XRootWebVC.h"
 @interface PlatformDetailViewController ()<UITextFieldDelegate>
 /** 账号和密码输入框 */
 @property (nonatomic,strong) UITextField *inputText;
+@property (nonatomic, strong) ClientGlobalInfoRM *clientGlobalInfoModel;
+@property (nonatomic, strong) AuthorizationView *authView;
 @end
 
 @implementation PlatformDetailViewController
@@ -68,9 +71,18 @@
 /** 创建尾视图 */
 -(UIView *)createTableViewFooterView
 {
-    // UI
-    UIView *footerView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, 70)];
+    
+    UIView *footerView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, AdaptationWidth(132))];
     footerView.backgroundColor = [UIColor clearColor];
+
+    self.authView = [[AuthorizationView alloc]init];
+    [self.authView.AgreementBtn addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchUpInside];
+    [self.authView.TickBtn addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchUpInside];
+    [footerView addSubview:self.authView];
+    if (self.model.plat_status.integerValue == 1) {//判断是否认证过
+        self.authView.hidden = YES;
+        footerView.frame = CGRectMake(0, 0, ScreenWidth, AdaptationWidth(80));
+    }
     
     UIButton *submitBtn = [[UIButton alloc]init];
     [submitBtn setBackgroundColor:XColorWithRGB(252, 93, 109)];
@@ -86,12 +98,17 @@
     
     // Constraints
     [submitBtn mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.mas_equalTo(footerView).offset(AdaptationWidth(24));
+        make.bottom.mas_equalTo(footerView).offset(-AdaptationWidth(16));
         make.left.mas_equalTo(footerView).offset(AdaptationWidth(24));
         make.width.mas_equalTo(AdaptationWidth(327));
         make.height.mas_equalTo(AdaptationWidth(48));
     }];
-    
+    [self.authView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.mas_equalTo(footerView);
+        make.right.mas_equalTo(footerView);
+        make.bottom.mas_equalTo(submitBtn.mas_top);
+        make.height.mas_equalTo(AdaptationWidth(68));
+    }];
     return footerView;
 }
 
@@ -191,9 +208,29 @@
         [self setHudWithName:@"请输入正确的账号和密码" Time:1 andType:1];
         return;
     }
-    [self prepareDataWithCount:1];
+    if (!self.authView.AgreementBtn.selected && self.model.plat_status.integerValue == 0) {
+        [XAlertView alertWithTitle:@"温馨提示" message:@"请您认真阅读《全网贷个人信息收集授权书》，若无异议请先勾选“我已同意《全网贷个人信息收集授权书》”，再重新提交资料" cancelButtonTitle:nil confirmButtonTitle:@"知道了" viewController:self completion:^(UIAlertAction *action, NSInteger buttonIndex) {}];
+        return;
+    }    [self prepareDataWithCount:1];
 }
-
+-(void)buttonClick:(UIButton*)button{
+    switch (button.tag) {
+        case AuthorizationBtnOnClickAgreement:
+        {
+            XRootWebVC *vc = [[XRootWebVC alloc]init];
+            vc.url = self.clientGlobalInfoModel.wap_url_list.collect_info_grant_authorization_url;
+            [self.navigationController pushViewController:vc animated:YES];
+        }
+            break;
+        case AuthorizationBtnOnClickTick:
+            button.selected = !button.selected;
+            self.authView.AgreementBtn.selected = button.selected;
+            break;
+            
+        default:
+            break;
+    }
+}
 #pragma  mark - 网络
 - (void)setRequestParams
 {
@@ -222,6 +259,12 @@
         _inputText = [[UITextField alloc]init];
     }
     return _inputText;
+}
+-(ClientGlobalInfoRM *)clientGlobalInfoModel{
+    if (!_clientGlobalInfoModel) {
+        _clientGlobalInfoModel = [ClientGlobalInfoRM getClientGlobalInfoModel];
+    }
+    return _clientGlobalInfoModel;
 }
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];

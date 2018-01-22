@@ -29,7 +29,13 @@
     if (!_tabVC) {
         _tabVC = [[UITabBarController alloc]init];
         _tabVC.tabBar.barStyle = UIBarStyleBlack;//设置tabBar类型（也就是颜色 黑，白）
-        _tabVC.tabBar.translucent = NO;//设置tabBar的半透明度
+        /*!< 毛玻璃 >*/
+        UIBlurEffect *blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleExtraLight];
+        UIVisualEffectView *visualView = [[UIVisualEffectView alloc]initWithEffect:blurEffect];
+        visualView.frame = _tabVC.tabBar.bounds;
+        [_tabVC.tabBar addSubview:visualView];
+//        _tabVC.tabBar.translucent = YES;//设置tabBar的半透明度
+        _tabVC.tabBar.alpha = 0.96;
         //改变tabbar 线条颜色
         CGRect rect = CGRectMake(0, 0, ScreenWidth, 1);
         UIGraphicsBeginImageContext(rect.size);

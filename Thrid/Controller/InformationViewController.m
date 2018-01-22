@@ -234,15 +234,15 @@ typedef NS_ENUM(NSInteger ,InformationRequest) {
     switch (row) {
         case InformationTableViewHeaderZX:{
             UIButton *raiderBtn = [[UIButton alloc]init];
-            [raiderBtn setBackgroundImage:[UIImage imageNamed:@"messages_raiders"] forState:UIControlStateNormal];
-            [raiderBtn setBackgroundImage:[UIImage imageNamed:@"messages_raiders_selected"] forState:UIControlStateHighlighted];
+            [raiderBtn setBackgroundImage:[UIImage imageNamed:@"messages_raiders1"] forState:UIControlStateNormal];
+            [raiderBtn setBackgroundImage:[UIImage imageNamed:@"messages_raiders_selected1"] forState:UIControlStateHighlighted];
             raiderBtn.tag = InformationBtnRaiders;
             [raiderBtn addTarget:self action:@selector(btnOnClick:) forControlEvents:UIControlEventTouchUpInside];
             [cell addSubview:raiderBtn];
             
             UIButton *centerBtn = [[UIButton alloc]init];
-            [centerBtn setBackgroundImage:[UIImage imageNamed:@"messages_center"] forState:UIControlStateNormal];
-            [centerBtn setBackgroundImage:[UIImage imageNamed:@"messages_center_selected"] forState:UIControlStateHighlighted];
+            [centerBtn setBackgroundImage:[UIImage imageNamed:@"messages_center1"] forState:UIControlStateNormal];
+            [centerBtn setBackgroundImage:[UIImage imageNamed:@"messages_center_selected1"] forState:UIControlStateHighlighted];
             centerBtn.tag = InformationBtnCenter;
             [centerBtn addTarget:self action:@selector(btnOnClick:) forControlEvents:UIControlEventTouchUpInside];
             [cell addSubview:centerBtn];
@@ -281,13 +281,19 @@ typedef NS_ENUM(NSInteger ,InformationRequest) {
                 raiderBtn.titleLabel.numberOfLines = 2;
                 raiderBtn.titleEdgeInsets = UIEdgeInsetsMake(2, AdaptationWidth(24), 12, AdaptationWidth(24));
                 [raiderBtn setTitleColor:XColorWithRGB(7, 137, 133) forState:UIControlStateNormal];
-                [raiderBtn setTitle:[NSString stringWithFormat:@"『%@』",obj[@"artical_title"]] forState:UIControlStateNormal];
+                NSString *str = obj[@"artical_title"];
+//                NSString *str = @"这是一段测试的话话话话话话话话话话话话话话话话话话话话";
+                if (str.length > 13) {
+                    NSString *subStr = [str substringToIndex:13];
+                    [raiderBtn setTitle:[NSString stringWithFormat:@"『%@…』",subStr] forState:UIControlStateNormal];
+                }else{
+                    [raiderBtn setTitle:[NSString stringWithFormat:@"『%@』",str] forState:UIControlStateNormal];
+                }
                 [raiderBtn setBackgroundImage:[UIImage imageNamed:@"messages_frame"] forState:UIControlStateNormal];
                 [raiderBtn setBackgroundImage:[UIImage imageNamed:@"messages_frame_selected"] forState:UIControlStateHighlighted];
                 raiderBtn.tag = idx;
                 [raiderBtn addTarget:self action:@selector(raiderBtnOnClick:) forControlEvents:UIControlEventTouchUpInside];
                 [scroll addSubview:raiderBtn];
-                
                 [raiderBtn mas_makeConstraints:^(MASConstraintMaker *make) {
                     make.left.mas_equalTo(scroll).offset(AdaptationWidth(4)+(idx*AdaptationWidth(208)));
                     make.top.mas_equalTo(scroll).offset(AdaptationWidth(0));

@@ -37,10 +37,10 @@
     maskView.alertView.imgUrlStr = imgUrlStr;
     maskView.alertView.delegate = maskView;
     [maskView.alertView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.bottom.equalTo(maskView).offset(-AdaptationWidth(174));
-        make.left.equalTo(maskView).offset((AdaptationWidth(52)));
-        make.right.equalTo(maskView).offset(-AdaptationWidth(51));
-        make.top.equalTo(maskView).offset(AdaptationWidth(125));
+        make.bottom.mas_equalTo(maskView).offset(-AdaptationWidth(174));
+        make.left.mas_equalTo(maskView).offset((AdaptationWidth(52)));
+        make.right.mas_equalTo(maskView).offset(-AdaptationWidth(51));
+        make.top.mas_equalTo(maskView).offset(AdaptationWidth(125));
     }];
     maskView.block = block;
     return maskView;
@@ -131,12 +131,20 @@
 
 
 @interface GuideMaskAlertView ()
+{
+    CGSize labelSize;
+}
 /** 提交按钮 */
 @property (nonatomic, strong) UIButton *commitBtn;
 /** 取消按钮 */
 @property (nonatomic, strong) UIButton *cancelBtn;
 /** 副标题 */
 @property (nonatomic, strong) UILabel *labSubTitle;
+
+@property (nonatomic,strong) UIScrollView *scrollView;
+@property (nonatomic,strong) UIView *bgView;
+@property (nonatomic,strong) UIView *lineView;
+
 @end
 
 @implementation GuideMaskAlertView
@@ -151,38 +159,47 @@
 
 /** 创建UI */
 - (void)setupViews{
+
+    self.bgView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, self.scrollView.contentSize.width, self.scrollView.contentSize.height)];
+    self.bgView.backgroundColor = [UIColor clearColor];
+    [self.scrollView addSubview:self.bgView];
     
     _titleLab = [[UILabel alloc] init];
     self.titleLab.textColor = XColorWithRGB(34, 58, 80);
     self.titleLab.font = [UIFont fontWithName:@"PingFangSC-Medium" size:AdaptationWidth(20)];
-    self.titleLab.numberOfLines = 0;
+    [self addSubview:self.titleLab];
     
-    _labcontent = [[UILabel alloc] init];
+    _labcontent =  [[UILabel alloc] initWithFrame:CGRectMake(24, 0, ScreenWidth - AdaptationWidth(151), 20)];
     self.labcontent.textColor = XColorWithRBBA(34, 58, 80, 0.32);
     self.labcontent.font = [UIFont fontWithName:@"PingFangSC-Regular" size:AdaptationWidth(14)];
     self.labcontent.numberOfLines = 0;
-    
+    [self.bgView addSubview:self.labcontent];
+
     /** 分割线 */
-    UIView *lineView = [[UIView alloc]init];
-    [lineView setBackgroundColor:XColorWithRGB(233, 233, 235)];
+    self.lineView = [[UIView alloc]init];
+    [self.lineView setBackgroundColor:XColorWithRGB(233, 233, 235)];
+    [self addSubview:self.lineView];
     
-    [self addSubview:self.titleLab];
-    [self addSubview:self.labcontent];
-    [self addSubview:lineView];
     
+    [self.scrollView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.mas_equalTo(self);
+        make.right.mas_equalTo(self);
+        make.height.mas_equalTo(AdaptationWidth(53));
+        make.bottom.mas_equalTo(self.lineView.mas_top);
+    }];
     [self.titleLab mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(self).offset(12);
-        make.right.equalTo(self).offset(-24);
-        make.bottom.equalTo(self.labcontent.mas_top).offset(-9);
+        make.left.mas_equalTo(self).offset(AdaptationWidth(24));
+        make.right.mas_equalTo(self).offset(-AdaptationWidth(24));
+        make.bottom.mas_equalTo(self.scrollView.mas_top).offset(-AdaptationWidth(9));
+        make.height.mas_equalTo(AdaptationWidth(28));
     }];
-    
-    [self.labcontent mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(self).offset(12);
-        make.right.equalTo(self).offset(-12);
-        make.bottom.equalTo(self).offset(-63);
-    }];
-    
-    [lineView mas_makeConstraints:^(MASConstraintMaker *make) {
+//    [self.labcontent mas_makeConstraints:^(MASConstraintMaker *make) {
+//        make.left.mas_equalTo(self.bgView).offset(AdaptationWidth(24));
+//        make.right.mas_equalTo(self.bgView).offset(-AdaptationWidth(24));
+//        make.top.mas_equalTo(self.bgView);
+////        make.height.mas_equalTo(AdaptationWidth(20));
+//    }];
+    [self.lineView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.mas_equalTo(self).offset(AdaptationWidth(0));
         make.right.mas_equalTo(self).offset(-AdaptationWidth(1));
         make.bottom.mas_equalTo(self).offset(-AdaptationWidth(52));
@@ -201,10 +218,10 @@
 
         /** 本地图片 */
         [_imgView mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.bottom.equalTo(self.titleLab.mas_top).offset(-16);
-            make.top.equalTo(self).offset(-AdaptationWidth(69));
-            make.left.equalTo(self).offset(-AdaptationWidth(31));
-            make.right.equalTo(self).offset(AdaptationWidth(31));
+            make.height.mas_equalTo(AdaptationWidth(278));
+            make.top.mas_equalTo(self).offset(-AdaptationWidth(69));
+            make.left.mas_equalTo(self).offset(-AdaptationWidth(31));
+            make.right.mas_equalTo(self).offset(AdaptationWidth(31));
         }];
     }
     return _imgView;
@@ -216,10 +233,10 @@
         [self addSubview:_commitBtn];
         _commitBtn.tag = 1;
         [_commitBtn mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.bottom.equalTo(self).offset(-8);
-            make.centerX.equalTo(self);
+            make.bottom.mas_equalTo(self).offset(-AdaptationWidth(8));
+            make.centerX.mas_equalTo(self);
             make.width.greaterThanOrEqualTo(@75);
-            make.height.equalTo(@36);
+            make.height.mas_equalTo(AdaptationWidth(36));
         }];
     }
     return _commitBtn;
@@ -232,10 +249,10 @@
         [self.superview addSubview:_cancelBtn];
         
         [_cancelBtn mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.centerX.equalTo(self);
+            make.centerX.mas_equalTo(self);
             make.width.greaterThanOrEqualTo(@28);
-            make.height.equalTo(@28);
-            make.bottom.equalTo(self).offset(AdaptationWidth(64));
+            make.height.mas_equalTo(@28);
+            make.bottom.mas_equalTo(self).offset(AdaptationWidth(64));
         }];
     }
     return _cancelBtn;
@@ -253,12 +270,21 @@
 /** 按钮点击方法 */
 - (void)btnOnClick:(UIButton *)sender{
     /** 响应方法 */
-    if ([self.delegate respondsToSelector:@selector(guideMaskAlertView:actionIndex:)])
-    {
+    if ([self.delegate respondsToSelector:@selector(guideMaskAlertView:actionIndex:)]){
         [self.delegate guideMaskAlertView:self actionIndex:sender.tag];
     }
 }
-
+-(UIScrollView *)scrollView{
+    if (!_scrollView) {
+        self.scrollView = [[UIScrollView alloc]init];
+        self.scrollView.backgroundColor = [UIColor clearColor];
+        self.scrollView.directionalLockEnabled  = YES;
+        self.scrollView.bounces = YES;
+        self.scrollView.showsVerticalScrollIndicator = NO;
+        [self addSubview:self.scrollView];
+    }
+    return _scrollView;
+}
 #pragma mark - 数据加载
 /** title */
 - (void)setTitle:(NSString *)title{
@@ -275,6 +301,12 @@
     }
     _content = content;
     self.labcontent.text = content;
+    CGSize size = CGSizeMake(ScreenWidth - AdaptationWidth(151), MAXFLOAT);
+    CGFloat fontSize = 14.0;
+    NSDictionary *dic = @{NSFontAttributeName: [UIFont systemFontOfSize:fontSize]};
+    labelSize = [self.labcontent.text boundingRectWithSize:size options:NSStringDrawingTruncatesLastVisibleLine | NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading attributes:dic context:nil].size;
+    self.labcontent.frame = CGRectMake(self.labcontent.frame.origin.x, self.labcontent.frame.origin.y, labelSize.width, labelSize.height);
+    self.scrollView.contentSize = CGSizeMake(ScreenWidth - AdaptationWidth(104), labelSize.height);
 }
 
 /** commitStr */

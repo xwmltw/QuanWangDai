@@ -18,7 +18,6 @@
     UIView *lineView;
     UITextField *textField;
     CGSize textSize;
-    
 }
 -(instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier{
 

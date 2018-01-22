@@ -47,32 +47,32 @@
         default:
             break;
     }
-    if (model.loan_rate.length > 4) {
-        NSString *substring = [model.loan_rate substringToIndex:4];
-        [self.interestRate setText:[NSString stringWithFormat:@"%@%%",substring]];
+    if (model.loan_year_rate.intValue > 36) {
+        [self.typelabel setText:[NSString stringWithFormat:@"浮动利率"]];
+        self.interestRate.hidden = YES;
     }else{
-        [self.interestRate setText:[NSString stringWithFormat:@"%@%%",model.loan_rate]];
+        [self.interestRate setText:[NSString stringWithFormat:@"%@%%~%@%%",model.min_loan_rate,model.loan_rate]];
     }
 //    self.interestRate.text = [NSString stringWithFormat:@"%@%%",model.loan_rate];
     self.labState.text = model.hot_label;
     self.labState.font = [UIFont fontWithName:@"PingFangSC-Regular" size:AdaptationWidth(13)];
     [self.appState setCornerValue:AdaptationWidth(2)];
     
-    [self.appState mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(self.labState.mas_left).offset(-AdaptationWidth(8));
-        make.right.equalTo(self).offset(-AdaptationWidth(16));
-        make.top.equalTo(self).offset(AdaptationWidth(20));
-        make.height.equalTo(@(26));
-        
-    }];
-    
-    [self.labState mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(self.appState).offset(AdaptationWidth(8));
-        make.right.equalTo(self.appState).offset(-AdaptationWidth(8));
-        make.top.equalTo(self.appState).offset(AdaptationWidth(4));
-        make.bottom.equalTo(self.appState).offset(- AdaptationWidth(4));
-        
-    }];
+//    [self.appState mas_makeConstraints:^(MASConstraintMaker *make) {
+//        make.left.equalTo(self.labState.mas_left).offset(-AdaptationWidth(8));
+//        make.right.equalTo(self).offset(-AdaptationWidth(16));
+//        make.top.equalTo(self).offset(AdaptationWidth(20));
+//        make.height.equalTo(@(26));
+//
+//    }];
+//
+//    [self.labState mas_makeConstraints:^(MASConstraintMaker *make) {
+//        make.left.equalTo(self.appState).offset(AdaptationWidth(8));
+//        make.right.equalTo(self.appState).offset(-AdaptationWidth(8));
+//        make.top.equalTo(self.appState).offset(AdaptationWidth(4));
+//        make.bottom.equalTo(self.appState).offset(- AdaptationWidth(4));
+//
+//    }];
     
     
     if (model.apply_is_full.integerValue == 1) {

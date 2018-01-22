@@ -7,7 +7,7 @@
 //
 
 #import "XBaseViewController.h"
-
+#import "ApplyProductModel.h"
 @interface SuccessApplicationVC : XBaseViewController
-
+@property (nonatomic, strong) ApplyProductModel *applyProductModel;
 @end

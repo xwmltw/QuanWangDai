@@ -11,7 +11,8 @@
 #import "UDIDSafeDataDefine.h"
 //#import "ZMCreditSDK.framework/Headers/ALCreditService.h"
 #import "IdCardModel.h"
-
+#import "AuthorizationView.h"
+#import "XRootWebVC.h"
 
 typedef NS_ENUM(NSUInteger, AdultIdentityVerifyRequest) {
     AdultIdentityVerifySubmitInfo,//提交姓名与身份证号
@@ -26,6 +27,9 @@ typedef NS_ENUM(NSUInteger, AdultIdentityVerifyRequest) {
 @property (nonatomic,strong)UILabel *backLabel;
 @property (nonatomic,strong)UILabel *titleLab;
 @property (nonatomic,strong)UILabel *detailLab;
+//@property (nonatomic,retain)AuthorizationBtnOnClick AuthorizationBtnOnClick;
+@property (nonatomic, strong) ClientGlobalInfoRM *clientGlobalInfoModel;
+@property (nonatomic, strong) AuthorizationView *authView;
 @end
 
 @implementation IdentityAuthenticationVC
@@ -96,8 +100,13 @@ typedef NS_ENUM(NSUInteger, AdultIdentityVerifyRequest) {
     [self.view addSubview:self.backImageV];
     [self.view addSubview:self.backLabel];
     [self.view addSubview:self.verifyButton];
-    
-    
+    self.authView = [[AuthorizationView alloc]init];
+    [self.authView.AgreementBtn addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchUpInside];
+    [self.authView.TickBtn addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:self.authView];
+    if (self.creditInfoModel.identity_status.integerValue == 1) {//判断是否认证过
+        self.authView.hidden = YES;
+    }
     [_titleLab mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.mas_equalTo(self.view).offset(AdaptationWidth(32));
         make.left.mas_equalTo(self.view).offset(AdaptationWidth(24));
@@ -129,15 +138,37 @@ typedef NS_ENUM(NSUInteger, AdultIdentityVerifyRequest) {
         make.top.mas_equalTo(_backImageV.mas_bottom).offset(AdaptationWidth(8));
         make.left.mas_equalTo(_backImageV);
     }];
-   
+    [self.authView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.mas_equalTo(self.view);
+        make.right.mas_equalTo(self.view);
+        make.bottom.mas_equalTo(_verifyButton.mas_top);
+        make.height.mas_equalTo(AdaptationWidth(68));
+    }];
     [_verifyButton mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.mas_equalTo(self.view).offset(AdaptationWidth(20));
-        make.top.mas_equalTo(_backImageV.mas_bottom).offset(AdaptationWidth(65));
+        make.top.mas_equalTo(_backImageV.mas_bottom).offset(AdaptationWidth(105));
         make.right.mas_equalTo(self.view).offset(-AdaptationWidth(20));
         make.height.mas_equalTo(AdaptationWidth(48));
     }];
+}
 
- 
+-(void)buttonClick:(UIButton*)button{
+    switch (button.tag) {
+        case AuthorizationBtnOnClickAgreement:
+        {
+            XRootWebVC *vc = [[XRootWebVC alloc]init];
+            vc.url = self.clientGlobalInfoModel.wap_url_list.collect_info_grant_authorization_url;
+            [self.navigationController pushViewController:vc animated:YES];
+        }
+            break;
+        case AuthorizationBtnOnClickTick:
+            button.selected = !button.selected;
+            self.authView.AgreementBtn.selected = button.selected;
+            break;
+            
+        default:
+            break;
+    }
 }
 //getter方法
 -(UIImageView *)frontImageV{
@@ -222,8 +253,11 @@ typedef NS_ENUM(NSUInteger, AdultIdentityVerifyRequest) {
 -(void)start{
     
     //talkingdata
-//    [TalkingData trackEvent:@"进行身份认证按钮"];
-    
+    [TalkingData trackEvent:@"进行身份认证按钮"];
+    if (!self.authView.AgreementBtn.selected && self.creditInfoModel.identity_status.integerValue == 0) {
+        [XAlertView alertWithTitle:@"温馨提示" message:@"请您认真阅读《全网贷个人信息收集授权书》，若无异议请先勾选“我已同意《全网贷个人信息收集授权书》”，再重新提交资料" cancelButtonTitle:nil confirmButtonTitle:@"知道了" viewController:self completion:^(UIAlertAction *action, NSInteger buttonIndex) {}];
+        return;
+    }
     [self prepareDataWithCount:AdultIdentityVerifyRequestNotificationInfo];
     
 }
@@ -303,7 +337,12 @@ typedef NS_ENUM(NSUInteger, AdultIdentityVerifyRequest) {
     }
 }
 
-
+-(ClientGlobalInfoRM *)clientGlobalInfoModel{
+    if (!_clientGlobalInfoModel) {
+        _clientGlobalInfoModel = [ClientGlobalInfoRM getClientGlobalInfoModel];
+    }
+    return _clientGlobalInfoModel;
+}
 - (void)popToCenterController
 {
     [[NSNotificationCenter defaultCenter]postNotificationName:@"Refresh" object:self userInfo:nil];

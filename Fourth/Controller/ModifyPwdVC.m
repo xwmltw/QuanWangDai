@@ -290,7 +290,7 @@
 }
 - (void)requestSuccessWithDictionary:(XResponse *)response{
     [self setHudWithName:@"修改成功" Time:0.5 andType:3];
-    [[UserInfo sharedInstance]savePhone:nil password:_verificationText.text userId:nil];
+    [[UserInfo sharedInstance]savePhone:nil password:_verificationText.text userId:nil grantAuthorization:nil];
     LoginVC *vc = [[LoginVC alloc]init];
     vc.hidesBottomBarWhenPushed = YES;
     vc.isModifyPwd = @(1);

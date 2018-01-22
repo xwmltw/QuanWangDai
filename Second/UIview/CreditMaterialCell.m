@@ -101,11 +101,29 @@
         }
             break;
         case 2:
-        {
-            if (model.company_status.integerValue == 1) {
-                authImage.hidden = NO;
-                [authImage setImage:[UIImage imageNamed:@"credit_edit"]];
+        {   if (self.clientGlobalInfoRM.recomment_entry_hide.integerValue == 1)
+            {
+                if (model.applicant_qualification_status.integerValue == 1) {
+                    authImage.hidden = NO;
+                    [authImage setImage:[UIImage imageNamed:@"credit_edit"]];
+                }
+            }else{
+                if (model.company_status.integerValue == 1) {
+                    authImage.hidden = NO;
+                    [authImage setImage:[UIImage imageNamed:@"credit_edit"]];
+                }
             }
+           
+        }
+            break;
+        case 3:
+        {
+            
+                if (model.applicant_qualification_status.integerValue == 1) {
+                    authImage.hidden = NO;
+                    [authImage setImage:[UIImage imageNamed:@"credit_edit"]];
+                }
+            
         }
             break;
             

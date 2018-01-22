@@ -68,17 +68,21 @@
 //    //比如设置message内容居左：
 //    message1.textAlignment = NSTextAlignmentLeft;
 //    title1.textAlignment = NSTextAlignmentLeft;
+    if (cancelButtonTitle.length) {
+        UIAlertAction *cancleAction = [UIAlertAction actionWithTitle:cancelButtonTitle style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+            completion(action, 0);
+        }];
+        [cancleAction setValue:XColorWithRGB(252, 93, 109) forKey:@"titleTextColor"];
+        [alert addAction:cancleAction];
+    }
+    if (confirmButtonTitle.length) {
+        UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:confirmButtonTitle style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+            completion(action, 1);
+        }];
+        [confirmAction setValue:XColorWithRGB(252, 93, 109) forKey:@"titleTextColor"];
+        [alert addAction:confirmAction];
+    }
     
-    UIAlertAction *cancleAction = [UIAlertAction actionWithTitle:cancelButtonTitle style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
-        completion(action, 0);
-    }];
-    UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:confirmButtonTitle style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-        completion(action, 1);
-    }];
-    [cancleAction setValue:XColorWithRGB(252, 93, 109) forKey:@"titleTextColor"];
-    [confirmAction setValue:XColorWithRGB(252, 93, 109) forKey:@"titleTextColor"];
-    [alert addAction:cancleAction];
-    [alert addAction:confirmAction];
     [vc presentViewController:alert animated:YES completion:nil];
 }
 

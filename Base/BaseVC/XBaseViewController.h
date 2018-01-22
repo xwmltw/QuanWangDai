@@ -11,6 +11,7 @@
 #import "XResponse.h"
 #import "UserInfo.h"
 #import "XAlertView.h"
+#import "ParamModel.h"
 
 @interface XBaseViewController : UIViewController<UITableViewDelegate,UITableViewDataSource,MBProgressHUDDelegate>
 @property (nonatomic, strong) UITableView *tableView;
@@ -105,4 +106,11 @@
  @param controller 当前控制器
  */
 - (void)getBlackLogin:(UIViewController *)controller;
+
+
+/**
+ 授权提示
+ */
+- (void)showAlertView;
+
 @end

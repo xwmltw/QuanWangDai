@@ -20,7 +20,10 @@
 @property (nonatomic, copy) NSString *loan_deadline_str;
 @property (nonatomic, copy) NSNumber *loan_deadline_type;
 @property (nonatomic, copy) NSNumber *loan_rate_type;
+@property (nonatomic, copy) NSString *min_loan_rate;
 @property (nonatomic, copy) NSString *loan_rate;
+@property (nonatomic, copy) NSString *loan_year_rate;
+@property (nonatomic, copy) NSString *run_address_name;
 @property (nonatomic, copy) NSString *hot_label;
 @property (nonatomic, copy) NSNumber *apply_is_full;
 @property (nonatomic, copy) NSString *apply_required_data;
@@ -44,7 +47,11 @@
 //“loan_deadline_str”: “xxx”, // 用户借款期限描述 7-14
 //“loan_deadline_type”: “xxx”, // 用户借款期限类型 1天 2月
 //“loan_rate_type”: xxx // 利率类型1日利率 2月利率 3年利率
-//“loan_rate”: xxx // 利率
+//“min_loan_rate”: xxx // 最小利率
+//“loan_rate”: xxx // 最大利率
+//“loan_year_rate” : xxxx //年利率
+//“run_address_name”: xxxx // 经营区域名称，为空代表全国
+
 //“hot_label”: xxx // 热门标签
 //“apply_is_full”: xxx // 申请人数已满: 1是 0否
 //“apply_required_data”:xxx // 产品申请必填资料,字符串类型,  1,2,3,4，详见枚举定义

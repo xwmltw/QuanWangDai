@@ -56,6 +56,8 @@
 @property (nonatomic, copy) NSString* question_url;
 @property (nonatomic, copy) NSString* strategy_url;
 @property (nonatomic, copy) NSString* zixun_url;
+@property (nonatomic, copy) NSString* collect_info_grant_authorization_url;
+//collect_info_grant_authorization_url 信息收集授权页面url
 @end
 
 //全局配置-广告数据结构
@@ -66,6 +68,7 @@
 @property (nonatomic, copy) NSString* ad_name;
 @property (nonatomic, copy) NSString* ad_content;
 @property (nonatomic, copy) NSString* img_url;
+
 //“ad_id”: “xxx”, // 广告id
 //“ad_type”: “xxx”, // 广告类型: 1应用内打开 2浏览器打开
 //“ad_detail_url”: “xxx”, // 广告链接

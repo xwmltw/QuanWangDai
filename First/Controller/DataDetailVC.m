@@ -8,7 +8,6 @@
 
 #import "DataDetailVC.h"
 #import "SuccessApplicationVC.h"
-#import "CreditInfoModel.h"
 #import "XRootWebVC.h"
 
 #import "IdentityAuthenticationVC.h"
@@ -20,6 +19,8 @@
 #import "CertifiedBankVC.h"
 #import "PlatformViewController.h"
 #import "WorkInfoVC.h"
+#import "ApplyProductModel.h"
+#import "AuthorizationVC.h"
 
 typedef NS_ENUM(NSInteger ,RequiredType) {
     IDENTITYCARD = 1,
@@ -37,6 +38,7 @@ typedef NS_ENUM(NSInteger , DataDetailRequest) {
 };
 @interface DataDetailVC ()<UICollectionViewDelegate,UICollectionViewDataSource>
 @property (nonatomic, strong) CreditInfoModel *creditInfoModel;
+@property (nonatomic, strong) ApplyProductModel *applyProductModel;
 @end
 
 @implementation DataDetailVC
@@ -385,6 +387,7 @@ typedef NS_ENUM(NSInteger , DataDetailRequest) {
 
 #pragma  mark - btn
 - (void)btnOnClick:(UIButton *)btn{
+
     [self prepareDataWithCount:DataDetailRequestApplyLoan];
 }
 
@@ -421,6 +424,16 @@ typedef NS_ENUM(NSInteger , DataDetailRequest) {
             [collectionView reloadData];
             break;
         case DataDetailRequestApplyLoan:{
+            if ([[UserInfo sharedInstance]getUserInfo].has_grant_authorization.integerValue == 0) {//判断是否授权
+                [XAlertView alertWithTitle:@"温馨提示" message:@"您当前处于拒绝授权状态，想要获得更多服务,请前往修改状态。" cancelButtonTitle:@"取消" confirmButtonTitle:@"前往授权" viewController:self completion:^(UIAlertAction *action, NSInteger buttonIndex) {
+                    if (buttonIndex == 1) {
+                        AuthorizationVC *vc = [[AuthorizationVC alloc]init];
+                        [self.navigationController pushViewController:vc animated:YES];
+                    }
+                }];
+                return;
+            }
+            self.applyProductModel = [ApplyProductModel mj_objectWithKeyValues:response.content];
             cooperationUrl = response.content[@"cooperation_url"];
             //talkingdata
             [TalkingData trackEvent:@"完成申请按钮"];
@@ -449,6 +462,7 @@ typedef NS_ENUM(NSInteger , DataDetailRequest) {
             break;
         case 3:{//商户后台
             SuccessApplicationVC *vc  =[[SuccessApplicationVC alloc]init];
+            vc.applyProductModel = self.applyProductModel;
             [self.navigationController pushViewController:vc animated:YES];
         }
             break;
@@ -464,7 +478,12 @@ typedef NS_ENUM(NSInteger , DataDetailRequest) {
     }
     return _creditInfoModel;
 }
-
+- (ApplyProductModel *)applyProductModel{
+    if (!_applyProductModel) {
+        _applyProductModel  = [[ApplyProductModel alloc]init];
+    }
+    return _applyProductModel;
+}
 -(void)dealloc{
     [[NSNotificationCenter defaultCenter] removeObserver:self name:@"Refresh" object:nil];
 }

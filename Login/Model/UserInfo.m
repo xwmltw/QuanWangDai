@@ -19,23 +19,33 @@ MJCodingImplementation
 #pragma mark - ***** 存取 账号密码 ******
 
 
-- (void)savePhone:(NSString *)userPhone password:(NSString*)password userId:(NSString *)userId{
-    [self savePhone:userPhone password:password dynamicPassword:userId];
+- (void)savePhone:(NSString *)userPhone password:(NSString*)password userId:(NSString *)userId grantAuthorization:(NSNumber *)grantAuthorization{
+    [self savePhone:userPhone password:password dynamicPassword:userId grantAuthorization:grantAuthorization];
 }
-- (void)savePhone:(NSString *)userPhone password:(NSString*)password dynamicPassword:(NSString *)dynamicPassword{
+- (void)savePhone:(NSString *)userPhone password:(NSString*)password dynamicPassword:(NSString *)dynamicPassword grantAuthorization:(NSNumber *)grantAuthorization{
     if (userPhone && userPhone.length > 0) {
         self.phoneName = userPhone;
     }
-    self.password = password;
-   
-    self.userId = dynamicPassword;
-    [XCacheHelper saveByNSKeyedUnarchiverWith:self fileName:userInfo isCanClear:NO];
+    if(password && password.length > 0){
+        self.password = password;
+    }
+    if (dynamicPassword && dynamicPassword.length > 0) {
+        self.userId = dynamicPassword;
+    }
+    
+    self.has_grant_authorization = grantAuthorization;
+    
+    [XCacheHelper saveByNSKeyedUnarchiverWith:self fileName:userInfo isCanClear:YES];
     
 }
 - (UserInfo *)getUserInfo{
-    userInfoModel = [XCacheHelper getByNSKeyedUnarchiver:userInfo withClass:[UserInfo class] isCanClear:NO];
+    userInfoModel = [XCacheHelper getByNSKeyedUnarchiver:userInfo withClass:[UserInfo class] isCanClear:YES];
     return userInfoModel;
 }
+- (void)clearCacheFolder{
+//    [XCacheHelper clearCache:[XCacheHelper ]]
+}
+#pragma mark - ***** 是否登录 ******
 - (BOOL)isSignIn{
     userInfoModel  = [self getUserInfo];
     if (userInfoModel.userId && userInfoModel.userId.length > 0) {

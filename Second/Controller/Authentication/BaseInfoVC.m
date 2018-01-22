@@ -17,7 +17,8 @@
 #import <ContactsUI/ContactsUI.h>
 #import "BaseInfoModel.h"
 #import "XChooseBankView.h"
-
+#import "AuthorizationView.h"
+#import "XRootWebVC.h"
 typedef NS_ENUM(NSInteger ,BaseInfoRequest) {
     BaseInfoRequestPostInfo,
     BaseInfoRequestGetInfo,
@@ -29,6 +30,8 @@ typedef NS_ENUM(NSInteger ,BaseInfoRequest) {
 @property (nonatomic, strong) BaseInfoModel *baseInfoModel;
 @property (nonatomic, strong) ShipModel *parentModel;
 @property (nonatomic, strong) ShipModel *contactModel;
+@property (nonatomic, strong) ClientGlobalInfoRM *clientGlobalInfoModel;
+@property (nonatomic, strong) AuthorizationView *authView;
 @end
 
 @implementation BaseInfoVC
@@ -92,7 +95,13 @@ typedef NS_ENUM(NSInteger ,BaseInfoRequest) {
     return view;
 }
 - (UIView *)creatFooderView{
-    UIView *view = [[UIView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, AdaptationWidth(81))];
+    UIView *view = [[UIView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, AdaptationWidth(132))];
+    
+    self.authView = [[AuthorizationView alloc]init];
+    [self.authView.AgreementBtn addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchUpInside];
+    [self.authView.TickBtn addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchUpInside];
+    [view addSubview:self.authView];
+    
     
     UIButton *sureBtn  = [[UIButton alloc]init];
     sureBtn.tag = 100;
@@ -104,11 +113,23 @@ typedef NS_ENUM(NSInteger ,BaseInfoRequest) {
     [sureBtn addTarget:self action:@selector(btnOnClick:) forControlEvents:UIControlEventTouchUpInside];
     [view addSubview:sureBtn];
     
+    if (self.creditInfoModel.base_info_status.integerValue == 1) {//判断是否认证过
+        self.authView.hidden = YES;
+        view.frame = CGRectMake(0, 0, ScreenWidth, AdaptationWidth(80));
+    }
+    
     [sureBtn mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.mas_equalTo(view).offset(AdaptationWidth(24));
         make.right.mas_equalTo(view).offset(-AdaptationWidth(24));
-        make.centerY.mas_equalTo(view);
+        make.bottom.mas_equalTo(view).offset(-AdaptationWidth(16));
         make.height.mas_equalTo(AdaptationWidth(48));
+    }];
+    
+    [self.authView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.mas_equalTo(view);
+        make.right.mas_equalTo(view);
+        make.bottom.mas_equalTo(sureBtn.mas_top);
+        make.height.mas_equalTo(AdaptationWidth(68));
     }];
     
     return view;
@@ -674,9 +695,31 @@ typedef NS_ENUM(NSInteger ,BaseInfoRequest) {
         [self setHudWithName:@"请填写联系人姓名及电话" Time:0.5 andType:1];
         return;
     }
-    
+    if (!self.authView.AgreementBtn.selected && self.creditInfoModel.base_info_status.integerValue == 0) {
+        [XAlertView alertWithTitle:@"温馨提示" message:@"请您认真阅读《全网贷个人信息收集授权书》，若无异议请先勾选“我已同意《全网贷个人信息收集授权书》”，再重新提交资料" cancelButtonTitle:nil confirmButtonTitle:@"知道了" viewController:self completion:^(UIAlertAction *action, NSInteger buttonIndex) {}];
+        return;
+    }
     [self prepareDataWithCount:BaseInfoRequestPostInfo];
 }
+-(void)buttonClick:(UIButton*)button{
+    switch (button.tag) {
+        case AuthorizationBtnOnClickAgreement:
+        {
+            XRootWebVC *vc = [[XRootWebVC alloc]init];
+            vc.url = self.clientGlobalInfoModel.wap_url_list.collect_info_grant_authorization_url;
+            [self.navigationController pushViewController:vc animated:YES];
+        }
+            break;
+        case AuthorizationBtnOnClickTick:
+            button.selected = !button.selected;
+            self.authView.AgreementBtn.selected = button.selected;
+            break;
+            
+        default:
+            break;
+    }
+}
+
 #pragma  mark - 网络
 - (void)setRequestParams{
     switch (self.requestCount) {
@@ -737,6 +780,12 @@ typedef NS_ENUM(NSInteger ,BaseInfoRequest) {
         _contactModel = [[ShipModel alloc]init];
     }
     return _contactModel;
+}
+-(ClientGlobalInfoRM *)clientGlobalInfoModel{
+    if (!_clientGlobalInfoModel) {
+        _clientGlobalInfoModel = [ClientGlobalInfoRM getClientGlobalInfoModel];
+    }
+    return _clientGlobalInfoModel;
 }
 - (void)headerRefresh{
     [self prepareDataWithCount:BaseInfoRequestGetInfo];

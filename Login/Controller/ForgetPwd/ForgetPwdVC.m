@@ -325,7 +325,7 @@ typedef NS_ENUM(NSInteger ,XForgetPwdVCReuqset ) {
         [self beginCountDown];
     }else if (self.requestCount == XForgetPwdVCReuqsetRevise){
         [self setHudWithName:@"找回成功" Time:0.5 andType:0];
-        [[UserInfo sharedInstance]savePhone:_phoneTextAccount.text password:_pwdTextAccount.text userId:@"100"];  
+        [[UserInfo sharedInstance]savePhone:_phoneTextAccount.text password:_pwdTextAccount.text userId:@"100" grantAuthorization:nil];  
         LoginVC *vc = [[LoginVC alloc]init];
         vc.hidesBottomBarWhenPushed = YES;
         vc.isModifyPwd = @(1);

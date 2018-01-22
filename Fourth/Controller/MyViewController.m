@@ -14,11 +14,13 @@
 #import "ParamModel.h"
 #import "XRootWebVC.h"
 #import "XDeviceHelper.h"
-
+#import "AuthorizationVC.h"
+#import "XCacheHelper.h"
 typedef NS_ENUM(NSInteger ,MineTableViewCell) {
     MineTableViewCellHelp,
     MineTableViewCellModifyPwd,
     MineTableViewCellAboutMe,
+    MineTableViewCellauthorization,
     MineTableViewCellGetOut,
 };
 typedef NS_ENUM(NSInteger ,MineRequest) {
@@ -76,6 +78,7 @@ typedef NS_ENUM(NSInteger,MineBtnOnClick) {
     [self.dataSourceArr addObject:@(MineTableViewCellModifyPwd)];
     [self.dataSourceArr addObject:@(MineTableViewCellAboutMe)];
     if ([[UserInfo sharedInstance]isSignIn] ) {
+        [self.dataSourceArr addObject:@(MineTableViewCellauthorization)];
         [self.dataSourceArr addObject:@(MineTableViewCellGetOut)];
     }
     
@@ -262,6 +265,12 @@ typedef NS_ENUM(NSInteger,MineBtnOnClick) {
             [Image setImage:[UIImage imageNamed:@"mine_aboutMe"]];
         }
             break;
+        case MineTableViewCellauthorization:{
+            [lab setText:@"授权设置"];
+            [Image setImage:[UIImage imageNamed:@"mine_Authorization"]];
+        }
+            break;
+            
         case MineTableViewCellGetOut:{
             if([[UserInfo sharedInstance]isSignIn] ){
                 NSString *str = [UserInfo sharedInstance].phoneName;
@@ -322,6 +331,13 @@ typedef NS_ENUM(NSInteger,MineBtnOnClick) {
         }
             
             break;
+        case MineTableViewCellauthorization:{
+            AuthorizationVC *vc = [[AuthorizationVC alloc]init];
+            vc.hidesBottomBarWhenPushed = YES;
+            [self.navigationController pushViewController:vc animated:YES];
+        }
+            
+            break;
         case MineTableViewCellGetOut:{
             dispatch_async(dispatch_get_main_queue(), ^{
                 [XAlertView alertWithTitle:@"温馨提示" message:@"是否退出登录" cancelButtonTitle:@"取消" confirmButtonTitle:@"退出" viewController:self completion:^(UIAlertAction *action, NSInteger buttonIndex) {
@@ -349,6 +365,9 @@ typedef NS_ENUM(NSInteger,MineBtnOnClick) {
     }else{
         LoginVC *vc = [[LoginVC alloc]init];
         vc.hidesBottomBarWhenPushed = YES;
+        vc.block = ^(id result) {
+            [self showAlertView];
+        };
         [self.navigationController pushViewController:vc animated:YES];
     }
 
@@ -365,13 +384,18 @@ typedef NS_ENUM(NSInteger,MineBtnOnClick) {
 -(void)requestSuccessWithDictionary:(XResponse *)response{
     if(self.requestCount == MineRequestGetOut){
         [self setHudWithName:@"退出成功" Time:0.5 andType:3];
-        [[UserInfo sharedInstance]savePhone:nil password:nil userId:nil];
+        [XCacheHelper clearCacheFolder];
+//        [[UserInfo sharedInstance]savePhone:nil password:nil userId:nil grantAuthorization:nil];
         LoginVC *vc = [[LoginVC alloc]init];
         vc.hidesBottomBarWhenPushed = YES;
+        vc.block = ^(id result) {
+            [self showAlertView];
+        };
         [self.navigationController pushViewController:vc animated:YES];
 
         return;
     }
+
 }
 - (void)headerRefresh{
     [self.tableView.mj_header endRefreshing];

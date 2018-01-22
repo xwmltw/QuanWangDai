@@ -8,8 +8,9 @@
 
 #import "ScanningBankVC.h"
 #import "BankInfoModel.h"
-
+#import "CreditInfoModel.h"
 @interface AuthenticationBankVC : ScanningBankVC
 @property (nonatomic, assign) BOOL isScanBan;
 @property (nonatomic, strong) BankInfoModel *bankInfoModel;
+@property (nonatomic, strong)CreditInfoModel *creditInfoModel;
 @end

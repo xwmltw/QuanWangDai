@@ -66,6 +66,8 @@ static NSString *const XZMAPPID =   @"300000041";
 #define XPostLoanPlatInfo @"qwd_postLoanPlatInfo"               /*!< 上传借贷平台信息*/
 #define XGetLoanPlatInfo @"qwd_getLoanPlatInfo"                 /*!< 查询借贷平台信息*/
 #define XApplyLoan @"qwd_applyLoan"                             /*!< 用户申请贷款产品*/
+#define XGetLoanQualificationInfo @"qwd_getLoanQualificationInfo"  /*!< 查询借款人资质信息*/
+#define XPostLoanQualificationInfo @"qwd_postLoanQualificationInfo"/*!< 上传借款人资质信息*/
 
 #define XGetHotLoanProList @"qwd_getHotLoanProList"             /*!< 查询热门贷款推荐列表*/
 #define XGetLoanProDetail @"qwd_getLoanProDetail"               /*!< 查询贷款产品详情*/
@@ -73,7 +75,10 @@ static NSString *const XZMAPPID =   @"300000041";
 #define XAdClickLogRecord @"qwd_adClickLogRecord"               /*!< 记录广告点击日志*/
 #define XArticleClickRecord @"qwd_articleClickRecord"           /*!< 记录文章详情点击日志*/
 #define XGetZiXunCenter @"qwd_getZiXunCenter"                   /*!< 获取资讯中心内容*/
-
-
+#define XGetLoanClassifyList @"qwd_getLoanClassifyList"         /*!< 获取贷款类型列表接口*/
+#define XGrantAuthorization @"qwd_grantAuthorization"           /*!< 用户授权和取消授权*/
+#define XGetRecommendLoanProList @"qwd_getRecommendLoanProList" /*!< 查询推荐贷款产品列表*/
+#define XGetSpecialEntryList @"qwd_getSpecialEntryList"         /*!< 下发特色入口*/
+#define XQuerySpecialEntryLoanProductList @"qwd_querySpecialEntryLoanProductList" /*!<根据特色入口id查询贷款产品列表*/
 
 #endif /* InterfaceDefine_h */

@@ -447,7 +447,7 @@ typedef NS_ENUM(NSInteger , XRegisterReuqst) {
         //talkingdata
         [TalkingData onRegister:_phoneTextAccount.text type:TDAccountTypeRegistered name:@"全网贷"];
         
-        [[UserInfo sharedInstance]savePhone:_phoneTextAccount.text password:_pwdTextAccount.text userId:@"100"];
+        [[UserInfo sharedInstance]savePhone:_phoneTextAccount.text password:_pwdTextAccount.text userId:@"100" grantAuthorization:response.content[@"has_grant_authorization"]];
         [self.navigationController popToRootViewControllerAnimated:YES];
     }else if (self.requestCount == XRegisterReuqstMessageCode){
         [self setHudWithName:@"验证码获取成功" Time:0.5 andType:0];

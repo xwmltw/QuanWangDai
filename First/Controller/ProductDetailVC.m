@@ -14,6 +14,8 @@
 #import "UITextField+ExtendRange.h"
 #import "XTextField.h"
 #import "ProductDetailTableViewCell.h"
+#import "ApplyProductModel.h"
+#import "AuthorizationVC.h"
 typedef NS_ENUM(NSInteger ,ProductDetailModule){
     ProductDetailMaterial,
     ProductDetailCondition,
@@ -29,6 +31,7 @@ typedef NS_ENUM(NSInteger ,ProductDetailRequest) {
 @property (nonatomic ,copy) UILabel *headTitle;
 @property (nonatomic, strong) ProductModel *detailModel;
 @property (nonatomic, strong) CreditInfoModel *creditInfoModel;
+@property (nonatomic, strong) ApplyProductModel *applyProductModel;
 @property (nonatomic,strong) UILabel *cellLabel;
 @end
 
@@ -96,12 +99,12 @@ typedef NS_ENUM(NSInteger ,ProductDetailRequest) {
 }
 #pragma mark- tableView
 - (UIView *)creatHeadView{
-    UIView * view = [[UIView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, AdaptationWidth(231))];
+    UIView * view = [[UIView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, AdaptationWidth(269))];
     view.backgroundColor = [UIColor clearColor];
 //    view.translatesAutoresizingMaskIntoConstraints = NO;
     
     UIImageView *image = [[UIImageView alloc]init];
-    [image setCornerValue:AdaptationWidth(20)];
+    [image setCornerValue:AdaptationWidth(16)];
     image.layer.masksToBounds = YES;
     image.layer.borderWidth = AdaptationWidth(0.5);
     image.layer.borderColor = XColorWithRGB(233, 233, 235).CGColor;
@@ -136,39 +139,54 @@ typedef NS_ENUM(NSInteger ,ProductDetailRequest) {
     }else{
         [hotLab setText:@"到期还款"];
     }
-    
     [hotLab setFont:[UIFont fontWithName:@"PingFangSC-Regular" size:AdaptationWidth(13)]];
     [hotLab setTextColor:XColorWithRGB(255, 176, 53)];
     [view addSubview:hotLab];
+    
+    UILabel *cityLab = [[UILabel alloc]init];
+    if (self.detailModel.run_address_name.length > 0) {
+        [cityLab setText:[NSString stringWithFormat:@"经营区域:%@",self.detailModel.run_address_name]];
+    }else{
+        [cityLab setText:[NSString stringWithFormat:@""]];
+    }
+    [cityLab setFont:[UIFont fontWithName:@"PingFangSC-Regular" size:AdaptationWidth(14)]];
+    [cityLab setTextColor:XColorWithRBBA(34, 58, 80, 0.48)];
+    [view addSubview:cityLab];
+    
    
     [image mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.mas_equalTo(view).offset(AdaptationWidth(24));
         make.top.mas_equalTo(view).offset(AdaptationWidth(24));
-        make.width.height.mas_equalTo(AdaptationWidth(80));
+        make.width.height.mas_equalTo(AdaptationWidth(64));
     }];
     
     [labTitle mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.mas_equalTo(image.mas_right).offset(AdaptationWidth(16));
         make.width.mas_lessThanOrEqualTo(AdaptationWidth(164));
-        make.top.mas_equalTo(image.mas_top).offset(AdaptationWidth(10));
+        make.top.mas_equalTo(image.mas_top);
     }];
     
     
     
     [labDetail mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.mas_equalTo(image.mas_right).offset(AdaptationWidth(16));
-        make.width.mas_lessThanOrEqualTo(AdaptationWidth(237));
-        make.top.mas_equalTo(labTitle.mas_bottom).offset(AdaptationWidth(6));
+        make.left.mas_equalTo(view).offset(AdaptationWidth(24));
+        make.width.mas_lessThanOrEqualTo(AdaptationWidth(327));
+        make.top.mas_equalTo(image.mas_bottom).offset(AdaptationWidth(16));
     }];
     
     [hotView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.mas_equalTo(labTitle.mas_right).offset(AdaptationWidth(8));
-        make.centerY.mas_equalTo(labTitle);
+        make.top.mas_equalTo(labTitle);
         make.width.mas_equalTo(AdaptationWidth(69));
         make.height.mas_equalTo(AdaptationWidth(26));
     }];
     [hotLab mas_makeConstraints:^(MASConstraintMaker *make) {
         make.center.mas_equalTo(hotView);
+    }];
+    
+    [cityLab mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.mas_equalTo(image.mas_right).offset(AdaptationWidth(16));
+        make.top.mas_equalTo(labTitle.mas_bottom).offset(AdaptationWidth(8));
     }];
     
     UIView *frameView = [[UIView alloc]init];
@@ -182,14 +200,18 @@ typedef NS_ENUM(NSInteger ,ProductDetailRequest) {
     labMoney.numberOfLines = 0;
     [labMoney setFont:[UIFont fontWithName:@"WenYue-HouXianDaiTi-NC-W4-75" size:AdaptationWidth(18)]];
     [labMoney setTextColor:XColorWithRGB(7, 137, 133)];
-    [view addSubview:labMoney];
+    [frameView addSubview:labMoney];
     
     UILabel *labMoneyD = [[UILabel alloc]init];
     labMoneyD.textAlignment = NSTextAlignmentCenter;
     [labMoneyD setText:@"可贷额度 (元)"];
     [labMoneyD setFont:[UIFont fontWithName:@"PingFangSC-Regular" size:AdaptationWidth(12)]];
     [labMoneyD setTextColor:XColorWithRBBA(34, 58, 80, 0.64)];
-    [view addSubview:labMoneyD];
+    [frameView addSubview:labMoneyD];
+    
+    UIView *lineview  = [[UIView alloc] init];
+    lineview.backgroundColor  = XColorWithRGB(233, 233, 235);
+    [frameView addSubview:lineview];
     
     UILabel *labDate = [[UILabel alloc]init];
     labDate.textAlignment = NSTextAlignmentCenter;
@@ -197,7 +219,7 @@ typedef NS_ENUM(NSInteger ,ProductDetailRequest) {
     labDate.numberOfLines = 0;
     [labDate setFont:[UIFont fontWithName:@"WenYue-HouXianDaiTi-NC-W4-75" size:AdaptationWidth(18)]];
     [labDate setTextColor:XColorWithRGB(7, 137, 133)];
-    [view addSubview:labDate];
+    [frameView addSubview:labDate];
     
     UILabel *labDateD = [[UILabel alloc]init];
     labDateD.textAlignment = NSTextAlignmentCenter;
@@ -209,7 +231,12 @@ typedef NS_ENUM(NSInteger ,ProductDetailRequest) {
     
     [labDateD setFont:[UIFont fontWithName:@"PingFangSC-Regular" size:AdaptationWidth(12)]];
     [labDateD setTextColor:XColorWithRBBA(34, 58, 80, 0.64)];
-    [view addSubview:labDateD];
+    [frameView addSubview:labDateD];
+    
+    UIView *lineview1  = [[UIView alloc] init];
+    lineview1.backgroundColor  = XColorWithRGB(233, 233, 235);
+    [frameView addSubview:lineview1];
+    
     
     UILabel *labRate = [[UILabel alloc]init];
     labRate.textAlignment = NSTextAlignmentCenter;
@@ -222,7 +249,7 @@ typedef NS_ENUM(NSInteger ,ProductDetailRequest) {
     }
     [labRate setFont:[UIFont fontWithName:@"WenYue-HouXianDaiTi-NC-W4-75" size:AdaptationWidth(18)]];
     [labRate setTextColor:XColorWithRGB(7, 137, 133)];
-    [view addSubview:labRate];
+    [frameView addSubview:labRate];
     
     UILabel *labRateD = [[UILabel alloc]init];
     labRateD.textAlignment = NSTextAlignmentCenter;
@@ -242,31 +269,55 @@ typedef NS_ENUM(NSInteger ,ProductDetailRequest) {
     }
     [labRateD setFont:[UIFont fontWithName:@"PingFangSC-Regular" size:AdaptationWidth(12)]];
     [labRateD setTextColor:XColorWithRBBA(34, 58, 80, 0.64)];
-    [view addSubview:labRateD];
+    [frameView addSubview:labRateD];
+    
+    if (self.detailModel.loan_year_rate.intValue > 36) {
+        
+        UILabel *labbubble = [[UILabel alloc]init];
+        labbubble.textAlignment = NSTextAlignmentCenter;
+        [labbubble setText:@"浮动利率"];
+        [labbubble setFont:[UIFont fontWithName:@"PingFangSC-Regular" size:AdaptationWidth(14)]];
+        [labbubble setTextColor:XColorWithRGB(7, 137, 133)];
+        [frameView addSubview:labbubble];
+        labRate.hidden = YES;
+        labRateD.hidden = YES;
+        
+        [labbubble mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.right.mas_equalTo(frameView);
+            make.width.mas_equalTo(AdaptationWidth(343/3));
+            make.centerY.mas_equalTo(frameView);
+        }];
+    }
     
     [view mas_makeConstraints:^(MASConstraintMaker *make) {
-
         make.bottom.mas_equalTo(frameView.mas_bottom);
     }];
     
     [frameView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.mas_equalTo(view).offset(AdaptationWidth(16));
-        make.top.mas_equalTo(image.mas_bottom).offset(AdaptationWidth(32));
+        make.top.mas_equalTo(labDetail.mas_bottom).offset(AdaptationWidth(32));
         make.width.mas_equalTo(AdaptationWidth(343));
         
     }];
     
     [labMoney mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.width.mas_equalTo(AdaptationWidth(343/3 - 5));
-        make.left.mas_equalTo(frameView).offset(AdaptationWidth(10));
+        make.width.mas_equalTo(AdaptationWidth(343/3));
+        make.left.mas_equalTo(frameView);
         make.top.mas_equalTo(frameView).offset(AdaptationWidth(16));
         make.bottom.mas_equalTo(labMoneyD.mas_top).offset(-AdaptationWidth(8));
     }];
     [labMoneyD mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.centerX.mas_equalTo(labMoney);
         make.width.mas_equalTo(AdaptationWidth(343/3));
         make.height.mas_equalTo(17);
+        make.left.mas_equalTo(frameView);
         make.bottom.mas_equalTo(frameView.mas_bottom).offset(-AdaptationWidth(16));
+    }];
+    
+    [lineview mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.width.mas_equalTo(0.5);
+        make.height.mas_equalTo(AdaptationWidth(16));
+        make.left.mas_equalTo(labMoney.mas_right);
+        make.centerY.mas_equalTo(frameView);
     }];
     
     [labDate mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -280,6 +331,13 @@ typedef NS_ENUM(NSInteger ,ProductDetailRequest) {
         make.centerX.mas_equalTo(labDate);
         make.height.mas_equalTo(17);
         make.bottom.mas_equalTo(frameView.mas_bottom).offset(-AdaptationWidth(16));
+    }];
+    
+    [lineview1 mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.width.mas_equalTo(0.5);
+        make.height.mas_equalTo(AdaptationWidth(16));
+        make.left.mas_equalTo(labDate.mas_right);
+        make.centerY.mas_equalTo(frameView);
     }];
     
     [labRate mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -314,18 +372,18 @@ typedef NS_ENUM(NSInteger ,ProductDetailRequest) {
     }];
     
     UILabel *labDescribe = [[UILabel alloc]init];
-    NSArray *arrcredit = [self.detailModel.loan_credit_str componentsSeparatedByString:@"~"];
-    [labDescribe setText:[NSString stringWithFormat:@"想借多少 (%@元 ~ %@元)",arrcredit[0],arrcredit[1]]];
+//    NSArray *arrcredit = [self.detailModel.loan_credit_str componentsSeparatedByString:@"~"];
+    [labDescribe setText:[NSString stringWithFormat:@"想借多少 (%@元)",self.detailModel.loan_credit_str]];
     [labDescribe setFont:[UIFont fontWithName:@"PingFangSC-Medium" size:AdaptationWidth(14)]];
     [labDescribe setTextColor:XColorWithRBBA(34, 58, 80, 0.8)];
     [view addSubview:labDescribe];
     
     UILabel *labDescribe2 = [[UILabel alloc]init];
-    NSArray *arrdead = [self.detailModel.loan_deadline_str componentsSeparatedByString:@"~"];
+//    NSArray *arrdead = [self.detailModel.loan_deadline_str componentsSeparatedByString:@"~"];
     if (_detailModel.loan_deadline_type.integerValue == 1) {
-        [labDescribe2 setText:[NSString stringWithFormat:@"想借多久 (%@天 ~ %@天)",arrdead[0],arrdead[1]]];
+        [labDescribe2 setText:[NSString stringWithFormat:@"想借多久 (%@天)",self.detailModel.loan_deadline_str]];
     }else{
-        [labDescribe2 setText:[NSString stringWithFormat:@"想借多久 (%@月 ~ %@月)",arrdead[0],arrdead[1]]];
+        [labDescribe2 setText:[NSString stringWithFormat:@"想借多久 (%@月)",self.detailModel.loan_deadline_str]];
     }
     
     [labDescribe2 setFont:[UIFont fontWithName:@"PingFangSC-Medium" size:AdaptationWidth(14)]];
@@ -592,7 +650,8 @@ typedef NS_ENUM(NSInteger ,ProductDetailRequest) {
     
     //talkingdata
     [TalkingData trackEvent:@"申请借款按钮"];
-    
+//    SuccessApplicationVC *vc  =[[SuccessApplicationVC alloc]init];
+//    [self.navigationController pushViewController:vc animated:YES];
     [self prepareDataWithCount:ProductDetailRequestStaticInfo];
    
 }
@@ -640,7 +699,16 @@ typedef NS_ENUM(NSInteger ,ProductDetailRequest) {
                     [self setHudWithName:@"请输入想借金额和想借期限" Time:0.5 andType:1];
                     return;
                 }
-                if ([self.creditInfoModel.complete_schedule isEqualToString:@"100"]) {
+                if ([self.creditInfoModel.complete_schedule isEqualToString:@"100"]) {//判断资料是否齐全
+                    if ([[UserInfo sharedInstance]getUserInfo].has_grant_authorization.integerValue == 0) {//判断是否授权
+                        [XAlertView alertWithTitle:@"温馨提示" message:@"您当前处于拒绝授权状态，想要获得更多服务,请前往修改状态。" cancelButtonTitle:@"取消" confirmButtonTitle:@"前往授权" viewController:self completion:^(UIAlertAction *action, NSInteger buttonIndex) {
+                            if (buttonIndex == 1) {
+                                AuthorizationVC *vc = [[AuthorizationVC alloc]init];
+                                [self.navigationController pushViewController:vc animated:YES];
+                            }
+                        }];
+                        return;
+                    }
                     [self prepareDataWithCount:ProductDetailRequestApplyLoan];
                     return;
                 }
@@ -663,6 +731,7 @@ typedef NS_ENUM(NSInteger ,ProductDetailRequest) {
         }
             break;
         case ProductDetailRequestApplyLoan:{
+            self.applyProductModel = [ApplyProductModel mj_objectWithKeyValues:response.content];
             cooperationUrl = response.content[@"cooperation_url"];
             //talkingdata
             [TalkingData trackEvent:@"完成申请按钮"];
@@ -691,6 +760,7 @@ typedef NS_ENUM(NSInteger ,ProductDetailRequest) {
             break;
         case 3:{//商户后台
             SuccessApplicationVC *vc  =[[SuccessApplicationVC alloc]init];
+            vc.applyProductModel = self.applyProductModel;
             [self.navigationController pushViewController:vc animated:YES];
         }
             break;
@@ -710,6 +780,12 @@ typedef NS_ENUM(NSInteger ,ProductDetailRequest) {
         _creditInfoModel = [[CreditInfoModel alloc]init];
     }
     return _creditInfoModel;
+}
+- (ApplyProductModel *)applyProductModel{
+    if (!_applyProductModel) {
+        _applyProductModel  = [[ApplyProductModel alloc]init];
+    }
+    return _applyProductModel;
 }
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];

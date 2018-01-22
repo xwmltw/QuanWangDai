@@ -21,6 +21,7 @@
 @property (nonatomic, copy) NSNumber *bank_status;
 @property (nonatomic, copy) NSNumber *loan_info_status;
 @property (nonatomic, copy) NSNumber *company_status;
+@property (nonatomic, copy) NSNumber *applicant_qualification_status;
 + (instancetype)sharedInstance;
 @end
 //“credit_level”: “xxxx”, // 信用等级 BCDE
@@ -35,4 +36,5 @@
 //“bank_status”: “xxxxxxx”,  // 银行卡认证状态 1已认证 0未认证
 //“loan_info_status”: “xxxxxxx”,  //贷款信息填写状态 1已填写 0未填写
 //“company_status”: “xxxxxxx”,  //工作信息填写状态 1已填写 0未填写
+//“applicant_qualification_status”: “xxxxxxx”,  //申请人资质资料填写状态 1已填写 0未填写
 

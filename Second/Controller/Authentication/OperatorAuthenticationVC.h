@@ -7,7 +7,7 @@
 //
 
 #import "XBaseViewController.h"
-
+#import "CreditInfoModel.h"
 @interface OperatorAuthenticationVC : XBaseViewController
-
+@property (nonatomic ,strong) CreditInfoModel *creditInfoModel;
 @end

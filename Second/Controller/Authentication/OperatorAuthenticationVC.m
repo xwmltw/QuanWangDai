@@ -10,14 +10,15 @@
 #import "OperatorModel.h"
 #import "OperatorAuthenticationSecondVC.h"
 #import "ForgetOperatorPasswordVC.h"
-
-
+#import "AuthorizationView.h"
+#import "XRootWebVC.h"
 typedef NS_ENUM(NSInteger, OperatorsCreditRequest) {
     OperatorsCreditRequestInfo,
     OperatorsCreditRequestVerify,
 };
 @interface OperatorAuthenticationVC ()<UITextFieldDelegate>
-
+@property (nonatomic, strong) ClientGlobalInfoRM *clientGlobalInfoModel;
+@property (nonatomic, strong) AuthorizationView *authView;
 @end
 
 @implementation OperatorAuthenticationVC
@@ -82,6 +83,14 @@ typedef NS_ENUM(NSInteger, OperatorsCreditRequest) {
     
     [self refreshView];
     
+    self.authView = [[AuthorizationView alloc]init];
+    [self.authView.AgreementBtn addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchUpInside];
+    [self.authView.TickBtn addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:self.authView];
+    if (self.creditInfoModel.operator_status.integerValue == 1) {//判断是否认证过
+        self.authView.hidden = YES;
+    }
+    
     UIButton *sureBtn = [[UIButton alloc]init];
     sureBtn.tag = 100;
     [sureBtn setTitle:@"提交" forState:UIControlStateNormal];
@@ -136,11 +145,17 @@ typedef NS_ENUM(NSInteger, OperatorsCreditRequest) {
         make.top.mas_equalTo(_operatorsText.mas_bottom).offset(AdaptationWidth(5));
         make.height.mas_equalTo(0.5);
     }];
-    
+    [self.authView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.mas_equalTo(self.view);
+        make.right.mas_equalTo(self.view);
+        make.top.mas_equalTo(line2.mas_bottom).offset(AdaptationWidth(16));
+        make.bottom.mas_equalTo(sureBtn.mas_top);
+        make.height.mas_equalTo(AdaptationWidth(68));
+    }];
     [sureBtn mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.mas_equalTo(self.view).offset(AdaptationWidth(24));
         make.right.mas_equalTo(self.view).offset(-AdaptationWidth(24));
-        make.top.mas_equalTo(line2.mas_bottom).offset(AdaptationWidth(16));
+        make.top.mas_equalTo(self.authView.mas_bottom);
         make.height.mas_equalTo(AdaptationWidth(48));
     }];
     [forgetBtn mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -166,6 +181,10 @@ typedef NS_ENUM(NSInteger, OperatorsCreditRequest) {
             [self setHudWithName:@"服务密码为6位或8位" Time:0.5 andType:1];
             return;
         }
+        if (!self.authView.AgreementBtn.selected && self.creditInfoModel.operator_status.integerValue == 0) {
+            [XAlertView alertWithTitle:@"温馨提示" message:@"请您认真阅读《全网贷个人信息收集授权书》，若无异议请先勾选“我已同意《全网贷个人信息收集授权书》”，再重新提交资料" cancelButtonTitle:nil confirmButtonTitle:@"知道了" viewController:self completion:^(UIAlertAction *action, NSInteger buttonIndex) {}];
+            return;
+        }
         [self prepareDataWithCount:OperatorsCreditRequestVerify];
     }
     if (btn.tag == 101) {
@@ -184,6 +203,25 @@ typedef NS_ENUM(NSInteger, OperatorsCreditRequest) {
     
     if ( [OperatorModel sharedInstance].operator_password != 0) {
         _operatorsText.text = [OperatorModel sharedInstance].operator_password;
+    }
+}
+
+-(void)buttonClick:(UIButton*)button{
+    switch (button.tag) {
+        case AuthorizationBtnOnClickAgreement:
+        {
+            XRootWebVC *vc = [[XRootWebVC alloc]init];
+            vc.url = self.clientGlobalInfoModel.wap_url_list.collect_info_grant_authorization_url;
+            [self.navigationController pushViewController:vc animated:YES];
+        }
+            break;
+        case AuthorizationBtnOnClickTick:
+            button.selected = !button.selected;
+            self.authView.AgreementBtn.selected = button.selected;
+            break;
+            
+        default:
+            break;
     }
 }
 #pragma mark - UITextFieldDelegate
@@ -253,7 +291,12 @@ typedef NS_ENUM(NSInteger, OperatorsCreditRequest) {
             break;
     }
 }
-
+-(ClientGlobalInfoRM *)clientGlobalInfoModel{
+    if (!_clientGlobalInfoModel) {
+        _clientGlobalInfoModel = [ClientGlobalInfoRM getClientGlobalInfoModel];
+    }
+    return _clientGlobalInfoModel;
+}
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.

@@ -787,11 +787,14 @@ typedef NS_ENUM(NSInteger ,XLoginRequest) {
         //talkingData 数据统计
         [TalkingData onLogin:_phoneTextAccount.text type:TDAccountTypeRegistered name:@"全网贷"];
         
-        [[UserInfo sharedInstance]savePhone:_phoneTextAccount.text password:_pwdTextAccount.text userId:response.content[@"id"]];
+        [[UserInfo sharedInstance]savePhone:_phoneTextAccount.text password:_pwdTextAccount.text userId:response.content[@"id"] grantAuthorization:response.content[@"has_grant_authorization"]];
         if (self.isModifyPwd.integerValue == 1) {
             [self.navigationController popToRootViewControllerAnimated:YES];
         }else{
             [self.navigationController popViewControllerAnimated:YES];
+        }
+        if ([[UserInfo sharedInstance]getUserInfo].has_grant_authorization.integerValue == 0) {
+            XBlockExec(self.block, nil);
         }
     }else if (self.requestCount == XLoginRequestMessageCode ){
         [self setHudWithName:@"验证码获取成功" Time:0.5 andType:0];
@@ -809,7 +812,7 @@ typedef NS_ENUM(NSInteger ,XLoginRequest) {
     }else if (self.requestCount == XLoginRequestQuick ){
         [self setHudWithName:@"登录成功" Time:0.5 andType:0];
         [TalkingData onLogin:_phoneTextQuick.text type:TDAccountTypeRegistered name:@"全网贷"];
-        [[UserInfo sharedInstance]savePhone:_phoneTextQuick.text password:nil userId:response.content[@"id"]];
+        [[UserInfo sharedInstance]savePhone:_phoneTextQuick.text password:nil userId:response.content[@"id"] grantAuthorization:response.content[@"has_grant_authorization"]];
         NSDictionary *dict = @{@"login":_phoneTextQuick.text};
         [[NSNotificationCenter defaultCenter]postNotificationName:@"Login" object:self userInfo:dict];
         if (self.isModifyPwd.integerValue == 1) {
@@ -817,9 +820,13 @@ typedef NS_ENUM(NSInteger ,XLoginRequest) {
         }else{
             [self.navigationController popViewControllerAnimated:YES];
         }
+        if ([[UserInfo sharedInstance]getUserInfo].has_grant_authorization.integerValue == 0) {
+            XBlockExec(self.block, nil);
+        }
+        
     }
-    
 }
+
 -(void)requestFaildWithDictionary:(XResponse *)response{
     [self setHudWithName:response.errMsg Time:2 andType:1];
     if (response.errCode.integerValue ==3) {
@@ -832,6 +839,7 @@ typedef NS_ENUM(NSInteger ,XLoginRequest) {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
+
 
 /*
 #pragma mark - Navigation

@@ -11,7 +11,6 @@
 #import "CreditViewController.h"
 #import "InformationViewController.h"
 #import "MyViewController.h"
-#import "ParamModel.h"
 #import "XSessionMgr.h"
 #import "UserInfo.h"
 #import "LoginVC.h"
@@ -158,24 +157,27 @@
 -(void)prepareDataGetUrlWithModel:(id)model andparmeter:(NSDictionary *)dict{
     
     MBProgressHUD *hud = nil;
-//    UIWindow *topWindow = [[UIApplication sharedApplication] keyWindow];
-//    UIViewController *appRootVC = topWindow.rootViewController;
 
-//    hud = [MBProgressHUD showHUDAddedTo:appRootVC.view animated:YES];
-//    hud.mode = MBProgressHUDModeCustomView;
-//    hud.minShowTime = 3;
-//    hud.animationType = MBProgressHUDAnimationZoomIn;
-//    hud.removeFromSuperViewOnHide = YES;
-//    hud.detailsLabel.text = @"加载中...";
-//    NSString *path = [[NSBundle mainBundle] pathForResource:@"loading" ofType:@"gif"];
-//    NSData *data = [NSData dataWithContentsOfFile:path];
-//    FLAnimatedImage *image = [FLAnimatedImage animatedImageWithGIFData:data];
-//    FLAnimatedImageView *imageView = [[FLAnimatedImageView alloc] init];
-//    imageView.animatedImage = image;
-//    hud.color = [UIColor whiteColor];
-//    hud.color = [hud.color colorWithAlphaComponent:1];
-//    hud.customView = imageView;
-    
+    if ([self.cmd isEqual:XGetOperatorInfo]) {
+        UIWindow *topWindow = [[UIApplication sharedApplication] keyWindow];
+        UIViewController *appRootVC = topWindow.rootViewController;
+        hud = [MBProgressHUD showHUDAddedTo:appRootVC.view animated:YES];
+        hud.mode = MBProgressHUDModeIndeterminate;
+        hud.animationType = MBProgressHUDAnimationFade;
+        hud.bezelView.style = MBProgressHUDBackgroundStyleSolidColor;
+        hud.bezelView.backgroundColor = [UIColor clearColor];
+//            hud.minShowTime = 3;
+//            hud.removeFromSuperViewOnHide = YES;
+//            hud.detailsLabel.text = @"加载中...";
+//            NSString *path = [[NSBundle mainBundle] pathForResource:@"loading" ofType:@"gif"];
+//            NSData *data = [NSData dataWithContentsOfFile:path];
+//            FLAnimatedImage *image = [FLAnimatedImage animatedImageWithGIFData:data];
+//            FLAnimatedImageView *imageView = [[FLAnimatedImageView alloc] init];
+//            imageView.animatedImage = image;
+//            hud.color = [UIColor clearColor];
+//            hud.color = [hud.color colorWithAlphaComponent:1];
+//            hud.customView = imageView;
+    }
     NSMutableDictionary *params = [NSMutableDictionary dictionary];
     [params setObject:self.cmd forKey:@"service"];
     NSMutableDictionary *content = [[[BaseInfoPM alloc]init] mj_keyValues];
@@ -438,6 +440,7 @@
     
     MJRefreshAutoNormalFooter *footer =[MJRefreshAutoNormalFooter footerWithRefreshingTarget:self refreshingAction:@selector(footerRefresh)];
     _tableView.mj_footer = footer;
+    [footer setTitle:@"" forState:MJRefreshStateIdle];
     _tableView.mj_footer.hidden = YES;
     [self.view addSubview:_tableView];
 }
@@ -551,11 +554,23 @@
             [XAlertView alertWithTitle:@"提示" message:@"您还没有登录唷~请前往登录!" cancelButtonTitle:@"取消" confirmButtonTitle:@"登录" viewController:controller completion:^(UIAlertAction *action, NSInteger buttonIndex) {
                 if (buttonIndex == 1) {
                     LoginVC *vc = [[LoginVC alloc]init];
+                    vc.block = ^(id result) {
+                        [self showAlertView];
+                    };
                     vc.hidesBottomBarWhenPushed = YES;
                     [self.navigationController pushViewController:vc animated:YES];
                 }
             }];
+}
 
+- (void)showAlertView{
+    [XAlertView alertWithTitle:@"温馨提示" message:@"在使用过程中，全网贷会为您推荐相应的贷款产品，您部分必要的个人信息（包括但不限于手机号、工作信息等）可能会根据您的需求，匹配给对应的第三方机构。" cancelButtonTitle:@"不同意" confirmButtonTitle:@"同意授权" viewController:self completion:^(UIAlertAction *action, NSInteger buttonIndex) {
+        if (buttonIndex == 1) {
+            self.requestCount = 100;
+            [[UserInfo sharedInstance]savePhone:nil password:nil userId:nil grantAuthorization:@(1)];
+            [self prepareDataGetUrlWithModel:XGrantAuthorization andparmeter:@{@"opt_type":@"1"}];
+        }
+    }];
 }
 #pragma mark 懒加载
 /**
