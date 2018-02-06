@@ -15,6 +15,8 @@
 @property (nonatomic, copy) NSNumber *loan_credit;
 @property (nonatomic, copy) NSNumber *loan_deadline;
 @property (nonatomic, copy) NSString *loan_classify_id;
+@property (nonatomic, copy) NSNumber *special_entry_id;
+@property (nonatomic ,copy) NSNumber *query_entry_type;
 @end
 //“query_param”:{
 //    // 查询参数，请参考全局数据结构
@@ -24,4 +26,6 @@
 //1低息贷款2分期借贷3小额速贷4一定能贷
 //“loan_classify_id”: xxxx // 贷款类型id
 //“loan_credit”: xxxx // 贷款产品额度
+//special_entry_id 特色入口id
+//query_entry_type查询入口：0申请推荐列表(报名后的页面) 1私人订制列表 2查询是否有推荐数据
 

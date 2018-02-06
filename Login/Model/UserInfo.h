@@ -12,7 +12,7 @@
 @property(nonatomic,copy)NSString *phoneName;
 @property(nonatomic,copy)NSString *password;
 @property(nonatomic,copy)NSString *userId;
-@property(nonatomic,copy)NSNumber *has_grant_authorization; /*!< 1： 代表已授权， 0代表未授权*/
+@property(nonatomic,copy)NSNumber *has_grant_authorization; /*!< 1： 代表已授权， 0代表未操作  ，2未授权*/
 
 + (instancetype)sharedInstance;
 //存储用户登录信息

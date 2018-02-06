@@ -22,7 +22,7 @@ typedef NS_ENUM(NSInteger ,XLoginRequest) {
     
 };
 
-@interface LoginVC ()
+@interface LoginVC ()<UITextFieldDelegate>
 @property (nonatomic, strong) UIButton *btnBack;
 @property (nonatomic ,strong) UILabel *lblLogin;
 @property (nonatomic ,strong) UIImageView *loginImage;
@@ -49,6 +49,7 @@ typedef NS_ENUM(NSInteger ,XLoginRequest) {
 
 @implementation LoginVC
 {
+    UIButton *loginButtonAccount;
     UITextField *_phoneTextAccount;
     UITextField *_pwdTextAccount;
     UITextField *_phoneTextQuick;
@@ -68,7 +69,52 @@ typedef NS_ENUM(NSInteger ,XLoginRequest) {
     [super viewDidLoad];
     
     [self setup_UI];
+    
+    [self addNoticeForKeyboard];
 }
+#pragma mark - 键盘通知
+- (void)addNoticeForKeyboard {
+    
+    //注册键盘出现的通知
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(keyboardWillShow:)
+                                                 name:UIKeyboardWillShowNotification object:nil];
+    //注册键盘消失的通知
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(keyboardWillHide:)
+                                                 name:UIKeyboardWillHideNotification object:nil];
+}
+///键盘显示事件
+- (void) keyboardWillShow:(NSNotification *)notification {
+    //获取键盘高度，在不同设备上，以及中英文下是不同的
+    CGFloat kbHeight = [[notification.userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue].size.height;
+    //计算出键盘顶端到inputTextView panel底端的距离(加上自定义的缓冲距离INTERVAL_KEYBOARD)
+    CGFloat offset = 0.0;
+    if (_pwdTextAccount.editing || _verificationTextQuick.editing) {
+        offset = (self.buttonView.frame.origin.y + AdaptationWidth(175)) - (self.view.frame.size.height - kbHeight);
+    }else if(_phoneTextAccount.editing || _phoneTextQuick.editing){
+        offset = (self.buttonView.frame.origin.y + AdaptationWidth(90)) - (self.view.frame.size.height - kbHeight);
+    }
+    // 取得键盘的动画时间，这样可以在视图上移的时候更连贯
+    double duration = [[notification.userInfo objectForKey:UIKeyboardAnimationDurationUserInfoKey] doubleValue];
+    //将视图上移计算好的偏移
+    if(offset > 0) {
+        [UIView animateWithDuration:duration animations:^{
+            self.view.frame = CGRectMake(self.view.frame.origin.x, -offset, self.view.frame.size.width, self.view.frame.size.height);
+        }];
+    }
+}
+
+///键盘消失事件
+- (void) keyboardWillHide:(NSNotification *)notify {
+    // 键盘动画时间
+    double duration = [[notify.userInfo objectForKey:UIKeyboardAnimationDurationUserInfoKey] doubleValue];
+    //视图下沉恢复原状
+    [UIView animateWithDuration:duration animations:^{
+        self.view.frame = CGRectMake(self.view.frame.origin.x, 64, self.view.frame.size.width, self.view.frame.size.height);
+    }];
+}
+
 - (UIRectEdge)edgesForExtendedLayout {
     return UIRectEdgeNone;
 }
@@ -388,6 +434,7 @@ typedef NS_ENUM(NSInteger ,XLoginRequest) {
     [_phoneTextAccount setTextColor:XColorWithRBBA(34, 58, 80, 0.8)];
     _phoneTextAccount.font = [UIFont fontWithName:@"PingFangSC-Regular" size:AdaptationWidth(18)];
     _phoneTextAccount.tag = 1;
+    _phoneTextAccount.delegate = self;
     [_phoneTextAccount addTarget:self action:@selector(textFieldDidChange:) forControlEvents:UIControlEventEditingChanged];
     _phoneTextAccount.keyboardType = UIKeyboardTypeNumberPad;
     [self.greenView addSubview:_phoneTextAccount];
@@ -426,7 +473,7 @@ typedef NS_ENUM(NSInteger ,XLoginRequest) {
     _pwdTextAccount.font = [UIFont fontWithName:@"PingFangSC-Regular" size:AdaptationWidth(18)];
     _pwdTextAccount.tag = 2;
     _pwdTextAccount.secureTextEntry = YES;
-    
+    _pwdTextAccount.delegate = self;
     [_pwdTextAccount addTarget:self action:@selector(textFieldDidChange:) forControlEvents:UIControlEventEditingChanged];
     
     
@@ -438,8 +485,6 @@ typedef NS_ENUM(NSInteger ,XLoginRequest) {
     [secureButton addTarget:self action:@selector(securePasswordClick:) forControlEvents:UIControlEventTouchUpInside];
     _pwdTextAccount.rightView = secureButton;
     _pwdTextAccount.rightViewMode = UITextFieldViewModeAlways;
-    [self.view addSubview:_pwdTextAccount];
-    
     [self.greenView addSubview:_pwdTextAccount];
     
     [lalPhone mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -499,7 +544,7 @@ typedef NS_ENUM(NSInteger ,XLoginRequest) {
     _phoneTextQuick.tag = 100;
     [_phoneTextQuick addTarget:self action:@selector(textFieldDidChange:) forControlEvents:UIControlEventEditingChanged];
     _phoneTextQuick.keyboardType = UIKeyboardTypeNumberPad;
-    
+    _phoneTextQuick.delegate = self;
     [self.orangeView addSubview:_phoneTextQuick];
     
     UILabel *lalPhone = [[UILabel alloc]init];
@@ -532,6 +577,7 @@ typedef NS_ENUM(NSInteger ,XLoginRequest) {
     [_verificationTextQuick addTarget:self action:@selector(textFieldDidChange:) forControlEvents:UIControlEventEditingChanged];
     _verificationTextQuick.keyboardType = UIKeyboardTypeNumberPad;
     _verificationTextQuick.tag = 4;
+    _verificationTextQuick.delegate = self;
     [_verificationTextQuick setTextColor:XColorWithRBBA(34, 58, 80, 0.8)];
     [self.orangeView addSubview:_verificationTextQuick];
     
@@ -601,7 +647,7 @@ typedef NS_ENUM(NSInteger ,XLoginRequest) {
                     (忘记密码):12
  */
 -(void)createButtonAccount{
-    UIButton *loginButtonAccount = [[UIButton alloc]init];
+    loginButtonAccount = [[UIButton alloc]init];
     loginButtonAccount.frame = CGRectMake(AdaptationWidth(20), AdaptationWidth(204), AdaptationWidth(337), AdaptationWidth(50));
     loginButtonAccount.layer.cornerRadius = 4;
     loginButtonAccount.clipsToBounds = YES;
@@ -732,7 +778,10 @@ typedef NS_ENUM(NSInteger ,XLoginRequest) {
     }
 }
 #pragma mark - UITextfield TextChange
-
+- (BOOL)textFieldShouldReturn:(UITextField *)textField{
+    [self buttonClick:loginButtonAccount];
+    return YES;
+}
 -(CGRect)textRectForBounds:(CGRect)bounds {
     
     return CGRectMake(0, bounds.origin.y, bounds.size.width, bounds.size.height);
@@ -741,6 +790,7 @@ typedef NS_ENUM(NSInteger ,XLoginRequest) {
 - (void)textFieldDidChange:(UITextField *)textField{
     if (textField == _pwdTextAccount) {
         if (_pwdTextAccount.text.length >= 20) {
+            
             _pwdTextAccount.text = [_pwdTextAccount.text substringToIndex:20];
         }
     }else if (textField == _phoneTextAccount) {
@@ -784,6 +834,7 @@ typedef NS_ENUM(NSInteger ,XLoginRequest) {
 - (void)requestSuccessWithDictionary:(XResponse *)response{
     if (self.requestCount == XLoginRequestSignIn) {
         [self setHudWithName:@"登录成功" Time:0.5 andType:0];
+        [[NSNotificationCenter defaultCenter]postNotificationName:@"Refresh" object:self userInfo:nil];
         //talkingData 数据统计
         [TalkingData onLogin:_phoneTextAccount.text type:TDAccountTypeRegistered name:@"全网贷"];
         

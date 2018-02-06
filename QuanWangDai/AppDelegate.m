@@ -12,10 +12,24 @@
 #import <AlipaySDK/AlipaySDK.h>
 #import "TBCityIconFont.h"
 #import "TalkingData.h"
+#import <AMapFoundationKit/AMapFoundationKit.h>
+#import <AMapLocationKit/AMapLocationKit.h>
+#import "UserLocation.h"
+// 引入JPush功能所需头文件
+#import "JPUSHService.h"
+// iOS10注册APNs所需头文件
+#ifdef NSFoundationVersionNumber_iOS_9_x_Max
+#import <UserNotifications/UserNotifications.h>
+#endif
+// 如果需要使用idfa功能所需要引入的头文件（可选）
+#import <AdSupport/AdSupport.h>
+
+
+
 
 #define XJDAPP_PLATFORM @"AppStore"
 
-@interface AppDelegate ()<ServiceURLVCDelegate>
+@interface AppDelegate ()<ServiceURLVCDelegate,JPUSHRegisterDelegate>
 @property(nonatomic,strong)UITabBarController *tabVC;//导航栏控制器
 @end
 
@@ -62,7 +76,7 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     
     //第三方配置
-    [self addThreeConfig];
+    [self addThreeConfig:launchOptions];
     //初始化ttf
     [TBCityIconFont setFontName:@"iconfont"];
     
@@ -80,7 +94,7 @@
 }
 
 
-- (void)addThreeConfig{
+- (void)addThreeConfig:(NSDictionary *)launchOptions{
     //键盘
     [IQKeyboardManager sharedManager].toolbarDoneBarButtonItemText = @"完成";
     [IQKeyboardManager sharedManager].shouldResignOnTouchOutside = YES;
@@ -94,13 +108,93 @@
     
     [TalkingData setExceptionReportEnabled:YES];
     [TalkingData sessionStarted:TalkingData_AppID withChannelId:XJDAPP_PLATFORM];
+    
+    //高德
+    [AMapServices sharedServices].apiKey = AMapKey;
+    [[UserLocation sharedInstance]UserLocation];
+    
+    // 极光推送
+    [[UIApplication sharedApplication] setApplicationIconBadgeNumber:0];//清楚badage
+    //Required
+    //notice: 3.0.0及以后版本注册可以这样写，也可以继续用之前的注册方式
+    JPUSHRegisterEntity * entity = [[JPUSHRegisterEntity alloc] init];
+    entity.types = JPAuthorizationOptionAlert|JPAuthorizationOptionBadge|JPAuthorizationOptionSound;
+    if ([[UIDevice currentDevice].systemVersion floatValue] >= 8.0) {
+        // 可以添加自定义categories
+        // NSSet<UNNotificationCategory *> *categories for iOS10 or later
+        // NSSet<UIUserNotificationCategory *> *categories for iOS8 and iOS9
+    }
+    [JPUSHService registerForRemoteNotificationConfig:entity delegate:self];
+    
+    // Optional
+    // 获取IDFA
+    // 如需使用IDFA功能请添加此代码并在初始化方法的advertisingIdentifier参数中填写对应值
+//    NSString *advertisingId = [[[ASIdentifierManager sharedManager] advertisingIdentifier] UUIDString];
+    
+    // Required
+    // init Push
+    // notice: 2.1.5版本的SDK新增的注册方法，改成可上报IDFA，如果没有使用IDFA直接传nil
+    // 如需继续使用pushConfig.plist文件声明appKey等配置内容，请依旧使用[JPUSHService setupWithOption:launchOptions]方式初始化。
+    [JPUSHService setupWithOption:launchOptions appKey:JPAppKey
+                          channel:@"AppStore"
+                 apsForProduction:YES
+            advertisingIdentifier:nil];
+    
 }
-
 #pragma mark - ServiceURLVCDelegate
 - (void)doNotForceUpdate{
     self.tabVC.viewControllers = [XBaseViewController setAdultTabBar];
     self.window.rootViewController = self.tabVC;
 }
+#pragma mark - jpush delegate
+- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken{
+    [JPUSHService registerDeviceToken:deviceToken];
+    MyLog(@"注册成功 token：%@",deviceToken);
+}
+- (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
+    //Optional
+    MyLog(@"极光注册失败 With Error: %@", error);
+}
+
+    // iOS 10 Support
+- (void)jpushNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(NSInteger))completionHandler {
+    // Required
+    NSDictionary * userInfo = notification.request.content.userInfo;
+    if([notification.request.trigger isKindOfClass:[UNPushNotificationTrigger class]]) {
+        [JPUSHService handleRemoteNotification:userInfo];
+    }
+   
+    completionHandler(UNNotificationPresentationOptionAlert); // 需要执行这个方法，选择是否提醒用户，有Badge、Sound、Alert三种类型可以选择设置
+//    [WDNotificationCenter postNotificationName:XNotificationAlert object:userInfo];
+}
+    
+    // iOS 10 Support
+- (void)jpushNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)())completionHandler {
+    // Required
+    NSDictionary * userInfo = response.notification.request.content.userInfo;
+    if([response.notification.request.trigger isKindOfClass:[UNPushNotificationTrigger class]]) {
+        [JPUSHService handleRemoteNotification:userInfo];
+    }
+
+    completionHandler();  // 系统要求执行这个方法
+    [WDNotificationCenter postNotificationName:XNotificationAlert object:userInfo];
+}
+    
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
+    
+    // Required, iOS 7 Support
+    [JPUSHService handleRemoteNotification:userInfo];
+    completionHandler(UIBackgroundFetchResultNewData);
+}
+    
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {
+    
+    // Required,For systems with less than or equal to iOS6
+    [JPUSHService handleRemoteNotification:userInfo];
+}
+
+    
+    
 /**
  *  支付宝返回字段解析
  *

@@ -13,6 +13,8 @@
 		040927941FCC30D700203FC6 /* AuthenticationBankVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 040927931FCC30D700203FC6 /* AuthenticationBankVC.m */; };
 		040927971FCC3A1E00203FC6 /* ScanningBankVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 040927961FCC3A1E00203FC6 /* ScanningBankVC.m */; };
 		040927E11FCC42F700203FC6 /* BankInfoModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 040927E01FCC42F700203FC6 /* BankInfoModel.m */; };
+		040A4BA020245BDD0091C755 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 040A4B9F20245BD70091C755 /* UserNotifications.framework */; };
+		040A4BA220245C020091C755 /* libresolv.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 040A4BA120245C020091C755 /* libresolv.tbd */; };
 		040A6FA31FDBDCEC001C2C65 /* libTalkingData.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 040A6F9F1FDBDCEB001C2C65 /* libTalkingData.a */; };
 		040A6FA41FDBDCEC001C2C65 /* libTalkingDataAppCpa.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 040A6FA01FDBDCEB001C2C65 /* libTalkingDataAppCpa.a */; };
 		040A6FA61FDBDD40001C2C65 /* AdSupport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 040A6FA51FDBDD2B001C2C65 /* AdSupport.framework */; };
@@ -27,6 +29,7 @@
 		042252261FAB039900324554 /* GTMBase64.m in Sources */ = {isa = PBXBuildFile; fileRef = 042252201FAB039900324554 /* GTMBase64.m */; };
 		042252271FAB039900324554 /* NSData+AES.m in Sources */ = {isa = PBXBuildFile; fileRef = 042252231FAB039900324554 /* NSData+AES.m */; };
 		042252281FAB039900324554 /* SecurityUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 042252251FAB039900324554 /* SecurityUtil.m */; };
+		04253F62201EBED700E1C7C2 /* UserLocation.m in Sources */ = {isa = PBXBuildFile; fileRef = 04253F61201EBED700E1C7C2 /* UserLocation.m */; };
 		0426007B1FB431B80037954D /* RecommendViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0426007A1FB431B80037954D /* RecommendViewController.m */; };
 		0426007E1FB431E70037954D /* CreditViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0426007D1FB431E70037954D /* CreditViewController.m */; };
 		042600811FB432070037954D /* InformationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 042600801FB432070037954D /* InformationViewController.m */; };
@@ -76,6 +79,9 @@
 		045FC3361FD7BC0C007054A0 /* TBCityIconInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 045FC3311FD7BC0C007054A0 /* TBCityIconInfo.m */; };
 		046BDDE31FBBE5A10073D599 /* XResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 046BDDE21FBBE5A10073D599 /* XResponse.m */; };
 		046BDDE61FBC46140073D599 /* UserInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 046BDDE51FBC46140073D599 /* UserInfo.m */; };
+		04768E0E2019BB5800F94412 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04768E0D2019BB4A00F94412 /* CoreLocation.framework */; };
+		04768E102019BB8300F94412 /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04768E0F2019BB7D00F94412 /* JavaScriptCore.framework */; };
+		04768E122019BBDE00F94412 /* libstdc++.6.0.9.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 04768E112019BBDE00F94412 /* libstdc++.6.0.9.tbd */; };
 		047960331FB2FD810091825E /* XAlertView.m in Sources */ = {isa = PBXBuildFile; fileRef = 047960321FB2FD810091825E /* XAlertView.m */; };
 		04799C751FCFA6D200245F93 /* camera_line.png in Resources */ = {isa = PBXBuildFile; fileRef = 04799C4E1FCFA6D200245F93 /* camera_line.png */; };
 		04799C761FCFA6D200245F93 /* camera_line@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 04799C4F1FCFA6D200245F93 /* camera_line@2x.png */; };
@@ -129,6 +135,7 @@
 		04ADBB662006FB5400A8A764 /* UDIDSDK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 04ADBB632006FB5400A8A764 /* UDIDSDK.a */; };
 		04B2DDF7200DDD2000BB9FA2 /* ApplyProductModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 04B2DDF6200DDD2000BB9FA2 /* ApplyProductModel.m */; };
 		04B2DDFA200DFEE000BB9FA2 /* LoanTypeInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 04B2DDF9200DFEE000BB9FA2 /* LoanTypeInfo.m */; };
+		04BF594920219C2700F8AD5C /* PersonalTailorVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 04BF594820219C2700F8AD5C /* PersonalTailorVC.m */; };
 		04D05E5F1FC7C27C00677647 /* IdCardModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 04D05E5E1FC7C27C00677647 /* IdCardModel.m */; };
 		04D05E621FC7CB8A00677647 /* ZMAuthorizeQryModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 04D05E611FC7CB8A00677647 /* ZMAuthorizeQryModel.m */; };
 		04D05E651FC7FC7900677647 /* CreditInfoModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 04D05E641FC7FC7900677647 /* CreditInfoModel.m */; };
@@ -181,6 +188,7 @@
 		9A67F4F4200DE71A00003332 /* ApplicantCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A67F4F3200DE71A00003332 /* ApplicantCell.m */; };
 		9A67F4F7200DF9C200003332 /* ApplicantModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A67F4F6200DF9C200003332 /* ApplicantModel.m */; };
 		9A67F4FA2010443A00003332 /* ReconmendCollectionCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A67F4F92010443A00003332 /* ReconmendCollectionCell.m */; };
+		9A72DFFA20188036008BCDD4 /* AutoScrollLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A72DFF920188035008BCDD4 /* AutoScrollLabel.m */; };
 		9AAD801D1FE751AA00D386E0 /* WenYue-HouXianDaiTi-NC-W4-75.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9AAD801C1FE751AA00D386E0 /* WenYue-HouXianDaiTi-NC-W4-75.ttf */; };
 /* End PBXBuildFile section */
 
@@ -213,6 +221,8 @@
 		040927961FCC3A1E00203FC6 /* ScanningBankVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ScanningBankVC.m; sourceTree = "<group>"; };
 		040927DF1FCC42F700203FC6 /* BankInfoModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BankInfoModel.h; sourceTree = "<group>"; };
 		040927E01FCC42F700203FC6 /* BankInfoModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BankInfoModel.m; sourceTree = "<group>"; };
+		040A4B9F20245BD70091C755 /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = System/Library/Frameworks/UserNotifications.framework; sourceTree = SDKROOT; };
+		040A4BA120245C020091C755 /* libresolv.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libresolv.tbd; path = usr/lib/libresolv.tbd; sourceTree = SDKROOT; };
 		040A6F9F1FDBDCEB001C2C65 /* libTalkingData.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libTalkingData.a; sourceTree = "<group>"; };
 		040A6FA01FDBDCEB001C2C65 /* libTalkingDataAppCpa.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libTalkingDataAppCpa.a; sourceTree = "<group>"; };
 		040A6FA11FDBDCEB001C2C65 /* TalkingData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TalkingData.h; sourceTree = "<group>"; };
@@ -240,6 +250,8 @@
 		042252231FAB039900324554 /* NSData+AES.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSData+AES.m"; sourceTree = "<group>"; };
 		042252241FAB039900324554 /* SecurityUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SecurityUtil.h; sourceTree = "<group>"; };
 		042252251FAB039900324554 /* SecurityUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SecurityUtil.m; sourceTree = "<group>"; };
+		04253F60201EBED700E1C7C2 /* UserLocation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UserLocation.h; sourceTree = "<group>"; };
+		04253F61201EBED700E1C7C2 /* UserLocation.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UserLocation.m; sourceTree = "<group>"; };
 		042600791FB431B80037954D /* RecommendViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RecommendViewController.h; sourceTree = "<group>"; };
 		0426007A1FB431B80037954D /* RecommendViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RecommendViewController.m; sourceTree = "<group>"; };
 		0426007C1FB431E70037954D /* CreditViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CreditViewController.h; sourceTree = "<group>"; };
@@ -323,6 +335,9 @@
 		046BDDE21FBBE5A10073D599 /* XResponse.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = XResponse.m; sourceTree = "<group>"; };
 		046BDDE41FBC46140073D599 /* UserInfo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UserInfo.h; sourceTree = "<group>"; };
 		046BDDE51FBC46140073D599 /* UserInfo.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UserInfo.m; sourceTree = "<group>"; };
+		04768E0D2019BB4A00F94412 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
+		04768E0F2019BB7D00F94412 /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		04768E112019BBDE00F94412 /* libstdc++.6.0.9.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libstdc++.6.0.9.tbd"; path = "usr/lib/libstdc++.6.0.9.tbd"; sourceTree = SDKROOT; };
 		047960311FB2FD810091825E /* XAlertView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XAlertView.h; sourceTree = "<group>"; };
 		047960321FB2FD810091825E /* XAlertView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = XAlertView.m; sourceTree = "<group>"; };
 		04799C4E1FCFA6D200245F93 /* camera_line.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = camera_line.png; sourceTree = "<group>"; };
@@ -408,6 +423,9 @@
 		04B2DDF6200DDD2000BB9FA2 /* ApplyProductModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ApplyProductModel.m; sourceTree = "<group>"; };
 		04B2DDF8200DFEE000BB9FA2 /* LoanTypeInfo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LoanTypeInfo.h; sourceTree = "<group>"; };
 		04B2DDF9200DFEE000BB9FA2 /* LoanTypeInfo.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LoanTypeInfo.m; sourceTree = "<group>"; };
+		04BAC6E220243F3900D85A80 /* QuanWangDai.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = QuanWangDai.entitlements; sourceTree = "<group>"; };
+		04BF594720219C2700F8AD5C /* PersonalTailorVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PersonalTailorVC.h; sourceTree = "<group>"; };
+		04BF594820219C2700F8AD5C /* PersonalTailorVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PersonalTailorVC.m; sourceTree = "<group>"; };
 		04D05E5D1FC7C27C00677647 /* IdCardModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IdCardModel.h; sourceTree = "<group>"; };
 		04D05E5E1FC7C27C00677647 /* IdCardModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IdCardModel.m; sourceTree = "<group>"; };
 		04D05E601FC7CB8A00677647 /* ZMAuthorizeQryModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZMAuthorizeQryModel.h; sourceTree = "<group>"; };
@@ -501,6 +519,8 @@
 		9A67F4F6200DF9C200003332 /* ApplicantModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ApplicantModel.m; sourceTree = "<group>"; };
 		9A67F4F82010443A00003332 /* ReconmendCollectionCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReconmendCollectionCell.h; sourceTree = "<group>"; };
 		9A67F4F92010443A00003332 /* ReconmendCollectionCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ReconmendCollectionCell.m; sourceTree = "<group>"; };
+		9A72DFF820188035008BCDD4 /* AutoScrollLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AutoScrollLabel.h; sourceTree = "<group>"; };
+		9A72DFF920188035008BCDD4 /* AutoScrollLabel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AutoScrollLabel.m; sourceTree = "<group>"; };
 		9AAD801C1FE751AA00D386E0 /* WenYue-HouXianDaiTi-NC-W4-75.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "WenYue-HouXianDaiTi-NC-W4-75.ttf"; sourceTree = "<group>"; };
 		BFAF6080F4748B8478323F6A /* libPods-QuanWangDai.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-QuanWangDai.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -510,10 +530,14 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				040A4BA020245BDD0091C755 /* UserNotifications.framework in Frameworks */,
+				04768E102019BB8300F94412 /* JavaScriptCore.framework in Frameworks */,
+				04768E0E2019BB5800F94412 /* CoreLocation.framework in Frameworks */,
 				040A6FA61FDBDD40001C2C65 /* AdSupport.framework in Frameworks */,
 				9A14055D1FCFC9110005CC47 /* TencentOpenAPI.framework in Frameworks */,
 				04799C911FCFA6D300245F93 /* libIOSOCRLIB.a in Frameworks */,
 				044F2E771FC2D45A00FCD249 /* CoreTelephony.framework in Frameworks */,
+				040A4BA220245C020091C755 /* libresolv.tbd in Frameworks */,
 				044F2E731FC2D42200FCD249 /* CoreMotion.framework in Frameworks */,
 				044F2E711FC2D40800FCD249 /* AssetsLibrary.framework in Frameworks */,
 				040A6FA81FDBDD6D001C2C65 /* libc++.tbd in Frameworks */,
@@ -533,6 +557,7 @@
 				044F2E691FC2CCC800FCD249 /* AlipaySDK.framework in Frameworks */,
 				04ED3E831FA9A1D8008C9FDE /* ImageIO.framework in Frameworks */,
 				04ED3E811FA9A1CF008C9FDE /* Foundation.framework in Frameworks */,
+				04768E122019BBDE00F94412 /* libstdc++.6.0.9.tbd in Frameworks */,
 				04ED3E7F1FA9A1C3008C9FDE /* CoreGraphics.framework in Frameworks */,
 				04ED3E7D1FA9A1BC008C9FDE /* CoreFoundation.framework in Frameworks */,
 				2E55ADE2C54CDA96D84575D5 /* libPods-QuanWangDai.a in Frameworks */,
@@ -610,6 +635,8 @@
 				04D4BA2F1FAB0864004E4146 /* XCommonHepler.m */,
 				047960311FB2FD810091825E /* XAlertView.h */,
 				047960321FB2FD810091825E /* XAlertView.m */,
+				04253F60201EBED700E1C7C2 /* UserLocation.h */,
+				04253F61201EBED700E1C7C2 /* UserLocation.m */,
 			);
 			path = Base;
 			sourceTree = "<group>";
@@ -642,6 +669,8 @@
 				9A14055F1FCFDB4A0005CC47 /* UpdateView.m */,
 				9A67F4E6200DA8C300003332 /* AuthorizationView.h */,
 				9A67F4E7200DA8C300003332 /* AuthorizationView.m */,
+				9A72DFF820188035008BCDD4 /* AutoScrollLabel.h */,
+				9A72DFF920188035008BCDD4 /* AutoScrollLabel.m */,
 			);
 			path = category;
 			sourceTree = "<group>";
@@ -746,6 +775,8 @@
 				0426007A1FB431B80037954D /* RecommendViewController.m */,
 				042890481FB5541B00C7009A /* AllDKViewController.h */,
 				042890491FB5541B00C7009A /* AllDKViewController.m */,
+				04BF594720219C2700F8AD5C /* PersonalTailorVC.h */,
+				04BF594820219C2700F8AD5C /* PersonalTailorVC.m */,
 				042890511FB5A8B400C7009A /* ProductDetailVC.h */,
 				042890521FB5A8B400C7009A /* ProductDetailVC.m */,
 				041492151FB6F7B1000B7A53 /* DataDetailVC.h */,
@@ -1194,6 +1225,7 @@
 		04ED3E461FA99DE8008C9FDE /* QuanWangDai */ = {
 			isa = PBXGroup;
 			children = (
+				04BAC6E220243F3900D85A80 /* QuanWangDai.entitlements */,
 				04ED3E471FA99DE8008C9FDE /* AppDelegate.h */,
 				04ED3E481FA99DE8008C9FDE /* AppDelegate.m */,
 				04ED3E4A1FA99DE8008C9FDE /* ViewController.h */,
@@ -1231,6 +1263,11 @@
 		465D13C3A2D524AB0DE8FB5E /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				040A4BA120245C020091C755 /* libresolv.tbd */,
+				040A4B9F20245BD70091C755 /* UserNotifications.framework */,
+				04768E112019BBDE00F94412 /* libstdc++.6.0.9.tbd */,
+				04768E0F2019BB7D00F94412 /* JavaScriptCore.framework */,
+				04768E0D2019BB4A00F94412 /* CoreLocation.framework */,
 				040A6FA71FDBDD6D001C2C65 /* libc++.tbd */,
 				040A6FA51FDBDD2B001C2C65 /* AdSupport.framework */,
 				9A14055C1FCFC9110005CC47 /* TencentOpenAPI.framework */,
@@ -1335,6 +1372,14 @@
 					04ED3E431FA99DE8008C9FDE = {
 						CreatedOnToolsVersion = 9.0;
 						ProvisioningStyle = Automatic;
+						SystemCapabilities = {
+							com.apple.BackgroundModes = {
+								enabled = 1;
+							};
+							com.apple.Push = {
+								enabled = 1;
+							};
+						};
 					};
 					04ED3E5E1FA99DE8008C9FDE = {
 						CreatedOnToolsVersion = 9.0;
@@ -1502,6 +1547,7 @@
 			files = (
 				042FCA0C1FCE4AB3006957F1 /* InformationModel.m in Sources */,
 				044F2E831FC2DA6300FCD249 /* CreditChannelCell.m in Sources */,
+				04253F62201EBED700E1C7C2 /* UserLocation.m in Sources */,
 				042252281FAB039900324554 /* SecurityUtil.m in Sources */,
 				0494C6E61FCCFBA200FE3817 /* ScanningBankDetailVC.m in Sources */,
 				048CF37D1FD7E20B00DEA212 /* XTextField.m in Sources */,
@@ -1520,6 +1566,7 @@
 				04ED3E491FA99DE8008C9FDE /* AppDelegate.m in Sources */,
 				04EBA7B21FBD7832008218F3 /* NSString+NSHash.m in Sources */,
 				9A67F4FA2010443A00003332 /* ReconmendCollectionCell.m in Sources */,
+				9A72DFFA20188036008BCDD4 /* AutoScrollLabel.m in Sources */,
 				04D05E741FC84A7F00677647 /* ForgetOperatorPasswordVC.m in Sources */,
 				042252271FAB039900324554 /* NSData+AES.m in Sources */,
 				04D05E681FC82B9A00677647 /* ZMAuthenticationVC.m in Sources */,
@@ -1551,6 +1598,7 @@
 				042252151FAAF03100324554 /* XBaseViewController.m in Sources */,
 				04D05E771FC84EEB00677647 /* OperatorAuthenticationSecondVC.m in Sources */,
 				04ED3E5A1FA99DE8008C9FDE /* main.m in Sources */,
+				04BF594920219C2700F8AD5C /* PersonalTailorVC.m in Sources */,
 				0409278D1FCC158D00203FC6 /* BaseInfoModel.m in Sources */,
 				042600921FB482090037954D /* RecommendTableViewCell.m in Sources */,
 				048E887F1FBE80F70047323D /* XPlaceHolderTextView.m in Sources */,
@@ -1766,10 +1814,11 @@
 			baseConfigurationReference = 5278844E64B7DED1EF96651E /* Pods-QuanWangDai.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = QuanWangDai/QuanWangDai.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = RQY65ND65W;
+				DEVELOPMENT_TEAM = EJ59536L25;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1792,6 +1841,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.zyx.QuanWangDai2017;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				TARGETED_DEVICE_FAMILY = 1;
 				VALID_ARCHS = "arm64 armv7 armv7s";
@@ -1803,10 +1853,11 @@
 			baseConfigurationReference = 3B089706D2AE987CCAB6B78E /* Pods-QuanWangDai.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = QuanWangDai/QuanWangDai.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = RQY65ND65W;
+				DEVELOPMENT_TEAM = EJ59536L25;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",

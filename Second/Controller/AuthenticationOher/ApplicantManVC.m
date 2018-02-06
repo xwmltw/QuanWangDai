@@ -12,9 +12,12 @@
 #import "XChooseBankView.h"
 #import "ApplicantModel.h"
 #import "XRootWebVC.h"
+#import "PersonalTailorVC.h"
+
 typedef NS_ENUM(NSUInteger, ApplicantManVCRequest) {
     ApplicantManVCPost,
     ApplicantManVCGet,
+    ApplicantManVCLoanProList,
 };
 @interface ApplicantManVC ()<XChooseBankPickerViewDelegate>
 {
@@ -23,12 +26,14 @@ typedef NS_ENUM(NSUInteger, ApplicantManVCRequest) {
     NSInteger pickerRow;
 }
 @property (nonatomic, strong) NSDictionary *dataDic;
+@property (nonatomic, strong) NSDictionary *otherdataDic;
 @property (nonatomic, strong) ApplicantModel *applicantModel;
 @property (nonatomic, strong) ClientGlobalInfoRM *clientGlobalInfoModel;
 @property (nonatomic, strong) AuthorizationView *authView;
 @end
 
 @implementation ApplicantManVC
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self prepareDataWithCount:ApplicantManVCGet];
@@ -41,17 +46,12 @@ typedef NS_ENUM(NSUInteger, ApplicantManVCRequest) {
     self.tableView.tableHeaderView = [self creatHeadView];
     self.tableView.tableFooterView = [self creatFooterView];
     
-    self.dataDic = @{@"title":@[@"借款用途",@"职业身份",@"本地公积金",@"本地社保",@"名下房产",@"亲属名下房产 (直系亲属、配偶)",@"名下车辆",@"信用状况"]};
-//    ,@"subtitle":@[@"选择您的借款用途",@"选择您的职业身份",@"有无本地公积金",@"有无本地社保",@"名下有无房产",@"亲属名下有无房产",@"名下有无车辆",@"选择您的信用情况"]
+    self.dataDic = @{@"title":@[@"借款用途",@"职业身份",@"本地公积金",@"本地社保"
+                                ,@"名下房产",@"亲属名下房产 (直系亲属、配偶)",@"名下车辆",@"信用状况"]};
+    self.otherdataDic = @{@"title":@[@"借款用途",@"职业身份",@"工资发放形式",@"当前单位工龄",
+                                     @"本地公积金",@"本地社保",@"名下房产",@"亲属名下房产 (直系亲属、配偶)",
+                                     @"名下车辆",@"信用状况"]};
     
-    dataArry = @[@[@"网上购物",@"实体店购物",@"教育培训",@"租房买房",@"出国留学",@"婚庆装修",@"餐饮娱乐",@"医疗美容",@"其他"],
-                 @[@"上班族",@"个体户",@"无固定职业",@"企业主",@"学生"],
-                 @[@"有",@"无"],
-                 @[@"有",@"无"],
-                 @[@"有",@"无"],
-                 @[@"有",@"无"],
-                 @[@"有",@"无"],
-                 @[@"1年内逾期超过3次或超过90天",@"1年内逾期少3次且少于90天",@"无信用卡或贷款",@"信用良好",@"无逾期"]];
 }
 - (UIView *)creatHeadView{
     UIView * view = [[UIView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, AdaptationWidth(100))];
@@ -118,8 +118,14 @@ typedef NS_ENUM(NSUInteger, ApplicantManVCRequest) {
 
 #pragma mark - tableView delegate
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-    NSArray *countArr = self.dataDic[@"title"];
-    return countArr.count;
+    BOOL yes = [self.applicantModel.professional_identity.description isEqualToString:@"1"];
+    if (yes) {
+        NSArray *countArr = self.otherdataDic[@"title"];
+        return countArr.count;
+    } else {
+        NSArray *countArr = self.dataDic[@"title"];
+        return countArr.count;
+    }
 }
 -(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
     return 90;
@@ -130,8 +136,12 @@ typedef NS_ENUM(NSUInteger, ApplicantManVCRequest) {
     if (!cell) {
         cell = [[ApplicantCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier];
     }
-    cell.titleLab.text = self.dataDic[@"title"][indexPath.row];
-    cell.detailLab.text = self.dataDic[@"subtitle"][indexPath.row];
+    BOOL yes = [self.applicantModel.professional_identity.description isEqualToString:@"1"];
+    if (yes) {
+        cell.titleLab.text = self.otherdataDic[@"title"][indexPath.row];
+    }else{
+        cell.titleLab.text = self.dataDic[@"title"][indexPath.row];
+    }
     [cell setDataModel:self.applicantModel with:indexPath.row];
     cell.selectedBackgroundView = [[UIImageView alloc] initWithImage:nil];
     cell.selectedBackgroundView.backgroundColor = XColorWithRGB(248, 249, 250);
@@ -281,6 +291,49 @@ typedef NS_ENUM(NSUInteger, ApplicantManVCRequest) {
         }];
         return;
     }
+    if (self.applicantModel.loan_usage.length == 0) {
+        [self setHudWithName:@"请选择借款用途" Time:0.5 andType:1];
+        return;
+    }
+    if (self.applicantModel.professional_identity == nil) {
+        [self setHudWithName:@"请选择职业身份" Time:0.5 andType:1];
+        return;
+    }
+    if ([self.applicantModel.professional_identity.description isEqualToString:@"1"]) {
+        if (self.applicantModel.payroll_type == nil) {
+            [self setHudWithName:@"请选择工资发放形式" Time:0.5 andType:1];
+            return;
+        }
+        if (self.applicantModel.working_years == nil) {
+            [self setHudWithName:@"请选择工龄" Time:0.5 andType:1];
+            return;
+        }
+    }
+    if (self.applicantModel.has_accumulation_fund == nil) {
+        [self setHudWithName:@"请选择是否拥有本地公积金" Time:0.5 andType:1];
+        return;
+    }
+    if (self.applicantModel.has_social_security == nil) {
+        [self setHudWithName:@"请选择是否拥有本地社保" Time:0.5 andType:1];
+        return;
+    }
+    if (self.applicantModel.has_house_property == nil) {
+        [self setHudWithName:@"请选择是否拥有房产" Time:0.5 andType:1];
+        return;
+    }
+    if (self.applicantModel.relatives_has_house_property == nil) {
+        [self setHudWithName:@"请选择亲属是否拥有房产" Time:0.5 andType:1];
+        return;
+    }
+    if (self.applicantModel.has_car_property == nil) {
+        [self setHudWithName:@"请选择名下是否有车" Time:0.5 andType:1];
+        return;
+    }
+    if (self.applicantModel.credit_info == nil) {
+        [self setHudWithName:@"请选择信用情况" Time:0.5 andType:1];
+        return;
+    }
+    
     [self prepareDataWithCount:ApplicantManVCPost];
 }
 -(void)buttonClick:(UIButton*)button{
@@ -295,7 +348,7 @@ typedef NS_ENUM(NSUInteger, ApplicantManVCRequest) {
         case AuthorizationBtnOnClickTick:
             button.selected = !button.selected;
             self.authView.AgreementBtn.selected = button.selected;
-//            NSLog(@"按钮");
+
             break;
             
         default:
@@ -312,21 +365,61 @@ typedef NS_ENUM(NSUInteger, ApplicantManVCRequest) {
     }else if (self.requestCount == ApplicantManVCPost) {
         self.cmd = XPostLoanQualificationInfo;
         self.dict = [self.applicantModel mj_keyValues];
+    }else if (self.requestCount == ApplicantManVCLoanProList){
+        self.cmd = XGetRecommendLoanProList;
+        self.dict =@{@"query_param":@{@"page_size":@(1),
+                                      @"page_num":@(1)
+                                      },
+                     @"query_entry_type":@(2)
+                     };
     }
 }
 
 - (void)requestSuccessWithDictionary:(XResponse *)response{
     if (self.requestCount == ApplicantManVCGet) {
         self.applicantModel = [ApplicantModel mj_objectWithKeyValues:response.content];
+        [self setupdata];
     }else if (self.requestCount == ApplicantManVCPost) {
         [self setHudWithName:@"提交成功" Time:1 andType:0];
+        
+        [self prepareDataWithCount:ApplicantManVCLoanProList];
+        return;
+    }else if (self.requestCount == ApplicantManVCLoanProList){
+        [self.dataSourceArr addObjectsFromArray:response.content[@"loan_pro_list"]];
+        if(self.comeFrom.integerValue == 1){
+            if (self.dataSourceArr.count > 0) {//判断是否有可推荐的产品
+                PersonalTailorVC *vc = [[PersonalTailorVC alloc]init];
+                [self.navigationController pushViewController:vc animated:YES];
+                return;
+            }
+        }
         [self.navigationController popViewControllerAnimated:NO];
         [[NSNotificationCenter defaultCenter]postNotificationName:@"Refresh" object:self userInfo:nil];
     }
     [self.tableView reloadData];
 }
--(void)requestFaildWithDictionary:(XResponse *)response{
-    [self setHudWithName:@"请填写完整信息" Time:2 andType:1];
+-(void)setupdata{
+    if ([self.applicantModel.professional_identity.description isEqualToString:@"1"]) {
+        dataArry = @[@[@"网上购物",@"实体店购物",@"教育培训",@"租房买房",@"出国留学",@"婚庆装修",@"餐饮娱乐",@"医疗美容",@"其他"],
+                     @[@"上班族",@"个体户",@"无固定职业",@"企业主",@"学生"],
+                     @[@"银行卡发放",@"现金发放",@"部分银行卡,部分现金"],
+                     @[@"不足3个月",@"3-5个月",@"6-11个月",@"1-3年",@"4-7年",@"7年以上"],
+                     @[@"有",@"无"],
+                     @[@"有",@"无"],
+                     @[@"有",@"无"],
+                     @[@"有",@"无"],
+                     @[@"有",@"无"],
+                     @[@"1年内逾期超过3次或超过90天",@"1年内逾期少3次且少于90天",@"无信用卡或贷款",@"信用良好",@"无逾期"]];
+    } else {
+        dataArry = @[@[@"网上购物",@"实体店购物",@"教育培训",@"租房买房",@"出国留学",@"婚庆装修",@"餐饮娱乐",@"医疗美容",@"其他"],
+                     @[@"上班族",@"个体户",@"无固定职业",@"企业主",@"学生"],
+                     @[@"有",@"无"],
+                     @[@"有",@"无"],
+                     @[@"有",@"无"],
+                     @[@"有",@"无"],
+                     @[@"有",@"无"],
+                     @[@"1年内逾期超过3次或超过90天",@"1年内逾期少3次且少于90天",@"无信用卡或贷款",@"信用良好",@"无逾期"]];
+    }
 }
 
 -(ApplicantModel *)applicantModel{

@@ -12,6 +12,7 @@
 #import "AllDKViewController.h"
 #import "RecommendTableViewCell.h"
 #import "ProductDetailVC.h"
+#import "PersonalTailorVC.h"
 
 
 @interface SuccessApplicationVC ()
@@ -76,22 +77,32 @@
     UIView *view = [[UIView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, AdaptationWidth(411))];
     
     UIImageView *image = [[UIImageView alloc]init];
-    [image setImage:[UIImage imageNamed:@"notData"]];
     [view addSubview:image];
     
     UILabel *labTitle = [[UILabel alloc]init];
-    [labTitle setText:@"恭喜, 申请成功！"];
+    if (self.errCode.integerValue == 33) {
+        [labTitle setText:@"申请通过率极低"];
+        [image setImage:[UIImage imageNamed:@"dataDetail_low"]];
+    }else{
+        [image setImage:[UIImage imageNamed:@"notData"]];
+        [labTitle setText:@"恭喜, 申请成功！"];
+    }
+    
     [labTitle setFont:[UIFont fontWithName:@"PingFangSC-Medium" size:AdaptationWidth(30)]];
     [labTitle setTextColor:XColorWithRBBA(34, 58, 80, 0.8)];
     [view addSubview:labTitle];
     
     UILabel *labDetail = [[UILabel alloc]init];
-    if (self.applyProductModel.contact_wechat_public.length > 0) {
-        [labDetail setText:@"请保持手机通畅，稍后会有工作人员与您联系；您也可以主动添加对方微信 公众号进行联系。"];
-    }else if (self.applyProductModel.contact_qq.length > 0) {
-        [labDetail setText:@"请保持手机通畅，稍后会有工作人员与您联系；您也可以主动添加对方QQ进行联系。"];
+    if (self.errCode.integerValue == 33) {
+        [labDetail setText:@"小贷掐指一算，您的资质申请以下产品更容易通过哦！"];
     }else{
-        [labDetail setText:@"请保持手机通畅，稍后会有工作人员与您联系。"];
+        if (self.applyProductModel.contact_wechat_public.length > 0) {
+            [labDetail setText:@"请保持手机通畅，稍后会有工作人员与您联系；您也可以主动添加对方微信 公众号进行联系。"];
+        }else if (self.applyProductModel.contact_qq.length > 0) {
+            [labDetail setText:@"请保持手机通畅，稍后会有工作人员与您联系；您也可以主动添加对方QQ进行联系。"];
+        }else{
+            [labDetail setText:@"请保持手机通畅，稍后会有工作人员与您联系。"];
+        }
     }
     labDetail.numberOfLines = 0;
     [labDetail setFont:[UIFont fontWithName:@"PingFangSC-Light" size:AdaptationWidth(16)]];
@@ -116,6 +127,8 @@
         make.right.mas_equalTo(view).offset(-AdaptationWidth(24));
         make.height.mas_equalTo(AdaptationWidth(161));
     }];
+    
+    
     
     
     return view;
@@ -154,7 +167,7 @@
             
             UIButton *btnCopy = [[UIButton alloc]init];
             btnCopy.tag = 102;
-            [btnCopy.titleLabel setFont:[UIFont fontWithName:@"PingFangSC-Regular" size:AdaptationWidth(1)]];
+            [btnCopy.titleLabel setFont:[UIFont fontWithName:@"PingFangSC-Regular" size:AdaptationWidth(16)]];
             [btnCopy setTitle:@"复制" forState:UIControlStateNormal];
             [btnCopy setBackgroundColor:XColorWithRGB(252, 93, 109)];
             [btnCopy setTitleColor:XColorWithRGB(255, 255, 255) forState:UIControlStateNormal];
@@ -201,6 +214,9 @@
             return 0;
         }
     }
+    if (self.dataSourceArr.count > 3) {
+        return 3;
+    }
     return self.dataSourceArr.count;
 }
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
@@ -231,8 +247,13 @@
 #pragma mark - btn
 - (void)btnOnClick:(UIButton *)btn{
     if (btn.tag == 100) {
-        AllDKViewController *vc = [[AllDKViewController alloc]init];
-        [self.navigationController pushViewController:vc animated:YES];
+        if (self.dataSourceArr.count > 3) {
+            PersonalTailorVC *vc = [[PersonalTailorVC alloc]init];
+            [self.navigationController pushViewController:vc animated:YES];
+        }else{
+            AllDKViewController *vc = [[AllDKViewController alloc]init];
+            [self.navigationController pushViewController:vc animated:YES];
+        }
     }
     if (btn.tag == 101) {
         [self.navigationController popToRootViewControllerAnimated:YES];

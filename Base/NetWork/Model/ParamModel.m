@@ -9,6 +9,7 @@
 #import "ParamModel.h"
 #import "XDeviceHelper.h"
 #import "XCacheHelper.h"
+#import "UserLocation.h"
 
 @implementation ParamModel
 - (instancetype)init{
@@ -39,6 +40,8 @@
         self.package_name = @"全网贷";
         self.access_channel_code = @"AppStore";
         self.uid = [XDeviceHelper getUUID];
+        self.ad_code = [[UserLocation sharedInstance]getAdCode];
+        self.city_code = [[UserLocation sharedInstance]getCityCode];
     }
     return self;
 }

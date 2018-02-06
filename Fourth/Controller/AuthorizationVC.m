@@ -170,11 +170,7 @@
     self.dict = @{@"opt_type":self.optType};
 }
 -(void)requestSuccessWithDictionary:(XResponse *)response{
-    if (self.optType.integerValue == 1) {
-        self.optType = @(1);
-    }else{
-        self.optType = @(0);
-    }
+    
     [[UserInfo sharedInstance]savePhone:nil password:nil userId:nil grantAuthorization:self.optType];
 //    [self setHudWithName:@"授权成功" Time:1 andType:0];
 }

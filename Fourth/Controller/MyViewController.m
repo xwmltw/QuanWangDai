@@ -16,6 +16,7 @@
 #import "XDeviceHelper.h"
 #import "AuthorizationVC.h"
 #import "XCacheHelper.h"
+#import "AutoScrollLabel.h"
 typedef NS_ENUM(NSInteger ,MineTableViewCell) {
     MineTableViewCellHelp,
     MineTableViewCellModifyPwd,
@@ -52,6 +53,7 @@ typedef NS_ENUM(NSInteger,MineBtnOnClick) {
     self.tableView.tableHeaderView = [self creatHeadView];
     [self getData];
     [self.tableView reloadData];
+
 }
 
 - (void)viewDidLoad {
@@ -77,8 +79,8 @@ typedef NS_ENUM(NSInteger,MineBtnOnClick) {
     [self.dataSourceArr addObject:@(MineTableViewCellHelp)];
     [self.dataSourceArr addObject:@(MineTableViewCellModifyPwd)];
     [self.dataSourceArr addObject:@(MineTableViewCellAboutMe)];
+    [self.dataSourceArr addObject:@(MineTableViewCellauthorization)];
     if ([[UserInfo sharedInstance]isSignIn] ) {
-        [self.dataSourceArr addObject:@(MineTableViewCellauthorization)];
         [self.dataSourceArr addObject:@(MineTableViewCellGetOut)];
     }
     
@@ -100,6 +102,54 @@ typedef NS_ENUM(NSInteger,MineBtnOnClick) {
         make.bottom.mas_equalTo(view).offset(-AdaptationWidth(4));
         make.height.mas_equalTo(AdaptationWidth(204));
     }];
+    
+    
+    if (self.clientGlobalInfoModel.notice_manage_list.count) {
+        AutoScrollLabel *autoScrollLabel = [[AutoScrollLabel alloc]initWithFrame:CGRectMake(AdaptationWidth(44), AdaptationWidth(28), ScreenWidth - AdaptationWidth(69), AdaptationWidth(30))];
+        NSMutableArray *noticeArr = [NSMutableArray array];
+        for (NSDictionary *noticeDic in self.clientGlobalInfoModel.notice_manage_list) {
+            if (noticeDic.count) {
+                [noticeArr addObject:noticeDic[@"notice_manage_content"]];
+            }
+        };
+        NSString *noticeStr = [noticeArr componentsJoinedByString:@","];
+        autoScrollLabel.text = noticeStr;
+        autoScrollLabel.textColor = XColorWithRGB(252, 93, 109);
+        //            autoScrollLabel.font = [UIFont fontWithName:@"PingFangSC-Regular" size:AdaptationWidth(16)];
+        [view addSubview:autoScrollLabel];
+        
+        UIImageView *leftImage = [[UIImageView alloc]init];
+        [leftImage setImage:[UIImage imageNamed:@"hue_left"]];
+        [view addSubview:leftImage];
+        
+        UIImageView *broadImage = [[UIImageView alloc]init];
+        [broadImage setImage:[UIImage imageNamed:@"broadcast"]];
+        broadImage.backgroundColor = [UIColor clearColor];
+        [leftImage addSubview:broadImage];
+        
+        UIImageView *rightImage = [[UIImageView alloc]init];
+        [rightImage setImage:[UIImage imageNamed:@"hue_right"]];
+        [view addSubview:rightImage];
+        
+        [leftImage mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.mas_equalTo(view);
+            make.top.mas_equalTo(view).offset(AdaptationWidth(28));
+            make.height.mas_equalTo(AdaptationWidth(30));
+            make.width.mas_equalTo(AdaptationWidth(49));
+        }];
+        
+        [broadImage mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.right.mas_equalTo(leftImage).offset(-AdaptationWidth(5));
+            make.top.mas_equalTo(leftImage).offset(AdaptationWidth(1));
+            make.height.width.mas_equalTo(AdaptationWidth(28));
+        }];
+        [rightImage mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.right.mas_equalTo(view);
+            make.top.mas_equalTo(view).offset(AdaptationWidth(28));
+            make.height.mas_equalTo(AdaptationWidth(30));
+            make.width.mas_equalTo(AdaptationWidth(49));
+        }];
+    }
     
     if ([[UserInfo sharedInstance]isSignIn] ) {
         UILabel *lab = [[UILabel alloc]init];
@@ -124,6 +174,7 @@ typedef NS_ENUM(NSInteger,MineBtnOnClick) {
         [enterBtn setTextColor:XColorWithRGB(7, 137, 133) ];
         [view addSubview:enterBtn];
         
+        
         UIImageView *cardImage = [[UIImageView alloc]init];
         [cardImage setImage:[UIImage imageNamed:@"mine_file"]];
         [view addSubview:cardImage];
@@ -133,7 +184,6 @@ typedef NS_ENUM(NSInteger,MineBtnOnClick) {
             make.bottom.mas_equalTo(bgBtn.mas_bottom).offset(-AdaptationWidth(32));
             make.width.height.mas_equalTo(AdaptationWidth(28));
         }];
-        
         [enterBtn mas_makeConstraints:^(MASConstraintMaker *make) {
             make.left.mas_equalTo(bgBtn).offset(AdaptationWidth(28));
             make.bottom.mas_equalTo(bgBtn.mas_bottom).offset(-AdaptationWidth(35));
@@ -147,8 +197,6 @@ typedef NS_ENUM(NSInteger,MineBtnOnClick) {
             make.left.mas_equalTo(bgBtn).offset(AdaptationWidth(28));
             make.top.mas_equalTo(lab.mas_bottom).offset(AdaptationWidth(4));
         }];
-        
-        
         [tatooImage mas_makeConstraints:^(MASConstraintMaker *make) {
             make.right.mas_equalTo(bgBtn).offset(-AdaptationWidth(16));
             make.top.mas_equalTo(bgBtn).offset(AdaptationWidth(22));
@@ -332,6 +380,12 @@ typedef NS_ENUM(NSInteger,MineBtnOnClick) {
             
             break;
         case MineTableViewCellauthorization:{
+            if(![[UserInfo sharedInstance]isSignIn] ){
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self getBlackLogin:self];//判断是否登录状态
+                });
+                return;
+            }
             AuthorizationVC *vc = [[AuthorizationVC alloc]init];
             vc.hidesBottomBarWhenPushed = YES;
             [self.navigationController pushViewController:vc animated:YES];
@@ -384,8 +438,8 @@ typedef NS_ENUM(NSInteger,MineBtnOnClick) {
 -(void)requestSuccessWithDictionary:(XResponse *)response{
     if(self.requestCount == MineRequestGetOut){
         [self setHudWithName:@"退出成功" Time:0.5 andType:3];
+        [[NSNotificationCenter defaultCenter]postNotificationName:@"Refresh" object:self userInfo:nil];
         [XCacheHelper clearCacheFolder];
-//        [[UserInfo sharedInstance]savePhone:nil password:nil userId:nil grantAuthorization:nil];
         LoginVC *vc = [[LoginVC alloc]init];
         vc.hidesBottomBarWhenPushed = YES;
         vc.block = ^(id result) {

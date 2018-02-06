@@ -51,9 +51,18 @@
         [self.typelabel setText:[NSString stringWithFormat:@"浮动利率"]];
         self.interestRate.hidden = YES;
     }else{
-        [self.interestRate setText:[NSString stringWithFormat:@"%@%%~%@%%",model.min_loan_rate,model.loan_rate]];
+        if ([model.min_loan_rate isEqualToString:model.loan_rate]) {
+             [self.interestRate setText:[NSString stringWithFormat:@"%@%%",model.loan_rate]];
+        }else{
+            [self.interestRate setText:[NSString stringWithFormat:@"%@%%~%@%%",model.min_loan_rate,model.loan_rate]];
+        }
     }
 //    self.interestRate.text = [NSString stringWithFormat:@"%@%%",model.loan_rate];
+    if (model.hot_label.length) {
+        self.appState.hidden = NO;
+    }else{
+        self.appState.hidden = YES;
+    }
     self.labState.text = model.hot_label;
     self.labState.font = [UIFont fontWithName:@"PingFangSC-Regular" size:AdaptationWidth(13)];
     [self.appState setCornerValue:AdaptationWidth(2)];

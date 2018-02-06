@@ -22,4 +22,5 @@ typedef NS_ENUM(NSInteger , ApplicantCellCell) {
 };
 @interface ApplicantManVC : XBaseViewController
 @property (nonatomic, strong)CreditInfoModel *creditInfoModel;
+@property (nonatomic, copy) NSNumber *comeFrom; //1信用助手中心
 @end

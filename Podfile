@@ -18,4 +18,6 @@ pod 'DateTools'
 pod 'YBPopupMenu'
 pod 'SDCycleScrollView','~>1.75'
 pod 'FLAnimatedImage'
+pod ‘AMapLocation’
+pod 'JPush'
 end

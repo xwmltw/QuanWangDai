@@ -34,7 +34,7 @@
 @property (nonatomic, copy) NSArray *loan_process;
 @property (nonatomic, copy) NSNumber *cooperation_type;
 @property (nonatomic, copy) NSString *cooperation_url;
-
+@property (nonatomic, copy) NSString *recommend_desc;
 @end
 //“loan_pro_id”: xxx // 贷款产品uuid
 //“loan_pro_name”: “xxx”, // 产品名称
@@ -51,6 +51,7 @@
 //“loan_rate”: xxx // 最大利率
 //“loan_year_rate” : xxxx //年利率
 //“run_address_name”: xxxx // 经营区域名称，为空代表全国
+//“recommend_desc”: “xxx”, // 推荐描述
 
 //“hot_label”: xxx // 热门标签
 //“apply_is_full”: xxx // 申请人数已满: 1是 0否

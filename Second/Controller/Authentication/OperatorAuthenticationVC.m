@@ -12,6 +12,7 @@
 #import "ForgetOperatorPasswordVC.h"
 #import "AuthorizationView.h"
 #import "XRootWebVC.h"
+#import "XAlertView.h"
 typedef NS_ENUM(NSInteger, OperatorsCreditRequest) {
     OperatorsCreditRequestInfo,
     OperatorsCreditRequestVerify,
@@ -25,6 +26,7 @@ typedef NS_ENUM(NSInteger, OperatorsCreditRequest) {
 {
     UITextField *_phoneText;
     UITextField *_operatorsText;
+    UIAlertView *alert;
 }
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -188,10 +190,23 @@ typedef NS_ENUM(NSInteger, OperatorsCreditRequest) {
         [self prepareDataWithCount:OperatorsCreditRequestVerify];
     }
     if (btn.tag == 101) {
-        ForgetOperatorPasswordVC *vc = [[ForgetOperatorPasswordVC alloc]init];
-        [self.navigationController pushViewController:vc animated:YES];
+//        ForgetOperatorPasswordVC *vc = [[ForgetOperatorPasswordVC alloc]init];
+//        [self.navigationController pushViewController:vc animated:YES];
+
+        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"忘记密码?" message:@"如果您忘记了服务密码，请拨打运营商客服热线进行密码重置。\n\n\n 移动请拨10086 转人工服务\n 联通请拨10010 转人工服务\n 电信请拨10000 转人工服务" preferredStyle:UIAlertControllerStyleAlert];
+        UIView *subView1 = alertController.view.subviews[0];
+        UIView *subView2 = subView1.subviews[0];
+        UIView *subView3 = subView2.subviews[0];
+        UIView *subView4 = subView3.subviews[0];
+        UIView *subView5 = subView4.subviews[0];
+        UILabel *message = subView5.subviews[1];
+        message.textAlignment = NSTextAlignmentLeft;
+        UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"知道了" style:UIAlertActionStyleDestructive handler:nil];
+        [alertController addAction:cancelAction];
+        [self presentViewController:alertController animated:YES completion:nil];
     }
 }
+
 - (void)refreshView
 {
     if ([[UserInfo sharedInstance]getUserInfo].phoneName.length != 0) {
@@ -275,6 +290,7 @@ typedef NS_ENUM(NSInteger, OperatorsCreditRequest) {
         }
             break;
         case OperatorsCreditRequestVerify:{
+            
             if (response.errCode.integerValue == 20) {
                 
                 return;

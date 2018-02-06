@@ -493,7 +493,9 @@ typedef NS_ENUM(NSInteger ,BaseInfoRequest) {
         
         BOOL result = [contactStore enumerateContactsWithFetchRequest:request error:&error usingBlock:^(CNContact * _Nonnull contact, BOOL * _Nonnull stop) {
             NSString *phoneName = [NSString stringWithFormat:@"%@%@", contact.familyName, contact.givenName];
-            phoneName = [phoneName stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet punctuationCharacterSet]];
+            NSString *charactersToEscape = @"?!@#$^&%*+,:;='\"`<>()[]{}/\\| ";
+            NSCharacterSet *allowedCharacters = [NSCharacterSet characterSetWithCharactersInString:charactersToEscape];
+            phoneName = [phoneName stringByTrimmingCharactersInSet:allowedCharacters];
             NSString *phone = @"";
             int i = 0;
             for (CNLabeledValue *labeledValue in contact.phoneNumbers) {
@@ -505,9 +507,13 @@ typedef NS_ENUM(NSInteger ,BaseInfoRequest) {
                     CNPhoneNumber *phoneNumber = labeledValue.value;
                     phone = [phone stringByAppendingString:[NSString stringWithFormat:@"%@", [self phoneStringWithNoSpaceAndDash:phoneNumber.stringValue]]];
                 }
+               
             }
-            NSDictionary *contactDict = @{@"phoneName":phoneName, @"phone":phone};
-            [_allContactArray addObject:contactDict];
+            if (phoneName.length) {
+                NSDictionary *contactDict = @{@"phone_name":phoneName, @"phone":phone};
+                [_allContactArray addObject:contactDict];
+            }
+            
         }];
         
         if (!result) {
@@ -528,9 +534,7 @@ typedef NS_ENUM(NSInteger ,BaseInfoRequest) {
         return;
     }
     CNPhoneNumber *phoneNumber = contactProperty.value;
-    
-
-    
+  
     switch (parentRow) {
         case BaseInfoTableViewCellParentsPhone:
         {
@@ -573,9 +577,10 @@ typedef NS_ENUM(NSInteger ,BaseInfoRequest) {
 
 - (NSString *)phoneStringWithNoSpaceAndDash:(NSString *)string
 {
-    NSString *temp = [string stringByReplacingOccurrencesOfString:@" " withString:@""];
-    temp = [temp stringByReplacingOccurrencesOfString:@"-" withString:@""];
-    return temp;
+    NSCharacterSet *charSet = [[NSCharacterSet characterSetWithCharactersInString:@"0123456789"] invertedSet];
+    NSString *filteredStr = [[string componentsSeparatedByCharactersInSet:charSet] componentsJoinedByString:@""];
+    
+    return filteredStr;
 }
 
 #pragma mark - 支持iOS9以下获取通讯录
@@ -650,7 +655,7 @@ typedef NS_ENUM(NSInteger ,BaseInfoRequest) {
             }
             
         }
-        NSDictionary *contactDict = @{@"phoneName":phoneName, @"phone":phoneString};
+        NSDictionary *contactDict = @{@"phone_name":phoneName, @"phone":phoneString};
         [_allContactArray addObject:contactDict];
         
     }

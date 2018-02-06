@@ -16,11 +16,11 @@ static const NSString * qwd_plistFileSuffix = @"_qwd.plist";
     NSString* filePath = [self getFullPathByFileName:fileName isPlist:NO isCanClear:isCanClear];
     BOOL bRet = [str writeToFile:filePath atomically:YES encoding:NSUTF8StringEncoding error:nil];
     if (bRet) {
-        MyLog(@"保存成功");
+//        MyLog(@"保存成功");
     }else{
-        MyLog(@"保存失败");
+//        MyLog(@"保存失败");
     }
-    NSAssert(bRet, @"====saveDicToFile error");
+//    NSAssert(bRet, @"====saveDicToFile error");
 }
 
 + (NSString*)getStringWithFileName:(NSString*)fileName isCanClear:(BOOL)isCanClear{
@@ -44,9 +44,9 @@ static const NSString * qwd_plistFileSuffix = @"_qwd.plist";
     NSString *str = [SecurityUtil dictionaryToJson:[model mj_keyValues]];
     BOOL bRet = [str writeToFile:filePath atomically:NO encoding:NSUTF8StringEncoding error:nil];
     if (bRet) {
-        MyLog(@"保存成功");
+//        MyLog(@"保存成功");
     }else{
-        MyLog(@"保存失败");
+//        MyLog(@"保存失败");
     }
     NSAssert(bRet, @"====saveCacheToFile error");
 }
@@ -72,9 +72,9 @@ static const NSString * qwd_plistFileSuffix = @"_qwd.plist";
     NSString* filePath = [self getFullPathByFileName:fileName isPlist:NO isCanClear:isCanClear];
     BOOL bRet = [NSKeyedArchiver archiveRootObject:data toFile:filePath];
     if (bRet) {
-        MyLog(@"保存成功");
+//        MyLog(@"保存成功");
     }else{
-        MyLog(@"保存失败");
+//        MyLog(@"保存失败");
     }
     NSAssert(bRet, @"====saveDicToFile error");
 }
@@ -108,10 +108,10 @@ static const NSString * qwd_plistFileSuffix = @"_qwd.plist";
     if (!(isDirExist && isDir)) {
         BOOL bCreateDir = [fileManager createDirectoryAtPath:folderPath withIntermediateDirectories:YES attributes:nil error:nil];
         if (!bCreateDir) {
-            MyLog(@"create failed");
+//            MyLog(@"create failed");
             return nil;
         }else{
-            MyLog(@"create folderPath:%@",folderPath);
+//            MyLog(@"create folderPath:%@",folderPath);
         }
     }
     NSString* filePath;

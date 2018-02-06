@@ -38,10 +38,9 @@ typedef NS_ENUM(NSInteger ,AllDKViewRequest) {
     if (self.typeIndex == 3 || self.typeIndex == 4) {
         self.productListModel.loan_pro_type = @(self.typeIndex);
     }
-    
+    [self.dataSourceArr removeAllObjects];
+    self.queryParamModel.page_num = @(1);
     [self prepareDataWithCount:AllDKViewRequestProductType];
-
-    
     [self.navigationController setNavigationBarHidden:NO animated:NO];
 }
 - (void)viewDidLoad {
@@ -70,11 +69,12 @@ typedef NS_ENUM(NSInteger ,AllDKViewRequest) {
     button.frame = CGRectMake(0, 0, 104, 44);
     button.tag = 9999;
     button.titleLabel.font = [UIFont fontWithName:@"PingFangSC-Medium" size:AdaptationWidth(17)];
-    if (self.titleStr.length) {
+    if (self.loan_product_type) {
         [button setTitle:self.titleStr forState:UIControlStateNormal];
     }else{
         [button setTitle:@"贷款大全" forState:UIControlStateNormal];
     }
+    button.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
     [button setTitleColor:XColorWithRBBA(34, 58, 80, 0.8) forState:UIControlStateNormal];
     [button setImage:[UIImage imageNamed:@"btn_back"] forState:UIControlStateNormal];
     button.titleEdgeInsets = UIEdgeInsetsMake(0, AdaptationWidth(28), 0, -AdaptationWidth(28));
@@ -101,6 +101,7 @@ typedef NS_ENUM(NSInteger ,AllDKViewRequest) {
             }];
         }
         if (typeArry.count > 1) {
+            [typeArry insertObject:@{@"loan_classify_name":@"不限"} atIndex:0];
             titleArry = [NSMutableArray arrayWithObjects:@"贷款类型",@"可贷额度",@"借款期限",@"排序", nil];
         }else{
             titleArry = [NSMutableArray arrayWithObjects:@"可贷额度",@"借款期限",@"排序", nil];
@@ -108,6 +109,7 @@ typedef NS_ENUM(NSInteger ,AllDKViewRequest) {
     }else{
         typeArry = [NSMutableArray arrayWithArray:self.loanTypeInfo.loan_classify_list];
         if (typeArry.count > 1) {
+            [typeArry insertObject:@{@"loan_classify_name":@"不限"} atIndex:0];
             titleArry = [NSMutableArray arrayWithObjects:@"贷款类型",@"可贷额度",@"借款期限",@"排序", nil];
         }else{
             titleArry = [NSMutableArray arrayWithObjects:@"可贷额度",@"借款期限",@"排序", nil];
@@ -354,14 +356,16 @@ typedef NS_ENUM(NSInteger ,AllDKViewRequest) {
     if (titleArry.count > 3) {
         switch (indexPath.column) {
             case 0:
+                if (indexPath.row == 0) {
+                    self.productListModel.loan_pro_type = nil;
+                    self.productListModel.loan_classify_id = nil;
+                    tpyeSelect = NO;
+                }else{
+                    self.productListModel.loan_pro_type = @(indexPath.row);
+                    self.productListModel.loan_classify_id = typeArry[indexPath.row][@"loan_classify_id"];
+                    tpyeSelect = YES;
+                }
                 
-                self.productListModel.loan_pro_type = @(indexPath.row);
-                //                    if (self.special_entry_id.integerValue && self.loan_classify_ids_str.length) {
-                self.productListModel.loan_classify_id = typeArry[indexPath.row][@"loan_classify_id"];
-                //                    }else{
-                //                        self.productListModel.loan_classify_id = self.loanTypeInfo.loan_classify_list[indexPath.row][@"loan_classify_id"];
-                //                    }
-                tpyeSelect = YES;
                 
                 self.typeIndex = indexPath.row;
                 break;
@@ -437,9 +441,22 @@ typedef NS_ENUM(NSInteger ,AllDKViewRequest) {
                 break;
         }
     }
-    [self prepareDataWithCount:AllDKViewRequestProductList];
+    //需要初始化条件
+    [self.dataSourceArr removeAllObjects];
+    self.queryParamModel.page_num = @(1);
+    
+    if (self.loan_product_type.integerValue) {
+        [self prepareDataWithCount:AllDKViewRequestSpecialEntry];
+    }else{
+        [self prepareDataWithCount:AllDKViewRequestProductList];
+    }
 }
 
+- (void)showNoDataAlertView{
+    [XAlertView alertWithTitle:@"温馨提示" message:@"您所在的城市与该类产品的经营区域不符合，无法申请。" cancelButtonTitle:@"知道了" confirmButtonTitle:nil viewController:self completion:^(UIAlertAction *action, NSInteger buttonIndex) {
+        [self.navigationController popViewControllerAnimated:YES];
+    }];
+}
 #pragma  mark - 网络
 - (void)setRequestParams{
     switch (self.requestCount) {
@@ -460,9 +477,12 @@ typedef NS_ENUM(NSInteger ,AllDKViewRequest) {
         case AllDKViewRequestSpecialEntry:{
             self.cmd = XQuerySpecialEntryLoanProductList;
             
-            self.dict =@{@"special_entry_id":self.special_entry_id,
-                         @"query_param":[self.queryParamModel mj_keyValues]
-                         };
+//            self.dict =@{@"special_entry_id":self.special_entry_id,
+//                         @"query_param":[self.queryParamModel mj_keyValues]
+//                         };
+            self.productListModel.special_entry_id = self.special_entry_id;
+            self.productListModel.query_param = self.queryParamModel;
+            self.dict = [self.productListModel mj_keyValues];
         }
             return;
         default:
@@ -473,12 +493,6 @@ typedef NS_ENUM(NSInteger ,AllDKViewRequest) {
     switch (self.requestCount) {
         case AllDKViewRequestProductList:{
             
-//            if (response.content.count < self.queryParamModel.page_size.intValue) {
-//                [self.tableView.mj_footer resetNoMoreData];
-//            }
-            if (self.dataSourceArr.count) {
-                [self.dataSourceArr removeAllObjects];
-            }
             [self.dataSourceArr addObjectsFromArray:response.content[@"loan_pro_list"]];
             if (!self.dataSourceArr.count) {
                 self.tableView.tableFooterView = [self creatFooterView];
@@ -503,12 +517,11 @@ typedef NS_ENUM(NSInteger ,AllDKViewRequest) {
         }
             break;
         case AllDKViewRequestSpecialEntry:{
-            if (self.dataSourceArr.count) {
-                [self.dataSourceArr removeAllObjects];
-            }
+           
             [self.dataSourceArr addObjectsFromArray:response.content[@"loan_pro_list"]];
             if (!self.dataSourceArr.count) {
                 self.tableView.tableFooterView = [self creatFooterView];
+                [self showNoDataAlertView];
             }else{
                 self.tableView.tableFooterView = nil;
             }
@@ -525,6 +538,7 @@ typedef NS_ENUM(NSInteger ,AllDKViewRequest) {
 }
 - (void)footerRefresh{
     if (self.loan_product_type.integerValue) {
+        self.queryParamModel.page_num = @(self.queryParamModel.page_num.integerValue+1);
         [self prepareDataWithCount:AllDKViewRequestSpecialEntry];
     }else{
         self.queryParamModel.page_num = @(self.queryParamModel.page_num.integerValue+1);

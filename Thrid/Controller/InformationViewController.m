@@ -283,8 +283,8 @@ typedef NS_ENUM(NSInteger ,InformationRequest) {
                 [raiderBtn setTitleColor:XColorWithRGB(7, 137, 133) forState:UIControlStateNormal];
                 NSString *str = obj[@"artical_title"];
 //                NSString *str = @"这是一段测试的话话话话话话话话话话话话话话话话话话话话";
-                if (str.length > 13) {
-                    NSString *subStr = [str substringToIndex:13];
+                if (str.length > 11) {
+                    NSString *subStr = [str substringToIndex:11];
                     [raiderBtn setTitle:[NSString stringWithFormat:@"『%@…』",subStr] forState:UIControlStateNormal];
                 }else{
                     [raiderBtn setTitle:[NSString stringWithFormat:@"『%@』",str] forState:UIControlStateNormal];

@@ -21,6 +21,7 @@
 #import "WorkInfoVC.h"
 #import "ApplyProductModel.h"
 #import "AuthorizationVC.h"
+#import "ApplicantManVC.h"
 
 typedef NS_ENUM(NSInteger ,RequiredType) {
     IDENTITYCARD = 1,
@@ -30,6 +31,7 @@ typedef NS_ENUM(NSInteger ,RequiredType) {
     CREDITINFO,
     LOANINFO,
     BUSINESSINFO,
+    APPLICANT,
     
 };
 typedef NS_ENUM(NSInteger , DataDetailRequest) {
@@ -267,7 +269,17 @@ typedef NS_ENUM(NSInteger , DataDetailRequest) {
                 authImage.hidden = YES;
             }
             break;
-            
+        case APPLICANT:
+            [image setImage:[UIImage imageNamed:@"iconAuthorizationP"]];
+            [image setHighlightedImage:[UIImage imageNamed:@"iconIdInfoP"]];
+            [lab setText:@"申请人资质"];
+            if (self.creditInfoModel.applicant_qualification_status.integerValue == 1) {
+                [authImage setImage:[UIImage imageNamed:@"credit_edit"]];
+                authImage.hidden = NO;
+            }else{
+                authImage.hidden = YES;
+            }
+            break;
         default:
             break;
     }
@@ -379,7 +391,15 @@ typedef NS_ENUM(NSInteger , DataDetailRequest) {
         }
             
             break;
-            
+        case APPLICANT:{
+           if (self.creditInfoModel.identity_status.integerValue == 1) {
+               ApplicantManVC *vc = [[ApplicantManVC alloc]init];
+               [self.navigationController pushViewController:vc animated:YES];
+           }else{
+               [self setHudWithName:@"请先完成身份认证" Time:0.5 andType:3];
+           }
+        }
+            break;
         default:
             break;
     }
@@ -424,15 +444,7 @@ typedef NS_ENUM(NSInteger , DataDetailRequest) {
             [collectionView reloadData];
             break;
         case DataDetailRequestApplyLoan:{
-            if ([[UserInfo sharedInstance]getUserInfo].has_grant_authorization.integerValue == 0) {//判断是否授权
-                [XAlertView alertWithTitle:@"温馨提示" message:@"您当前处于拒绝授权状态，想要获得更多服务,请前往修改状态。" cancelButtonTitle:@"取消" confirmButtonTitle:@"前往授权" viewController:self completion:^(UIAlertAction *action, NSInteger buttonIndex) {
-                    if (buttonIndex == 1) {
-                        AuthorizationVC *vc = [[AuthorizationVC alloc]init];
-                        [self.navigationController pushViewController:vc animated:YES];
-                    }
-                }];
-                return;
-            }
+            
             self.applyProductModel = [ApplyProductModel mj_objectWithKeyValues:response.content];
             cooperationUrl = response.content[@"cooperation_url"];
             //talkingdata

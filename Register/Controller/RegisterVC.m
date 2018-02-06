@@ -439,6 +439,12 @@ typedef NS_ENUM(NSInteger , XRegisterReuqst) {
     }else if (self.requestCount == XRegisterReuqstMessageCode){
         self.cmd = XSmsAuthenticationCode;
         self.dict = @{@"phone_num":_phoneTextAccount.text,@"opt_type":@1};
+    }else if(self.requestCount == 100){
+        self.cmd = XGrantAuthorization;
+        self.dict = @{@"opt_type":@"2"};
+    }else if (self.requestCount == 101){
+        self.cmd = XGrantAuthorization;
+        self.dict = @{@"opt_type":@"2"};
     }
 }
 -(void)requestSuccessWithDictionary:(XResponse *)response{
@@ -448,12 +454,28 @@ typedef NS_ENUM(NSInteger , XRegisterReuqst) {
         [TalkingData onRegister:_phoneTextAccount.text type:TDAccountTypeRegistered name:@"全网贷"];
         
         [[UserInfo sharedInstance]savePhone:_phoneTextAccount.text password:_pwdTextAccount.text userId:@"100" grantAuthorization:response.content[@"has_grant_authorization"]];
+        [self showAlertView];
         [self.navigationController popToRootViewControllerAnimated:YES];
+        
+        
     }else if (self.requestCount == XRegisterReuqstMessageCode){
         [self setHudWithName:@"验证码获取成功" Time:0.5 andType:0];
         [self beginCountDown];
         
     }
+}
+- (void)showAlertView{
+    [XAlertView alertWithTitle:@"温馨提示" message:@"在使用过程中，全网贷会为您推荐相应的贷款产品，您部分必要的个人信息（包括但不限于手机号、工作信息等）可能会根据您的需求，匹配给对应的第三方机构。" cancelButtonTitle:@"不同意" confirmButtonTitle:@"同意授权" completion:^(UIAlertView *alertView, NSInteger buttonIndex) {
+        if (buttonIndex == 1) {
+            [[UserInfo sharedInstance]savePhone:nil password:nil userId:nil grantAuthorization:@(1)];
+            [self prepareDataWithCount:100];
+        }
+        if (buttonIndex == 0) {
+            [[UserInfo sharedInstance]savePhone:nil password:nil userId:nil grantAuthorization:@(2)];
+            [self prepareDataWithCount:101];
+        }
+    }];
+    
 }
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
@@ -471,3 +493,4 @@ typedef NS_ENUM(NSInteger , XRegisterReuqst) {
 */
 
 @end
+

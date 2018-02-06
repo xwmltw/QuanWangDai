@@ -19,6 +19,7 @@
 @end
 //“special_entry_list”:
 //{
+// is_need_login 1是0否 ，默认0
 //    “special_entry_id” : <long>特色入口id
 //    “special_entry_title”: <string> 特色入口标题
 //    “special_entry_type”:<int>特色入口类型

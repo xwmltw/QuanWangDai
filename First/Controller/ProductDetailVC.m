@@ -26,6 +26,17 @@ typedef NS_ENUM(NSInteger ,ProductDetailRequest) {
     ProductDetailRequestStaticInfo,
     ProductDetailRequestApplyLoan,
 };
+typedef NS_ENUM(NSInteger ,RequiredType) {
+    IDENTITYCARD = 1,
+    ZMXY,
+    BASICINFO,
+    JXLINFO,
+    CREDITINFO,
+    LOANINFO,
+    BUSINESSINFO,
+    APPLICANT,
+    
+};
 @interface ProductDetailVC ()<UITextFieldDelegate>
 
 @property (nonatomic ,copy) UILabel *headTitle;
@@ -160,12 +171,19 @@ typedef NS_ENUM(NSInteger ,ProductDetailRequest) {
         make.width.height.mas_equalTo(AdaptationWidth(64));
     }];
     
-    [labTitle mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.mas_equalTo(image.mas_right).offset(AdaptationWidth(16));
-        make.width.mas_lessThanOrEqualTo(AdaptationWidth(164));
-        make.top.mas_equalTo(image.mas_top);
-    }];
-    
+    if (self.detailModel.run_address_name.length == 0) {
+        [labTitle mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.mas_equalTo(image.mas_right).offset(AdaptationWidth(16));
+            make.width.mas_lessThanOrEqualTo(AdaptationWidth(164));
+            make.centerY.mas_equalTo(image);
+        }];
+    }else{
+        [labTitle mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.mas_equalTo(image.mas_right).offset(AdaptationWidth(16));
+            make.width.mas_lessThanOrEqualTo(AdaptationWidth(164));
+            make.top.mas_equalTo(image.mas_top);
+        }];
+    }
     
     
     [labDetail mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -176,7 +194,7 @@ typedef NS_ENUM(NSInteger ,ProductDetailRequest) {
     
     [hotView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.mas_equalTo(labTitle.mas_right).offset(AdaptationWidth(8));
-        make.top.mas_equalTo(labTitle);
+        make.centerY.mas_equalTo(labTitle);
         make.width.mas_equalTo(AdaptationWidth(69));
         make.height.mas_equalTo(AdaptationWidth(26));
     }];
@@ -241,8 +259,8 @@ typedef NS_ENUM(NSInteger ,ProductDetailRequest) {
     UILabel *labRate = [[UILabel alloc]init];
     labRate.textAlignment = NSTextAlignmentCenter;
     labRate.numberOfLines = 0;
-    if (self.detailModel.loan_rate.length > 4) {
-        NSString *substring = [self.detailModel.loan_rate substringToIndex:4];
+    if (self.detailModel.loan_rate.length > 5) {
+        NSString *substring = [self.detailModel.loan_rate substringToIndex:5];
         [labRate setText:[NSString stringWithFormat:@"%@%%",substring]];
     }else{
         [labRate setText:[NSString stringWithFormat:@"%@%%",self.detailModel.loan_rate]];
@@ -644,14 +662,77 @@ typedef NS_ENUM(NSInteger ,ProductDetailRequest) {
         }
     }
 }
+- (BOOL)requiredData{
+    
+    NSArray *arry = [self.detailModel.apply_required_data componentsSeparatedByString:@","];
+    for (NSString *str in arry) {
+        switch (str.integerValue) {
+            case IDENTITYCARD:
+                if( self.creditInfoModel.identity_status.integerValue == 0){
+                    return NO;
+                }
+                break;
+            case ZMXY:
+                if( self.creditInfoModel.zhima_status.integerValue == 0){
+                    return NO;
+                }
+                break;
+            case BASICINFO:
+                if( self.creditInfoModel.base_info_status.integerValue == 0){
+                    return NO;
+                }
+                break;
+            case JXLINFO:
+                if( self.creditInfoModel.operator_status.integerValue == 0){
+                    return NO;
+                }
+                break;
+            case CREDITINFO:
+                if( self.creditInfoModel.bank_status.integerValue == 0){
+                    return NO;
+                }
+                break;
+            case LOANINFO:
+                if( self.creditInfoModel.loan_info_status.integerValue == 0){
+                    return NO;
+                }
+                break;
+            case BUSINESSINFO:
+                if( self.creditInfoModel.company_status.integerValue == 0){
+                    return NO;
+                }
+                break;
+            case APPLICANT:
+                if( self.creditInfoModel.applicant_qualification_status.integerValue == 0){
+                    return NO;
+                }
+                break;
 
+            default:
+                break;
+        }
+    }
+    return YES;
+}
 #pragma  mark - btn
 - (void)btnOnClick:(UIButton *)btn{
-    
+    if (self.detailModel.cooperation_type.integerValue == 3) {//商户后台显示
+        if (!tfDate.text.length && !tfMoney.text.length) {
+            [self setHudWithName:@"请输入想借金额和想借期限" Time:0.5 andType:1];
+            return;
+        }
+    }
+    if ([[UserInfo sharedInstance]getUserInfo].has_grant_authorization.integerValue == 2) {//判断是否授权
+        [XAlertView alertWithTitle:@"温馨提示" message:@"您当前处于拒绝授权状态，想要获得更多服务,请前往修改状态。" cancelButtonTitle:@"取消" confirmButtonTitle:@"前往授权" viewController:self completion:^(UIAlertAction *action, NSInteger buttonIndex) {
+            if (buttonIndex == 1) {
+                AuthorizationVC *vc = [[AuthorizationVC alloc]init];
+                [self.navigationController pushViewController:vc animated:YES];
+            }
+        }];
+        return;
+    }
     //talkingdata
     [TalkingData trackEvent:@"申请借款按钮"];
-//    SuccessApplicationVC *vc  =[[SuccessApplicationVC alloc]init];
-//    [self.navigationController pushViewController:vc animated:YES];
     [self prepareDataWithCount:ProductDetailRequestStaticInfo];
    
 }
@@ -694,40 +775,18 @@ typedef NS_ENUM(NSInteger ,ProductDetailRequest) {
             break;
         case ProductDetailRequestStaticInfo:{
             self.creditInfoModel = [CreditInfoModel mj_objectWithKeyValues:response.content];
-            if (self.detailModel.cooperation_type.integerValue == 3) {//商户后台显示
-                if (!tfDate.text.length && !tfMoney.text.length) {
-                    [self setHudWithName:@"请输入想借金额和想借期限" Time:0.5 andType:1];
-                    return;
-                }
-                if ([self.creditInfoModel.complete_schedule isEqualToString:@"100"]) {//判断资料是否齐全
-                    if ([[UserInfo sharedInstance]getUserInfo].has_grant_authorization.integerValue == 0) {//判断是否授权
-                        [XAlertView alertWithTitle:@"温馨提示" message:@"您当前处于拒绝授权状态，想要获得更多服务,请前往修改状态。" cancelButtonTitle:@"取消" confirmButtonTitle:@"前往授权" viewController:self completion:^(UIAlertAction *action, NSInteger buttonIndex) {
-                            if (buttonIndex == 1) {
-                                AuthorizationVC *vc = [[AuthorizationVC alloc]init];
-                                [self.navigationController pushViewController:vc animated:YES];
-                            }
-                        }];
-                        return;
-                    }
-                    [self prepareDataWithCount:ProductDetailRequestApplyLoan];
-                    return;
-                }
-                DataDetailVC *vc = [[DataDetailVC alloc]init];
-                vc.hidesBottomBarWhenPushed = YES;
-                vc.productModel = self.detailModel;
-                vc.apply_loan_amount = tfMoney.text;
-                vc.apply_loan_days = tfDate.text;
-                [self.navigationController pushViewController:vc animated:YES];
-                return;
-            }
-            if ([self.creditInfoModel.complete_schedule isEqualToString:@"100"]) {
+            if ([self requiredData]) {//判断资料是否齐全
                 [self prepareDataWithCount:ProductDetailRequestApplyLoan];
                 return;
             }
+            
             DataDetailVC *vc = [[DataDetailVC alloc]init];
             vc.hidesBottomBarWhenPushed = YES;
             vc.productModel = self.detailModel;
+            vc.apply_loan_amount = tfMoney.text;
+            vc.apply_loan_days = tfDate.text;
             [self.navigationController pushViewController:vc animated:YES];
+        
         }
             break;
         case ProductDetailRequestApplyLoan:{
@@ -741,6 +800,16 @@ typedef NS_ENUM(NSInteger ,ProductDetailRequest) {
         default:
             break;
     }
+}
+- (void)requestFaildWithDictionary:(XResponse *)response{
+    if (response.errCode.integerValue == 33) {
+        SuccessApplicationVC *vc  =[[SuccessApplicationVC alloc]init];
+        vc.errCode = response.errCode;
+        [self.navigationController pushViewController:vc animated:YES];
+        return;
+    }
+    [self setHudWithName:response.errMsg Time:1 andType:1];
+    
 }
 #pragma mark - 跳转界面
 - (void)pushControllerView{
@@ -759,6 +828,7 @@ typedef NS_ENUM(NSInteger ,ProductDetailRequest) {
         }
             break;
         case 3:{//商户后台
+            
             SuccessApplicationVC *vc  =[[SuccessApplicationVC alloc]init];
             vc.applyProductModel = self.applyProductModel;
             [self.navigationController pushViewController:vc animated:YES];

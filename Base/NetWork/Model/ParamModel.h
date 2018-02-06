@@ -21,6 +21,8 @@
 @property (nonatomic ,copy) NSString *package_name;
 @property (nonatomic ,copy) NSString *access_channel_code;
 @property (nonatomic ,copy) NSString *uid;
+@property (nonatomic ,copy) NSString *ad_code;//区域行政代号
+@property (nonatomic ,copy) NSString *city_code;//城市行政区号
 @end
 //分页查询
 @interface QueryParamModel : ParamModel
@@ -36,6 +38,7 @@
 @property (nonatomic, strong) WapUrlList *wap_url_list; /*!< 链接 */
 @property (nonatomic, copy) NSString* customer_contact; /*!< 客服电话 */
 @property (nonatomic, copy) NSNumber *recomment_entry_hide; /*!< 是否显示隐藏 */
+@property (nonatomic, strong) NSArray *notice_manage_list;  /*!< 公告 >*/
 
  - (void)setClientGlobalInfoModel;
 + (ClientGlobalInfoRM *)getClientGlobalInfoModel;
@@ -68,6 +71,7 @@
 @property (nonatomic, copy) NSString* ad_name;
 @property (nonatomic, copy) NSString* ad_content;
 @property (nonatomic, copy) NSString* img_url;
+@property (nonatomic, copy) NSNumber* is_need_login;
 
 //“ad_id”: “xxx”, // 广告id
 //“ad_type”: “xxx”, // 广告类型: 1应用内打开 2浏览器打开
@@ -75,7 +79,7 @@
 //“ad_name”: “xxx”, // 广告名称
 //“ad_content”: “xxx”, // 广告内容
 //“img_url”: “xxx”, // 广告图片链接地址
-
+//广告列表相关接口和特色入口列表接口增加下发字段：　是否需要登录： is_need_login 1是0否 ，默认0
 @end
 //会话
 @interface CreatSessionModel : NSObject

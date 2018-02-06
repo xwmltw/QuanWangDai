@@ -11,12 +11,21 @@
 
 /** TalkingData */
 #ifdef DEBUG
-static NSString *const TalkingData_AppID =   @"";
+static NSString *const TalkingData_AppID =   @"0840A8EB6BC34C9B9A36403D7123D176";
 static NSString *const TD_AdTrackingID =     @"";
 #else
 static NSString *const TalkingData_AppID =   @"0840A8EB6BC34C9B9A36403D7123D176";
 static NSString *const TD_AdTrackingID =     @"";
 #endif
+
+/** 极光*/
+#ifdef DEBUG
+static NSString *const JPAppKey = @"fd3c5d262b948920acbadcab";
+#else
+static NSString *const JPAppKey = @"fd3c5d262b948920acbadcab";
+#endif
+//高德key
+static NSString *const AMapKey = @"179aa235257bd3221170cdf9dbabcac6";
 
 /** 芝麻信用 */
 #ifdef DEBUG
@@ -35,6 +44,11 @@ static NSString *const XZMAPPID =   @"300000041";
 #define SERVICEURL @"http://api.91qwd.com/openapi/1" //正式环境
 
 #endif
+
+/**通知*/
+static NSString *const XLocationCityName = @"XLocationCityName";
+static NSString *const XNotificationAlert = @"XNotificationAlert";
+
 
 #define XClientGlobalInfo @"qwd_getClientGlobalInfo"            /*!< 全局配置*/
 #define XPostIosDevInfo @"qwd_postIosDevInfo"                   /*!< 提交ios设备信息*/
@@ -69,6 +83,7 @@ static NSString *const XZMAPPID =   @"300000041";
 #define XGetLoanQualificationInfo @"qwd_getLoanQualificationInfo"  /*!< 查询借款人资质信息*/
 #define XPostLoanQualificationInfo @"qwd_postLoanQualificationInfo"/*!< 上传借款人资质信息*/
 
+#define XGetSpecialLoanProList @"qwd_getSpecialRecommendLoanProduct" /*!< 查询首页推荐贷款产品信息*/
 #define XGetHotLoanProList @"qwd_getHotLoanProList"             /*!< 查询热门贷款推荐列表*/
 #define XGetLoanProDetail @"qwd_getLoanProDetail"               /*!< 查询贷款产品详情*/
 #define XGetLoanProList @"qwd_getLoanProList"                   /*!< 查询贷款产品列表*/

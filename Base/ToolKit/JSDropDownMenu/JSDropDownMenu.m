@@ -730,7 +730,6 @@ const NSInteger kMaxColumnsInMenu = 5;
     if (show) {
         
         CGFloat leftTableViewHeight = 0;
-        
         CGFloat rightTableViewHeight = 0;
         
         if (leftTableView) {
@@ -739,13 +738,12 @@ const NSInteger kMaxColumnsInMenu = 5;
             [self.superview addSubview:leftTableView];
             
             leftTableViewHeight = ([leftTableView numberOfRowsInSection:0] > 5) ? (5 * leftTableView.rowHeight) : ([leftTableView numberOfRowsInSection:0] * leftTableView.rowHeight);
-
         }
         
         if (rightTableView) {
             
             rightTableView.frame = CGRectMake(_origin.x+leftTableView.frame.size.width, self.frame.origin.y + self.frame.size.height, self.frame.size.width*(1-ratio), 0);
-            
+
             [self.superview addSubview:rightTableView];
             
             rightTableViewHeight = ([rightTableView numberOfRowsInSection:0] > 5) ? (5 * rightTableView.rowHeight) : ([rightTableView numberOfRowsInSection:0] * rightTableView.rowHeight);
@@ -892,6 +890,12 @@ const NSInteger kMaxColumnsInMenu = 5;
 
 -(CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section{
     return 0.1;
+}
+- (nullable UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
+    return [UIView new];
+}
+- (nullable UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section{
+    return [UIView new];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath

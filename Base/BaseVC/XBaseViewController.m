@@ -158,7 +158,7 @@
     
     MBProgressHUD *hud = nil;
 
-    if ([self.cmd isEqual:XGetOperatorInfo]) {
+    if ([model isEqual:XGetOperatorInfo] || [model isEqual:XPostOperatorVerify]) {
         UIWindow *topWindow = [[UIApplication sharedApplication] keyWindow];
         UIViewController *appRootVC = topWindow.rootViewController;
         hud = [MBProgressHUD showHUDAddedTo:appRootVC.view animated:YES];
@@ -179,7 +179,7 @@
 //            hud.customView = imageView;
     }
     NSMutableDictionary *params = [NSMutableDictionary dictionary];
-    [params setObject:self.cmd forKey:@"service"];
+    [params setObject:model forKey:@"service"];
     NSMutableDictionary *content = [[[BaseInfoPM alloc]init] mj_keyValues];
     [content addEntriesFromDictionary:dict];
     [params setObject:content forKey:@"content"];
@@ -273,7 +273,7 @@
             NSString *base64String = [[NSString alloc]initWithData:responseObject encoding:NSUTF8StringEncoding];
             NSString *base64String2 = [SecurityUtil decryptAESData:base64String];
             NSDictionary *keyDict = [SecurityUtil dictionaryWithJsonString:base64String2];
-            MyLog(@"网络请求成功返回数据%@",keyDict);
+//            MyLog(@"网络请求成功返回数据%@",keyDict);
             
             XResponse *response = [XResponse mj_objectWithKeyValues:keyDict];
             if (response.errCode.integerValue == 2) {//session过期或者失效
@@ -283,7 +283,7 @@
                 }];
                 return ;
             }
-            if(response.errCode.integerValue ==15 ) {//登录失效
+            if(response.errCode.integerValue ==15 && ![self.cmd  isEqual: XGetSpecialLoanProList] ) {//登录失效
                 [XAlertView alertWithTitle:@"温馨提示" message:response.errMsg cancelButtonTitle:@"取消" confirmButtonTitle:@"去登录" viewController:self completion:^(UIAlertAction *action, NSInteger buttonIndex) {
                     if (buttonIndex == 1) {
                         LoginVC *vc = [[LoginVC alloc]init];
@@ -565,10 +565,14 @@
 
 - (void)showAlertView{
     [XAlertView alertWithTitle:@"温馨提示" message:@"在使用过程中，全网贷会为您推荐相应的贷款产品，您部分必要的个人信息（包括但不限于手机号、工作信息等）可能会根据您的需求，匹配给对应的第三方机构。" cancelButtonTitle:@"不同意" confirmButtonTitle:@"同意授权" viewController:self completion:^(UIAlertAction *action, NSInteger buttonIndex) {
+        self.requestCount = 100;
         if (buttonIndex == 1) {
-            self.requestCount = 100;
             [[UserInfo sharedInstance]savePhone:nil password:nil userId:nil grantAuthorization:@(1)];
             [self prepareDataGetUrlWithModel:XGrantAuthorization andparmeter:@{@"opt_type":@"1"}];
+        }
+        if (buttonIndex == 0) {
+            [[UserInfo sharedInstance]savePhone:nil password:nil userId:nil grantAuthorization:@(2)];
+            [self prepareDataGetUrlWithModel:XGrantAuthorization andparmeter:@{@"opt_type":@"2"}];
         }
     }];
 }
