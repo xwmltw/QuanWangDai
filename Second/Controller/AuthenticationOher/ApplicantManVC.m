@@ -86,7 +86,7 @@ typedef NS_ENUM(NSUInteger, ApplicantManVCRequest) {
     [self.authView.AgreementBtn addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchUpInside];
     [self.authView.TickBtn addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchUpInside];
     [view addSubview:self.authView];
-    if (self.creditInfoModel.applicant_qualification_status.integerValue == 1) {//判断是否认证过
+    if (self.creditInfoModel.applicant_qualification_status.integerValue == 1 || self.clientGlobalInfoModel.recomment_entry_hide.integerValue == 1) {//判断是否认证过
         self.authView.hidden = YES;
         view.frame = CGRectMake(0, 0, ScreenWidth, AdaptationWidth(80));
     }
@@ -262,22 +262,22 @@ typedef NS_ENUM(NSUInteger, ApplicantManVCRequest) {
                      @[@"上班族",@"个体户",@"无固定职业",@"企业主",@"学生"],
                      @[@"银行卡发放",@"现金发放",@"部分银行卡,部分现金"],
                      @[@"不足3个月",@"3-5个月",@"6-11个月",@"1-3年",@"4-7年",@"7年以上"],
-                     @[@"有",@"无"],
-                     @[@"有",@"无"],
-                     @[@"有",@"无"],
-                     @[@"有",@"无"],
-                     @[@"有",@"无"],
+                     @[@"无",@"有"],
+                     @[@"无",@"有"],
+                     @[@"无",@"有"],
+                     @[@"无",@"有"],
+                     @[@"无",@"有"],
                      @[@"1年内逾期超过3次或超过90天",@"1年内逾期少3次且少于90天",@"无信用卡或贷款",@"信用良好",@"无逾期"]];
     }else{
         self.dataDic = @{@"title":@[@"借款用途",@"职业身份",@"本地公积金",@"本地社保",
                                     @"名下房产",@"亲属名下房产 (直系亲属、配偶)",@"名下车辆",@"信用状况"]};
         dataArry = @[@[@"网上购物",@"实体店购物",@"教育培训",@"租房买房",@"出国留学",@"婚庆装修",@"餐饮娱乐",@"医疗美容",@"其他"],
                      @[@"上班族",@"个体户",@"无固定职业",@"企业主",@"学生"],
-                     @[@"有",@"无"],
-                     @[@"有",@"无"],
-                     @[@"有",@"无"],
-                     @[@"有",@"无"],
-                     @[@"有",@"无"],
+                     @[@"无",@"有"],
+                     @[@"无",@"有"],
+                     @[@"无",@"有"],
+                     @[@"无",@"有"],
+                     @[@"无",@"有"],
                      @[@"1年内逾期超过3次或超过90天",@"1年内逾期少3次且少于90天",@"无信用卡或贷款",@"信用良好",@"无逾期"]];
     }
     
@@ -286,11 +286,7 @@ typedef NS_ENUM(NSUInteger, ApplicantManVCRequest) {
 #pragma mark - 一一一一一 <* 按钮点击事件 *> 一一一一一
 -(void)SubmmitClick{
     MyLog(@"%d",self.authView.AgreementBtn.selected);
-    if (!self.authView.AgreementBtn.selected && self.creditInfoModel.applicant_qualification_status.integerValue == 0) {
-        [XAlertView alertWithTitle:@"温馨提示" message:@"请您认真阅读《全网贷个人信息收集授权书》，若无异议请先勾选“我已同意《全网贷个人信息收集授权书》”，再重新提交资料" cancelButtonTitle:nil confirmButtonTitle:@"知道了" viewController:self completion:^(UIAlertAction *action, NSInteger buttonIndex) {
-        }];
-        return;
-    }
+    
     if (self.applicantModel.loan_usage.length == 0) {
         [self setHudWithName:@"请选择借款用途" Time:0.5 andType:1];
         return;
@@ -333,7 +329,11 @@ typedef NS_ENUM(NSUInteger, ApplicantManVCRequest) {
         [self setHudWithName:@"请选择信用情况" Time:0.5 andType:1];
         return;
     }
-    
+    if (!self.authView.AgreementBtn.selected && self.creditInfoModel.applicant_qualification_status.integerValue == 0) {
+        [XAlertView alertWithTitle:@"温馨提示" message:@"请您认真阅读《全网贷个人信息收集授权书》，若无异议请先勾选“我已同意《全网贷个人信息收集授权书》”，再重新提交资料" cancelButtonTitle:nil confirmButtonTitle:@"知道了" viewController:self completion:^(UIAlertAction *action, NSInteger buttonIndex) {
+        }];
+        return;
+    }
     [self prepareDataWithCount:ApplicantManVCPost];
 }
 -(void)buttonClick:(UIButton*)button{
@@ -404,20 +404,20 @@ typedef NS_ENUM(NSUInteger, ApplicantManVCRequest) {
                      @[@"上班族",@"个体户",@"无固定职业",@"企业主",@"学生"],
                      @[@"银行卡发放",@"现金发放",@"部分银行卡,部分现金"],
                      @[@"不足3个月",@"3-5个月",@"6-11个月",@"1-3年",@"4-7年",@"7年以上"],
-                     @[@"有",@"无"],
-                     @[@"有",@"无"],
-                     @[@"有",@"无"],
-                     @[@"有",@"无"],
-                     @[@"有",@"无"],
+                     @[@"无",@"有"],
+                     @[@"无",@"有"],
+                     @[@"无",@"有"],
+                     @[@"无",@"有"],
+                     @[@"无",@"有"],
                      @[@"1年内逾期超过3次或超过90天",@"1年内逾期少3次且少于90天",@"无信用卡或贷款",@"信用良好",@"无逾期"]];
     } else {
         dataArry = @[@[@"网上购物",@"实体店购物",@"教育培训",@"租房买房",@"出国留学",@"婚庆装修",@"餐饮娱乐",@"医疗美容",@"其他"],
                      @[@"上班族",@"个体户",@"无固定职业",@"企业主",@"学生"],
-                     @[@"有",@"无"],
-                     @[@"有",@"无"],
-                     @[@"有",@"无"],
-                     @[@"有",@"无"],
-                     @[@"有",@"无"],
+                     @[@"无",@"有"],
+                     @[@"无",@"有"],
+                     @[@"无",@"有"],
+                     @[@"无",@"有"],
+                     @[@"无",@"有"],
                      @[@"1年内逾期超过3次或超过90天",@"1年内逾期少3次且少于90天",@"无信用卡或贷款",@"信用良好",@"无逾期"]];
     }
 }

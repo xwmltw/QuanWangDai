@@ -51,14 +51,21 @@
         [self.typelabel setText:[NSString stringWithFormat:@"浮动利率"]];
         self.interestRate.hidden = YES;
     }else{
+       
         if ([model.min_loan_rate isEqualToString:model.loan_rate]) {
-             [self.interestRate setText:[NSString stringWithFormat:@"%@%%",model.loan_rate]];
+            if (model.loan_rate.length > 5) {
+                NSString *substring = [model.loan_rate substringToIndex:5];
+                [self.interestRate setText:[NSString stringWithFormat:@"%@%%",substring]];
+            }else{
+                [self.interestRate setText:[NSString stringWithFormat:@"%@%%",model.loan_rate]];
+            }
+            
         }else{
             [self.interestRate setText:[NSString stringWithFormat:@"%@%%~%@%%",model.min_loan_rate,model.loan_rate]];
         }
     }
 //    self.interestRate.text = [NSString stringWithFormat:@"%@%%",model.loan_rate];
-    if (model.hot_label.length) {
+    if (model.hot_label.length && self.isSuccessApp.integerValue != 1) {
         self.appState.hidden = NO;
     }else{
         self.appState.hidden = YES;

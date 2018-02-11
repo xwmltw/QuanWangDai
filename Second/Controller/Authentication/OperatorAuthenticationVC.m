@@ -27,6 +27,7 @@ typedef NS_ENUM(NSInteger, OperatorsCreditRequest) {
     UITextField *_phoneText;
     UITextField *_operatorsText;
     UIAlertView *alert;
+    UIButton *sureBtn;
 }
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -89,11 +90,11 @@ typedef NS_ENUM(NSInteger, OperatorsCreditRequest) {
     [self.authView.AgreementBtn addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchUpInside];
     [self.authView.TickBtn addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:self.authView];
-    if (self.creditInfoModel.operator_status.integerValue == 1) {//判断是否认证过
+    if (self.creditInfoModel.operator_status.integerValue == 1 || self.clientGlobalInfoModel.recomment_entry_hide.integerValue == 1) {//判断是否认证过
         self.authView.hidden = YES;
     }
     
-    UIButton *sureBtn = [[UIButton alloc]init];
+    sureBtn = [[UIButton alloc]init];
     sureBtn.tag = 100;
     [sureBtn setTitle:@"提交" forState:UIControlStateNormal];
     [sureBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
@@ -168,6 +169,11 @@ typedef NS_ENUM(NSInteger, OperatorsCreditRequest) {
 }
 #pragma  mark - btn
 - (void)btnOnClick:(UIButton *)btn{
+    
+    //点击按钮后先取消之前的操作，再进行需要进行的操作
+    sureBtn.enabled =NO;
+    [self performSelector:@selector(changeButtonStatus:)withObject:nil afterDelay:2.0f];//防止重复点击
+    
     if (btn.tag == 100) {
         if ([OperatorModel sharedInstance].reset_pwd_method.integerValue == 1) {
             [self setHudWithName:@"需要重置密码" Time:0.5 andType:1];
@@ -206,7 +212,9 @@ typedef NS_ENUM(NSInteger, OperatorsCreditRequest) {
         [self presentViewController:alertController animated:YES completion:nil];
     }
 }
-
+-(void)changeButtonStatus:(UIButton *)btn{
+    sureBtn.enabled =YES;
+}
 - (void)refreshView
 {
     if ([[UserInfo sharedInstance]getUserInfo].phoneName.length != 0) {
@@ -291,7 +299,7 @@ typedef NS_ENUM(NSInteger, OperatorsCreditRequest) {
             break;
         case OperatorsCreditRequestVerify:{
             
-            if (response.errCode.integerValue == 20) {
+            if (response.errCode.integerValue == 20 || response.errCode.integerValue == 12) {
                 
                 return;
             }
@@ -299,7 +307,7 @@ typedef NS_ENUM(NSInteger, OperatorsCreditRequest) {
             vc.phoneStr = _phoneText.text;
             vc.pwdStr = _operatorsText.text;
             [self.navigationController pushViewController:vc animated:YES];
-            [[NSNotificationCenter defaultCenter]postNotificationName:@"Refresh" object:self userInfo:nil];
+//            [[NSNotificationCenter defaultCenter]postNotificationName:@"Refresh" object:self userInfo:nil];
         }
             break;
             

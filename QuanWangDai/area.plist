@@ -987,6 +987,7 @@
 					<string>石龙</string>
 					<string>长安</string>
 					<string>虎门</string>
+					<string>其他乡镇</string>
 				</array>
 				<key>city</key>
 				<string>东莞</string>
@@ -1030,7 +1031,15 @@
 			</dict>
 			<dict>
 				<key>areas</key>
-				<array/>
+				<array>
+					<string>石岐街道</string>
+					<string>东区街道</string>
+					<string>西区街道</string>
+					<string>南区街道</string>
+					<string>五桂山街道</string>
+					<string>中山港街道</string>
+					<string>其他乡镇</string>
+				</array>
 				<key>city</key>
 				<string>中山</string>
 			</dict>

@@ -71,6 +71,7 @@ typedef NS_ENUM(NSInteger ,SeviceURLRequest) {
 -(void)requestSuccessWithDictionary:(XResponse *)response{
     switch (self.requestCount) {
         case SeviceURLRequestSignIn:{
+            [[UserInfo sharedInstance]savePhone:nil password:nil userId:response.content[@"id"] grantAuthorization:response.content[@"has_grant_authorization"]];
             [self prepareDataWithCount:SeviceURLRequestGlobalInfo];
 
         }
@@ -238,6 +239,11 @@ typedef NS_ENUM(NSInteger ,SeviceURLRequest) {
                 case 1:
                     [[UIApplication sharedApplication] openURL:[NSURL URLWithString:model.url]];
                     break;
+                case 0:{
+                    //强制关闭应用
+                    exit(0);
+
+                }
                 default:
                     break;
             }

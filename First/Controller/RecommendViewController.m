@@ -68,16 +68,11 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
     
     [self.navigationController setNavigationBarHidden:YES animated:YES];
     self.tabBarController.delegate = self;
-    
-    /*!< 通知 >*/
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(scrollAndLoad) name:@"Recommend" object:nil];
-    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(refresh) name:@"Refresh" object:nil];
-    [WDNotificationCenter addObserver:self selector:@selector(notificationLocation:) name:XLocationCityName object:nil];
-    [WDNotificationCenter addObserver:self selector:@selector(ntificationAlert:) name:XNotificationAlert object:nil];
 }
 
 -(void)refresh{
-    [self prepareDataWithCount:RecommenRequestHotInfo];
+    [self prepareDataWithCount:RecommenRequestSpecialEntry];
+    
 }
 
 - (void)viewDidLoad {
@@ -86,7 +81,7 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
     [TalkingData trackEvent:@"【推荐】页"];
     
     [self setData];
-    [self prepareDataWithCount:RecommenRequestHotInfo];
+    [self prepareDataWithCount:RecommenRequestSpecialEntry];
     
     [self createTableViewWithFrame:CGRectZero];
     [self.tableView mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -96,6 +91,12 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     self.tableView.tableHeaderView = [self creatHeadView:CGRectMake(0, 0, ScreenWidth, AdaptationWidth(684))];
 
+    /*!< 通知 >*/
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(scrollAndLoad) name:@"Recommend" object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refresh) name:@"Refresh" object:nil];
+    [WDNotificationCenter addObserver:self selector:@selector(notificationLocation:) name:XLocationCityName object:nil];
+    [WDNotificationCenter addObserver:self selector:@selector(ntificationAlert:) name:XNotificationAlert object:nil];
+    
 }
 
 - (void)setData{
@@ -112,7 +113,12 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
     [self.tableView.mj_header beginRefreshing];
 }
 - (void)notificationLocation:(NSNotification *)notification{
+   
+    [self performSelector:@selector(changeNotificationStatus)withObject:nil afterDelay:2.0f];//防止重复点击
     [_locationbtn setTitle:notification.object forState:UIControlStateNormal];
+}
+- (void)changeNotificationStatus{
+    [self prepareDataWithCount:RecommenRequestHotInfo];
 }
 - (void)ntificationAlert:(NSNotification *)notification{
     XRootWebVC *vc = [[XRootWebVC alloc]init];
@@ -219,8 +225,12 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
     _flowLayout = [[UICollectionViewFlowLayout alloc]init];
     _flowLayout.minimumLineSpacing = 0;
     _flowLayout.minimumInteritemSpacing = -1;
-    
-    _collectionView = [[UICollectionView alloc]initWithFrame:CGRectMake(11, AdaptationWidth(128), ScreenWidth - 22, AdaptationWidth(164)) collectionViewLayout:_flowLayout];
+    if (self.specialEntryModel.special_entry_list.count > 4) {
+        _collectionView = [[UICollectionView alloc]initWithFrame:CGRectMake(11, AdaptationWidth(128), ScreenWidth - 22, AdaptationWidth(164))collectionViewLayout:_flowLayout];
+                    
+    }else{
+        _collectionView = [[UICollectionView alloc]initWithFrame:CGRectMake(11, AdaptationWidth(128), ScreenWidth - 22, AdaptationWidth(82))collectionViewLayout:_flowLayout];
+    }
     _collectionView.scrollEnabled = NO;
     _collectionView.delaysContentTouches = NO;
     _collectionView.delegate = self;
@@ -233,7 +243,7 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
 
 #pragma mark - 一一一一一 <* 尾视图创建 *> 一一一一一
 - (UIView *)creatFooterView{
-    if (!self.dataSourceArr.count) {
+    if (self.dataSourceArr.count == 0) {
         UIView * view = [[UIView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, AdaptationWidth(272))];
         view.backgroundColor = [UIColor clearColor];
         
@@ -351,6 +361,17 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
 #pragma mark - sdcycscrollview delegate
 - (void)cycleScrollView:(SDCycleScrollView *)cycleScrollView didSelectItemAtIndex:(NSInteger)index{
     
+    
+    NSInteger login = [self.clientGlobalInfoModel.banner_ad_list[index][@"is_need_login"]integerValue];
+    if (login) {
+        if(![[UserInfo sharedInstance]isSignIn]){
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self getBlackLogin:self];//判断是否登录状态
+            });
+            return;
+        }
+    }
+
     NSInteger openType = [self.clientGlobalInfoModel.banner_ad_list[index][@"ad_type"]integerValue];
     NSString *url = self.clientGlobalInfoModel.banner_ad_list[index][@"ad_detail_url"];
     //点击广告日记
@@ -1101,7 +1122,8 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
             self.dataSourceArr = response.content[@"loan_pro_list"];
             self.tableView.tableFooterView = [self creatFooterView];
             [self.tableView reloadData];
-            [self prepareDataWithCount:RecommenRequestSpecialEntry];
+             [self prepareDataWithCount:RecommenRequestSpecialInfo];
+            
         }
             break;
         case RecommenRequestSpecialEntry:{
@@ -1109,8 +1131,7 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
                 [[SpecialEntryModel sharedInstance]saveSpecialEntryModel:response.content];
                 [self.collectionView reloadData];
             }
-            [self prepareDataWithCount:RecommenRequestSpecialInfo];
-            
+            [self prepareDataWithCount:RecommenRequestHotInfo];
         }
             break;
         case RecommenRequestSpecialInfo:{
@@ -1119,23 +1140,43 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
             if (imageArry.count == 0 ) {
                 if (![[UserInfo sharedInstance]isSignIn]) {
                     /*!< 未登录 >*/
-                    self.tableView.tableHeaderView = [self creatHeadView:CGRectMake(0, 0, ScreenWidth, AdaptationWidth(548))];
+                    if (self.specialEntryModel.special_entry_list.count > 4) {
+                        self.tableView.tableHeaderView = [self creatHeadView:CGRectMake(0, 0, ScreenWidth, AdaptationWidth(548))];
+                    }else{
+                        self.tableView.tableHeaderView = [self creatHeadView:CGRectMake(0, 0, ScreenWidth, AdaptationWidth(486))];
+                    }
                 }else{
                     /*!< 登录 >*/
                     if (self.loan_pro_list.count != 0) {
                         /*!< 有推荐数据 >*/
+                        if (self.specialEntryModel.special_entry_list.count > 4) {
                         self.tableView.tableHeaderView = [self creatHeadView:CGRectMake(0, 0, ScreenWidth, AdaptationWidth(574))];
+                        }else{
+                            self.tableView.tableHeaderView = [self creatHeadView:CGRectMake(0, 0, ScreenWidth, AdaptationWidth(512))];
+                        }
                     }else{
                         /*!< 无推荐数据 >*/
+                        if (self.specialEntryModel.special_entry_list.count > 4) {
                         self.tableView.tableHeaderView = [self creatHeadView:CGRectMake(0, 0, ScreenWidth, AdaptationWidth(302))];
+                        }else{
+                            self.tableView.tableHeaderView = [self creatHeadView:CGRectMake(0, 0, ScreenWidth, AdaptationWidth(240))];
+                        }
                     }
                 }
             }else{
                 if (self.loan_pro_list.count == 0 ) {
                     [scrollbgViewList removeFromSuperview];
+                    if (self.specialEntryModel.special_entry_list.count > 4) {
                     self.tableView.tableHeaderView = [self creatHeadView:CGRectMake(0, 0, ScreenWidth, AdaptationWidth(418))];
+                    }else{
+                        self.tableView.tableHeaderView = [self creatHeadView:CGRectMake(0, 0, ScreenWidth, AdaptationWidth(356))];
+                    }
                 }else{
+                    if (self.specialEntryModel.special_entry_list.count > 4) {
                     self.tableView.tableHeaderView = [self creatHeadView:CGRectMake(0, 0, ScreenWidth, AdaptationWidth(684))];
+                    }else{
+                        self.tableView.tableHeaderView = [self creatHeadView:CGRectMake(0, 0, ScreenWidth, AdaptationWidth(622))];
+                    }
                 }
             }
             if(![[UserInfo sharedInstance]isSignIn]){
@@ -1157,18 +1198,29 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
                     [self customize:response.content[@"loan_pro_list_count"] with:self.loan_pro_list];
                 }
             }
+            
         }
+            
             break;
         default:
             break;
+            
     }
 }
 -(void)requestFaildWithDictionary:(XResponse *)response{
     /*!< 无banner >*/
     if (imageArry.count == 0 ) {
-        self.tableView.tableHeaderView = [self creatHeadView:CGRectMake(0, 0, ScreenWidth, AdaptationWidth(548))];
+        if (self.specialEntryModel.special_entry_list.count > 4) {
+            self.tableView.tableHeaderView = [self creatHeadView:CGRectMake(0, 0, ScreenWidth, AdaptationWidth(548))];
+        }else{
+            self.tableView.tableHeaderView = [self creatHeadView:CGRectMake(0, 0, ScreenWidth, AdaptationWidth(476))];
+        }
     }else{
-        self.tableView.tableHeaderView = [self creatHeadView:CGRectMake(0, 0, ScreenWidth, AdaptationWidth(656))];
+        if (self.specialEntryModel.special_entry_list.count > 4) {
+            self.tableView.tableHeaderView = [self creatHeadView:CGRectMake(0, 0, ScreenWidth, AdaptationWidth(656))];
+        }else{
+            self.tableView.tableHeaderView = [self creatHeadView:CGRectMake(0, 0, ScreenWidth, AdaptationWidth(584))];
+        }
     }
     if(![[UserInfo sharedInstance]isSignIn]){
         if (scrollbgViewUnlogin == nil) {

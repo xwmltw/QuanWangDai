@@ -104,7 +104,7 @@ typedef NS_ENUM(NSUInteger, AdultIdentityVerifyRequest) {
     [self.authView.AgreementBtn addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchUpInside];
     [self.authView.TickBtn addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:self.authView];
-    if (self.creditInfoModel.identity_status.integerValue == 1) {//判断是否认证过
+    if (self.creditInfoModel.identity_status.integerValue == 1 || self.clientGlobalInfoModel.recomment_entry_hide.integerValue == 1) {//判断是否认证过
         self.authView.hidden = YES;
     }
     [_titleLab mas_makeConstraints:^(MASConstraintMaker *make) {

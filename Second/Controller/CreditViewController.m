@@ -673,9 +673,9 @@ typedef NS_ENUM(NSInteger ,CreditRequest) {
 //    [super requestFaildWithDictionary:response];
     [self.collectionView reloadData];
 }
--(void)dealloc{
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"Refresh" object:nil];
-}
+//-(void)dealloc{
+//    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"Refresh" object:nil];
+//}
 - (void)headerRefresh{
     [self prepareDataWithCount:CreditRequestDetailInfo];
 }

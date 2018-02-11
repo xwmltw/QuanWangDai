@@ -122,9 +122,9 @@
               }else{
                   NSString *str = @"";
                   if ([model.has_accumulation_fund.description isEqualToString:@"0"]) {
-                      str = @"有";
-                  }else if([model.has_accumulation_fund.description isEqualToString:@"1"]){
                       str = @"无";
+                  }else if([model.has_accumulation_fund.description isEqualToString:@"1"]){
+                      str = @"有";
                   }
                     _detailLab.text =  str.length ? str : @"有无本地公积金";
                     if (str.length != 0) {
@@ -157,9 +157,9 @@
             }else{
                 NSString *str = @"";
                 if ([model.has_social_security.description isEqualToString:@"0"]) {
-                    str = @"有";
-                }else if([model.has_social_security.description isEqualToString:@"1"]){
                     str = @"无";
+                }else if([model.has_social_security.description isEqualToString:@"1"]){
+                    str = @"有";
                 }
                 _detailLab.text =  str.length ? str : @"有无本地社保";
                 if (str.length != 0) {
@@ -173,9 +173,9 @@
             if (yes) {
                 NSString *str = @"";
                 if ([model.has_accumulation_fund.description isEqualToString:@"0"]) {
-                    str = @"有";
-                }else if([model.has_accumulation_fund.description isEqualToString:@"1"]){
                     str = @"无";
+                }else if([model.has_accumulation_fund.description isEqualToString:@"1"]){
+                    str = @"有";
                 }
                 _detailLab.text =  str.length ? str : @"有无本地公积金";
                 if (str.length != 0) {
@@ -184,9 +184,9 @@
             }else{
                 NSString *str = @"";
                 if ([model.has_house_property.description isEqualToString:@"0"]) {
-                    str = @"有";
-                }else if([model.has_house_property.description isEqualToString:@"1"]){
                     str = @"无";
+                }else if([model.has_house_property.description isEqualToString:@"1"]){
+                    str = @"有";
                 }
                 _detailLab.text =  str.length ? str  : @"名下有无房产";
                 if (str.length != 0) {
@@ -201,9 +201,9 @@
             if (yes) {
                 NSString *str = @"";
                 if ([model.has_social_security.description isEqualToString:@"0"]) {
-                    str = @"有";
-                }else if([model.has_social_security.description isEqualToString:@"1"]){
                     str = @"无";
+                }else if([model.has_social_security.description isEqualToString:@"1"]){
+                    str = @"有";
                 }
                 _detailLab.text =  str.length ? str : @"有无本地社保";
                 if (str.length != 0) {
@@ -212,9 +212,9 @@
             }else{
                 NSString *str = @"";
                 if ([model.relatives_has_house_property.description isEqualToString:@"0"]) {
-                    str = @"有";
-                }else if([model.relatives_has_house_property.description isEqualToString:@"1"]){
                     str = @"无";
+                }else if([model.relatives_has_house_property.description isEqualToString:@"1"]){
+                    str = @"有";
                 }
                 _detailLab.text =  str.length ? str  : @"亲属名下有无房产";
                 if (str.length != 0) {
@@ -229,9 +229,9 @@
             if (yes) {
                 NSString *str = @"";
                 if ([model.has_house_property.description isEqualToString:@"0"]) {
-                    str = @"有";
-                }else if([model.has_house_property.description isEqualToString:@"1"]){
                     str = @"无";
+                }else if([model.has_house_property.description isEqualToString:@"1"]){
+                    str = @"有";
                 }
                 _detailLab.text =  str.length ? str  : @"名下有无房产";
                 if (str.length != 0) {
@@ -240,9 +240,9 @@
             }else{
                 NSString *str = @"";
                 if ([model.has_car_property.description isEqualToString:@"0"]) {
-                    str = @"有";
-                }else if([model.has_car_property.description isEqualToString:@"1"]){
                     str = @"无";
+                }else if([model.has_car_property.description isEqualToString:@"1"]){
+                    str = @"有";
                 }
                 _detailLab.text =  str.length ? str  : @"名下有无车辆";
                 if (str.length != 0) {
@@ -256,9 +256,9 @@
             if (yes) {
                 NSString *str = @"";
                 if ([model.relatives_has_house_property.description isEqualToString:@"0"]) {
-                    str = @"有";
-                }else if([model.relatives_has_house_property.description isEqualToString:@"1"]){
                     str = @"无";
+                }else if([model.relatives_has_house_property.description isEqualToString:@"1"]){
+                    str = @"有";
                 }
                 _detailLab.text =  str.length ? str  : @"亲属名下有无房产";
                 if (str.length != 0) {
@@ -289,9 +289,9 @@
             if (yes) {
                 NSString *str = @"";
                 if ([model.has_car_property.description isEqualToString:@"0"]) {
-                    str = @"有";
-                }else if([model.has_car_property.description isEqualToString:@"1"]){
                     str = @"无";
+                }else if([model.has_car_property.description isEqualToString:@"1"]){
+                    str = @"有";
                 }
                 _detailLab.text =  str.length ? str  : @"名下有无车辆";
                 if (str.length != 0) {

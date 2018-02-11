@@ -158,7 +158,7 @@
     
     MBProgressHUD *hud = nil;
 
-    if ([model isEqual:XGetOperatorInfo] || [model isEqual:XPostOperatorVerify]) {
+    if ([model isEqual:XGetOperatorInfo] || [model isEqual:XPostOperatorVerify] ) {
         UIWindow *topWindow = [[UIApplication sharedApplication] keyWindow];
         UIViewController *appRootVC = topWindow.rootViewController;
         hud = [MBProgressHUD showHUDAddedTo:appRootVC.view animated:YES];
@@ -273,7 +273,7 @@
             NSString *base64String = [[NSString alloc]initWithData:responseObject encoding:NSUTF8StringEncoding];
             NSString *base64String2 = [SecurityUtil decryptAESData:base64String];
             NSDictionary *keyDict = [SecurityUtil dictionaryWithJsonString:base64String2];
-//            MyLog(@"网络请求成功返回数据%@",keyDict);
+            MyLog(@"网络请求成功返回数据%@",keyDict);
             
             XResponse *response = [XResponse mj_objectWithKeyValues:keyDict];
             if (response.errCode.integerValue == 2) {//session过期或者失效
@@ -283,7 +283,7 @@
                 }];
                 return ;
             }
-            if(response.errCode.integerValue ==15 && ![self.cmd  isEqual: XGetSpecialLoanProList] ) {//登录失效
+            if(response.errCode.integerValue ==15 && ![self.cmd  isEqual: XGetSpecialLoanProList] && ![self.cmd  isEqual: XGetSpecialEntryList] ) {//登录失效
                 [XAlertView alertWithTitle:@"温馨提示" message:response.errMsg cancelButtonTitle:@"取消" confirmButtonTitle:@"去登录" viewController:self completion:^(UIAlertAction *action, NSInteger buttonIndex) {
                     if (buttonIndex == 1) {
                         LoginVC *vc = [[LoginVC alloc]init];
@@ -292,7 +292,6 @@
                     }
                 }];
             }
- 
             [self getDataSourceWithObject:response];
 //            if (response.errCode.integerValue == 1) {
 //                dispatch_async(dispatch_get_main_queue(), ^{
@@ -554,7 +553,8 @@
             [XAlertView alertWithTitle:@"提示" message:@"您还没有登录唷~请前往登录!" cancelButtonTitle:@"取消" confirmButtonTitle:@"登录" viewController:controller completion:^(UIAlertAction *action, NSInteger buttonIndex) {
                 if (buttonIndex == 1) {
                     LoginVC *vc = [[LoginVC alloc]init];
-                    vc.block = ^(id result) {
+                    vc.loginblock = ^(id result) {
+    
                         [self showAlertView];
                     };
                     vc.hidesBottomBarWhenPushed = YES;
@@ -594,5 +594,7 @@
     }
     return _clientGlobalInfoRM;
 }
-
+//- (void)dealloc{
+//    [WDNotificationCenter removeObserver:self];
+//}
 @end

@@ -24,6 +24,7 @@ typedef NS_ENUM(NSInteger, MyDataRequest) {
 @interface MyDataVC ()<UICollectionViewDelegate,UICollectionViewDataSource>
 @property (nonatomic, strong) CreditInfoModel *creditInfoModel;
 @property (nonatomic,strong) UICollectionView *collectionView;
+@property (nonatomic, strong) ClientGlobalInfoRM *clientGlobalInfoModel;
 @end
 
 @implementation MyDataVC
@@ -229,8 +230,13 @@ static NSString *identifier = @"myDataCell";
         }
             break;
         case 4:{
+            if (self.clientGlobalInfoModel.recomment_entry_hide.integerValue == 1) {
+                self.tabBarController.selectedIndex = 0;
+            }else{
+                self.tabBarController.selectedIndex = 1;
+            }
 //            CreditViewController *vc = [[CreditViewController alloc]init];
-            self.tabBarController.selectedIndex = 1;
+            
             [self.navigationController popToRootViewControllerAnimated:YES];
         }
             break;
@@ -256,9 +262,15 @@ static NSString *identifier = @"myDataCell";
     }
     return _creditInfoModel;
 }
--(void)dealloc{
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"Refresh" object:nil];
+-(ClientGlobalInfoRM *)clientGlobalInfoModel{
+    if (!_clientGlobalInfoModel) {
+        _clientGlobalInfoModel = [ClientGlobalInfoRM getClientGlobalInfoModel];
+    }
+    return _clientGlobalInfoModel;
 }
+//-(void)dealloc{
+//    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"Refresh" object:nil];
+//}
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];

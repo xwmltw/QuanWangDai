@@ -243,9 +243,9 @@
     return _statusArr;
 }
 
--(void)dealloc{
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"already" object:nil];
-}
+//-(void)dealloc{
+//    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"already" object:nil];
+//}
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];

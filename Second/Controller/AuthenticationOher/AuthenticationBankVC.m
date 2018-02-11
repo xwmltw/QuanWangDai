@@ -286,11 +286,22 @@ typedef NS_ENUM(NSInteger ,AuthenticationBankRequest) {
         make.top.mas_equalTo(lineView2.mas_bottom).offset(AdaptationWidth(16));
         make.height.mas_equalTo(AdaptationWidth(68));
     }];
-    [registerButton mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.mas_equalTo(self.authView.mas_bottom);
-        make.left.right.mas_equalTo(lineView2);
-        make.height.mas_equalTo(AdaptationWidth(50));
-    }];
+    
+    if (self.clientGlobalInfoModel.recomment_entry_hide.integerValue == 1)
+    {
+        self.authView.hidden = YES;
+        [registerButton mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.top.mas_equalTo(lineView2.mas_bottom).offset(AdaptationWidth(16));
+            make.left.right.mas_equalTo(lineView2);
+            make.height.mas_equalTo(AdaptationWidth(50));
+        }];
+    }else{
+        [registerButton mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.top.mas_equalTo(self.authView.mas_bottom);
+            make.left.right.mas_equalTo(lineView2);
+            make.height.mas_equalTo(AdaptationWidth(50));
+        }];
+    }
     
 }
 #pragma mark - btn

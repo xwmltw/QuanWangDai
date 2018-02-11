@@ -79,7 +79,9 @@ typedef NS_ENUM(NSInteger,MineBtnOnClick) {
     [self.dataSourceArr addObject:@(MineTableViewCellHelp)];
     [self.dataSourceArr addObject:@(MineTableViewCellModifyPwd)];
     [self.dataSourceArr addObject:@(MineTableViewCellAboutMe)];
-    [self.dataSourceArr addObject:@(MineTableViewCellauthorization)];
+    if (self.clientGlobalInfoModel.recomment_entry_hide.integerValue == 0) {
+        [self.dataSourceArr addObject:@(MineTableViewCellauthorization)];
+    }
     if ([[UserInfo sharedInstance]isSignIn] ) {
         [self.dataSourceArr addObject:@(MineTableViewCellGetOut)];
     }
@@ -419,7 +421,7 @@ typedef NS_ENUM(NSInteger,MineBtnOnClick) {
     }else{
         LoginVC *vc = [[LoginVC alloc]init];
         vc.hidesBottomBarWhenPushed = YES;
-        vc.block = ^(id result) {
+        vc.loginblock = ^(id result) {
             [self showAlertView];
         };
         [self.navigationController pushViewController:vc animated:YES];
@@ -442,7 +444,8 @@ typedef NS_ENUM(NSInteger,MineBtnOnClick) {
         [XCacheHelper clearCacheFolder];
         LoginVC *vc = [[LoginVC alloc]init];
         vc.hidesBottomBarWhenPushed = YES;
-        vc.block = ^(id result) {
+        vc.loginblock = ^(id result) {
+            
             [self showAlertView];
         };
         [self.navigationController pushViewController:vc animated:YES];

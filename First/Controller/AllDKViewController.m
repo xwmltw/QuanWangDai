@@ -62,7 +62,7 @@ typedef NS_ENUM(NSInteger ,AllDKViewRequest) {
 
 -(void)setBackNavigationBarItem
 {
-    UIView *view = [[UIView alloc]initWithFrame:CGRectMake(0, 0, 64, 44)];
+    UIView *view = [[UIView alloc]initWithFrame:CGRectMake(0, 0, 124, 44)];
     view.userInteractionEnabled = YES;
     
     UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];

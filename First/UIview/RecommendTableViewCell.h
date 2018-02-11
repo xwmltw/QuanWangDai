@@ -20,5 +20,6 @@
 @property (weak, nonatomic) IBOutlet UIView *appState;
 @property (weak, nonatomic) IBOutlet UILabel *labState;
 @property (nonatomic, strong) ProductModel *model;
+@property (nonatomic ,copy) NSNumber *isSuccessApp;
 - (void)setDetailColor:(BOOL)type quotaSelect:(BOOL)quota dataSelect:(BOOL)data;
 @end

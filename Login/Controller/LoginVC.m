@@ -41,7 +41,7 @@ typedef NS_ENUM(NSInteger ,XLoginRequest) {
 
 @property (nonatomic, strong) UIButton *buttonA;
 @property (nonatomic, strong) UIButton *buttonB;
-
+@property (nonatomic, strong) ClientGlobalInfoRM *clientGlobalInfoModel;
 
 @property (nonatomic, strong)UIView *seperatorLine;
 
@@ -834,19 +834,19 @@ typedef NS_ENUM(NSInteger ,XLoginRequest) {
 - (void)requestSuccessWithDictionary:(XResponse *)response{
     if (self.requestCount == XLoginRequestSignIn) {
         [self setHudWithName:@"登录成功" Time:0.5 andType:0];
-        [[NSNotificationCenter defaultCenter]postNotificationName:@"Refresh" object:self userInfo:nil];
+       
         //talkingData 数据统计
         [TalkingData onLogin:_phoneTextAccount.text type:TDAccountTypeRegistered name:@"全网贷"];
-        
         [[UserInfo sharedInstance]savePhone:_phoneTextAccount.text password:_pwdTextAccount.text userId:response.content[@"id"] grantAuthorization:response.content[@"has_grant_authorization"]];
         if (self.isModifyPwd.integerValue == 1) {
             [self.navigationController popToRootViewControllerAnimated:YES];
         }else{
             [self.navigationController popViewControllerAnimated:YES];
         }
-        if ([[UserInfo sharedInstance]getUserInfo].has_grant_authorization.integerValue == 0) {
-            XBlockExec(self.block, nil);
+        if ([[UserInfo sharedInstance]getUserInfo].has_grant_authorization.integerValue == 0 && self.clientGlobalInfoModel.recomment_entry_hide.integerValue != 1) {
+            XBlockExec(self.loginblock, nil);
         }
+         [[NSNotificationCenter defaultCenter]postNotificationName:@"Refresh" object:self userInfo:nil];
     }else if (self.requestCount == XLoginRequestMessageCode ){
         [self setHudWithName:@"验证码获取成功" Time:0.5 andType:0];
         
@@ -865,15 +865,16 @@ typedef NS_ENUM(NSInteger ,XLoginRequest) {
         [TalkingData onLogin:_phoneTextQuick.text type:TDAccountTypeRegistered name:@"全网贷"];
         [[UserInfo sharedInstance]savePhone:_phoneTextQuick.text password:nil userId:response.content[@"id"] grantAuthorization:response.content[@"has_grant_authorization"]];
         NSDictionary *dict = @{@"login":_phoneTextQuick.text};
-        [[NSNotificationCenter defaultCenter]postNotificationName:@"Login" object:self userInfo:dict];
+        
         if (self.isModifyPwd.integerValue == 1) {
             [self.navigationController popToRootViewControllerAnimated:YES];
         }else{
             [self.navigationController popViewControllerAnimated:YES];
         }
-        if ([[UserInfo sharedInstance]getUserInfo].has_grant_authorization.integerValue == 0) {
-            XBlockExec(self.block, nil);
+        if ([[UserInfo sharedInstance]getUserInfo].has_grant_authorization.integerValue == 0 && self.clientGlobalInfoModel.recomment_entry_hide.integerValue != 1) {
+            XBlockExec(self.loginblock, nil);
         }
+        [[NSNotificationCenter defaultCenter]postNotificationName:@"Login" object:self userInfo:dict];
         
     }
 }
@@ -885,6 +886,12 @@ typedef NS_ENUM(NSInteger ,XLoginRequest) {
         vc.hidesBottomBarWhenPushed = YES;
         [self.navigationController pushViewController:vc animated:YES];
     }
+}
+-(ClientGlobalInfoRM *)clientGlobalInfoModel{
+    if (!_clientGlobalInfoModel) {
+        _clientGlobalInfoModel = [ClientGlobalInfoRM getClientGlobalInfoModel];
+    }
+    return _clientGlobalInfoModel;
 }
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];

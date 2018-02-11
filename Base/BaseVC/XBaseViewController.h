@@ -19,6 +19,7 @@
 @property (nonatomic, copy)NSString *cmd;/*!< 用于标示网络请求的接口类型 */
 @property (nonatomic, strong) NSMutableArray *dataSourceArr;//创建一个全局变量数组
 @property (nonatomic) NSDictionary *dict; /*!< 网络请求参数*/
+@property (nonatomic ,copy) XBlock block;//返回数据
 
 
 /**
@@ -99,6 +100,7 @@
  */
 -(void)requestFaildWithDictionary:(XResponse *)response;
 
+-(void)prepareDataGetUrlWithModel:(id)model andparmeter:(NSDictionary *)dict;
 //是否登录
 /**
  返回登录口

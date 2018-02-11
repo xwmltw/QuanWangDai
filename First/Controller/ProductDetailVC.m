@@ -53,6 +53,7 @@ typedef NS_ENUM(NSInteger ,RequiredType) {
     XTextField *tfMoney;
     XTextField *tfDate;
     NSString *cooperationUrl;//合作方式连接
+    UIButton *btnLoan;
 }
 
 - (void)viewDidLoad {
@@ -62,7 +63,7 @@ typedef NS_ENUM(NSInteger ,RequiredType) {
     [TalkingData trackEvent:@"贷款详情页"];
     [self prepareDataWithCount:ProductDetailRequestInfo];
 
-    UIButton *btnLoan = [[UIButton alloc]init];
+    btnLoan = [[UIButton alloc]init];
     [btnLoan setTitle:@"申请借款" forState:UIControlStateNormal];
     [btnLoan setBackgroundColor:XColorWithRGB(252, 93, 109)];
     [btnLoan setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
@@ -716,25 +717,25 @@ typedef NS_ENUM(NSInteger ,RequiredType) {
 }
 #pragma  mark - btn
 - (void)btnOnClick:(UIButton *)btn{
+    
+    //点击按钮后先取消之前的操作，再进行需要进行的操作
+    btnLoan.enabled =NO;
+    [self performSelector:@selector(changeButtonStatus:)withObject:nil afterDelay:2.0f];//防止重复点击
+    
     if (self.detailModel.cooperation_type.integerValue == 3) {//商户后台显示
         if (!tfDate.text.length && !tfMoney.text.length) {
             [self setHudWithName:@"请输入想借金额和想借期限" Time:0.5 andType:1];
             return;
         }
     }
-    if ([[UserInfo sharedInstance]getUserInfo].has_grant_authorization.integerValue == 2) {//判断是否授权
-        [XAlertView alertWithTitle:@"温馨提示" message:@"您当前处于拒绝授权状态，想要获得更多服务,请前往修改状态。" cancelButtonTitle:@"取消" confirmButtonTitle:@"前往授权" viewController:self completion:^(UIAlertAction *action, NSInteger buttonIndex) {
-            if (buttonIndex == 1) {
-                AuthorizationVC *vc = [[AuthorizationVC alloc]init];
-                [self.navigationController pushViewController:vc animated:YES];
-            }
-        }];
-        return;
-    }
+    
     //talkingdata
     [TalkingData trackEvent:@"申请借款按钮"];
     [self prepareDataWithCount:ProductDetailRequestStaticInfo];
    
+}
+-(void)changeButtonStatus:(UIButton *)btn{
+    btnLoan.enabled =YES;
 }
 #pragma mark - 网络
 - (void)setRequestParams{
@@ -776,6 +777,15 @@ typedef NS_ENUM(NSInteger ,RequiredType) {
         case ProductDetailRequestStaticInfo:{
             self.creditInfoModel = [CreditInfoModel mj_objectWithKeyValues:response.content];
             if ([self requiredData]) {//判断资料是否齐全
+                if ([[UserInfo sharedInstance]getUserInfo].has_grant_authorization.integerValue == 2) {//判断是否授权
+                    [XAlertView alertWithTitle:@"温馨提示" message:@"您当前处于拒绝授权状态，想要获得更多服务,请前往修改状态。" cancelButtonTitle:@"取消" confirmButtonTitle:@"前往授权" viewController:self completion:^(UIAlertAction *action, NSInteger buttonIndex) {
+                        if (buttonIndex == 1) {
+                            AuthorizationVC *vc = [[AuthorizationVC alloc]init];
+                            [self.navigationController pushViewController:vc animated:YES];
+                        }
+                    }];
+                    return;
+                }
                 [self prepareDataWithCount:ProductDetailRequestApplyLoan];
                 return;
             }

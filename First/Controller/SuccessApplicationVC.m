@@ -227,6 +227,7 @@
     }
     cell.selectedBackgroundView = [[UIImageView alloc] initWithImage:nil];
     cell.selectedBackgroundView.backgroundColor = XColorWithRGB(248, 249, 250);
+    cell.isSuccessApp = @(1);
     cell.model =[ProductModel mj_objectWithKeyValues:self.dataSourceArr[indexPath.row]] ;
     return cell;
 }

@@ -113,7 +113,7 @@ typedef NS_ENUM(NSInteger ,BaseInfoRequest) {
     [sureBtn addTarget:self action:@selector(btnOnClick:) forControlEvents:UIControlEventTouchUpInside];
     [view addSubview:sureBtn];
     
-    if (self.creditInfoModel.base_info_status.integerValue == 1) {//判断是否认证过
+    if (self.creditInfoModel.base_info_status.integerValue == 1 || self.clientGlobalInfoModel.recomment_entry_hide.integerValue == 1) {//判断是否认证过
         self.authView.hidden = YES;
         view.frame = CGRectMake(0, 0, ScreenWidth, AdaptationWidth(80));
     }

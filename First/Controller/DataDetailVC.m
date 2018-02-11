@@ -404,10 +404,73 @@ typedef NS_ENUM(NSInteger , DataDetailRequest) {
             break;
     }
 }
+//用户资料是否认证完成
+- (BOOL)requiredData{
 
+    for (NSString *str in requiredArry) {
+        switch (str.integerValue) {
+            case IDENTITYCARD:
+                if( self.creditInfoModel.identity_status.integerValue == 0){
+                    return NO;
+                }
+                break;
+            case ZMXY:
+                if( self.creditInfoModel.zhima_status.integerValue == 0){
+                    return NO;
+                }
+                break;
+            case BASICINFO:
+                if( self.creditInfoModel.base_info_status.integerValue == 0){
+                    return NO;
+                }
+                break;
+            case JXLINFO:
+                if( self.creditInfoModel.operator_status.integerValue == 0){
+                    return NO;
+                }
+                break;
+            case CREDITINFO:
+                if( self.creditInfoModel.bank_status.integerValue == 0){
+                    return NO;
+                }
+                break;
+            case LOANINFO:
+                if( self.creditInfoModel.loan_info_status.integerValue == 0){
+                    return NO;
+                }
+                break;
+            case BUSINESSINFO:
+                if( self.creditInfoModel.company_status.integerValue == 0){
+                    return NO;
+                }
+                break;
+            case APPLICANT:
+                if( self.creditInfoModel.applicant_qualification_status.integerValue == 0){
+                    return NO;
+                }
+                break;
+                
+            default:
+                break;
+        }
+    }
+    return YES;
+}
 #pragma  mark - btn
 - (void)btnOnClick:(UIButton *)btn{
-
+    if (![self requiredData]) {
+        [self setHudWithName:@"用户信息不完善，无法申请贷款" Time:1 andType:0];
+        return;
+    }
+    if ([[UserInfo sharedInstance]getUserInfo].has_grant_authorization.integerValue == 2) {//判断是否授权
+        [XAlertView alertWithTitle:@"温馨提示" message:@"您当前处于拒绝授权状态，想要获得更多服务,请前往修改状态。" cancelButtonTitle:@"取消" confirmButtonTitle:@"前往授权" viewController:self completion:^(UIAlertAction *action, NSInteger buttonIndex) {
+            if (buttonIndex == 1) {
+                AuthorizationVC *vc = [[AuthorizationVC alloc]init];
+                [self.navigationController pushViewController:vc animated:YES];
+            }
+        }];
+        return;
+    }
     [self prepareDataWithCount:DataDetailRequestApplyLoan];
 }
 
@@ -456,6 +519,7 @@ typedef NS_ENUM(NSInteger , DataDetailRequest) {
             break;
     }
 }
+
 #pragma mark - 跳转界面
 - (void)pushControllerView{
     NSInteger row = self.productModel.cooperation_type.integerValue;
@@ -496,9 +560,9 @@ typedef NS_ENUM(NSInteger , DataDetailRequest) {
     }
     return _applyProductModel;
 }
--(void)dealloc{
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"Refresh" object:nil];
-}
+//-(void)dealloc{
+//    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"Refresh" object:nil];
+//}
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.

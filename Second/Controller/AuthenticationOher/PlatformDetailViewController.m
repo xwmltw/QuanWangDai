@@ -79,7 +79,7 @@
     [self.authView.AgreementBtn addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchUpInside];
     [self.authView.TickBtn addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchUpInside];
     [footerView addSubview:self.authView];
-    if (self.model.plat_status.integerValue == 1) {//判断是否认证过
+    if (self.model.plat_status.integerValue == 1 || self.clientGlobalInfoModel.recomment_entry_hide.integerValue == 1) {//判断是否认证过
         self.authView.hidden = YES;
         footerView.frame = CGRectMake(0, 0, ScreenWidth, AdaptationWidth(80));
     }

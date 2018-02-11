@@ -10,5 +10,5 @@
 
 @interface LoginVC : XBaseViewController
 @property (nonatomic, copy) NSNumber *isModifyPwd;//1跳转根控制器
-@property (nonatomic, copy) XBlock block;
+@property (nonatomic, copy) XBlock loginblock;
 @end

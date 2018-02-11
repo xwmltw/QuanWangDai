@@ -454,7 +454,9 @@ typedef NS_ENUM(NSInteger , XRegisterReuqst) {
         [TalkingData onRegister:_phoneTextAccount.text type:TDAccountTypeRegistered name:@"全网贷"];
         
         [[UserInfo sharedInstance]savePhone:_phoneTextAccount.text password:_pwdTextAccount.text userId:@"100" grantAuthorization:response.content[@"has_grant_authorization"]];
-        [self showAlertView];
+        if (self.clientGlobalInfoRM.recomment_entry_hide.integerValue != 1){
+            [self showAlertView];
+        }
         [self.navigationController popToRootViewControllerAnimated:YES];
         
         
