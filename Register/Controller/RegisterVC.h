@@ -9,5 +9,5 @@
 #import "XBaseViewController.h"
 
 @interface RegisterVC : XBaseViewController
-
+@property (nonatomic ,copy) NSString *phoneName;
 @end

@@ -579,10 +579,18 @@ typedef NS_ENUM(NSInteger ,BaseInfoRequest) {
 {
     NSCharacterSet *charSet = [[NSCharacterSet characterSetWithCharactersInString:@"0123456789"] invertedSet];
     NSString *filteredStr = [[string componentsSeparatedByCharactersInSet:charSet] componentsJoinedByString:@""];
-    
+    if(filteredStr.length == 13 ){//去除86开头
+        filteredStr = [filteredStr substringFromIndex:2];
+    }
     return filteredStr;
 }
 
+- (BOOL)phoneStringWithNSPredicate:(NSString *)string{
+    NSString *regex = @"^((13[0-9])|(15[^4,\\D])|(18[0,0-9]))\\d{8}$";
+    NSPredicate *pred = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", regex];
+    BOOL isMatch = [pred evaluateWithObject:string];
+    return isMatch;
+}
 #pragma mark - 支持iOS9以下获取通讯录
 - (void)peoplePickerNavigationControllerDidCancel:(ABPeoplePickerNavigationController *)peoplePicker
 {
@@ -698,6 +706,14 @@ typedef NS_ENUM(NSInteger ,BaseInfoRequest) {
     }
     if (self.contactModel.ship_name.length == 0 && self.contactModel.ship_contact.length == 0) {
         [self setHudWithName:@"请填写联系人姓名及电话" Time:0.5 andType:1];
+        return;
+    }
+    if (![self phoneStringWithNSPredicate:self.parentModel.ship_contact]) {
+        [self setHudWithName:@"亲属手机号码格式有误" Time:0.5 andType:1];
+        return;
+    }
+    if (![self phoneStringWithNSPredicate:self.contactModel.ship_contact]) {
+        [self setHudWithName:@"联系人手机号码格式有误" Time:0.5 andType:1];
         return;
     }
     if (!self.authView.AgreementBtn.selected && self.creditInfoModel.base_info_status.integerValue == 0) {

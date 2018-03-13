@@ -20,6 +20,8 @@
 @property (nonatomic,copy) NSNumber *relatives_has_house_property;
 @property (nonatomic,copy) NSNumber *has_car_property;
 @property (nonatomic,copy) NSNumber *credit_info;
+@property (nonatomic,copy) NSNumber *has_policy;
+@property (nonatomic,copy) NSNumber *education_type;
 @end
 //“qualification_info_id”:xxxx , // 信息id,上传该字段代表作修改操作
 //“loan_usage”: “xxxx”, // 借款用途
@@ -32,4 +34,6 @@
 //“relatives_has_house_property”: “xxxx”, // 亲属是否拥有房产：1是 0否
 //“has_car_property”: “xxxx”, // 名下是否有车：1是 0否
 //“credit_info”: “xxxx”, // 信用情况
+//“education_type”: “xxxx”, // 学历：0：高中 1：大专 2：本科 3：硕士 4：博士 5：其他
+//“has_policy”: “xxxx”, // 是否有保单：1是 0否
 

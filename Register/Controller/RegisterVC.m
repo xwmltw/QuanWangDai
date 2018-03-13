@@ -102,8 +102,8 @@ typedef NS_ENUM(NSInteger , XRegisterReuqst) {
     _phoneTextAccount.borderStyle = UITextBorderStyleNone;
     _phoneTextAccount.attributedPlaceholder = [[NSAttributedString alloc] initWithString:@"11位手机号码" attributes:@{NSForegroundColorAttributeName:XColorWithRBBA(34, 58, 80, 0.32)}];
 
-    if ([[UserInfo sharedInstance]getUserInfo].userId) {
-        _phoneTextAccount.text = [UserInfo sharedInstance].phoneName;
+    if (self.phoneName.length) {
+        _phoneTextAccount.text = self.phoneName;
     }
     _phoneTextAccount.font = [UIFont systemFontOfSize:AdaptationWidth(18)];
     _phoneTextAccount.tag = 1;

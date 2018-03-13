@@ -124,7 +124,7 @@
         case BaseInfoTableViewCellParentsPhone:
         {
             [selectBtn setImage:[UIImage imageNamed:@"credit_concat"] forState:UIControlStateNormal];
-            titleLab.text =  @"亲属姓名及电话";
+            titleLab.text =  @"亲属姓名及手机号";
             if (model.contacts[0].ship_contact.length) {
                 textField.hidden = NO;
                 textField.text = model.contacts[0].ship_name;
@@ -140,14 +140,14 @@
                     [detailLab setTextColor:XColorWithRBBA(34, 58, 80, 0.16)];
                 }
             }else{
-                detailLab.text = @"添加亲属的电话";
+                detailLab.text = @"添加亲属的手机号";
             }
         }
             
             break;
         case BaseInfoTableViewCellContactPhone:{
             [selectBtn setImage:[UIImage imageNamed:@"credit_concat"] forState:UIControlStateNormal];
-            titleLab.text = @"联系人姓名及电话";
+            titleLab.text = @"联系人姓名及手机号";
             if (model.contacts[1].ship_contact.length) {
                 textField.hidden = NO;
                 textField.text = model.contacts[1].ship_name;
@@ -163,7 +163,7 @@
                     [detailLab setTextColor:XColorWithRBBA(34, 58, 80, 0.16)];
                 }
             }else{
-                detailLab.text = @"添加联系人及电话";
+                detailLab.text = @"添加联系人及手机号";
             }
             
         }

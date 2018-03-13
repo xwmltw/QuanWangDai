@@ -75,6 +75,7 @@
 }
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     
+    [NSThread sleepForTimeInterval:2.5];
     //第三方配置
     [self addThreeConfig:launchOptions];
     //初始化ttf

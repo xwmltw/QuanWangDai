@@ -47,10 +47,10 @@ typedef NS_ENUM(NSUInteger, ApplicantManVCRequest) {
     self.tableView.tableFooterView = [self creatFooterView];
     
     self.dataDic = @{@"title":@[@"借款用途",@"职业身份",@"本地公积金",@"本地社保"
-                                ,@"名下房产",@"亲属名下房产 (直系亲属、配偶)",@"名下车辆",@"信用状况"]};
+                                ,@"名下房产",@"亲属名下房产 (直系亲属、配偶)",@"名下车辆",@"信用状况",@"保单",@"学历"]};
     self.otherdataDic = @{@"title":@[@"借款用途",@"职业身份",@"工资发放形式",@"当前单位工龄",
                                      @"本地公积金",@"本地社保",@"名下房产",@"亲属名下房产 (直系亲属、配偶)",
-                                     @"名下车辆",@"信用状况"]};
+                                     @"名下车辆",@"信用状况",@"保单",@"学历"]};
     
 }
 - (UIView *)creatHeadView{
@@ -165,10 +165,12 @@ typedef NS_ENUM(NSUInteger, ApplicantManVCRequest) {
     BOOL yes = [self.applicantModel.professional_identity.description isEqualToString:@"1"];
     switch (pickerRow) {
         case 0:{
+            // 借款用途
             self.applicantModel.loan_usage = dataArry[pickerRow][row];
         }
             break;
         case 1:{
+            // 职业身份
             self.applicantModel.professional_identity = [NSNumber numberWithInteger:row + 1];
             
             if (pickerRow == 1) {
@@ -179,16 +181,20 @@ typedef NS_ENUM(NSUInteger, ApplicantManVCRequest) {
              break;
         case 2:{
             if (yes){
+                // 工资发放形式
                 self.applicantModel.payroll_type = [NSNumber numberWithInteger:row+1];
             }else{
+                // 公积金
                 self.applicantModel.has_accumulation_fund = [NSNumber numberWithInteger:row];
             }
         }
             break;
         case 3:{
             if (yes){
+                // 工作时间
                 self.applicantModel.working_years = [NSNumber numberWithInteger:row+1];
             }else{
+                // 社保
                 self.applicantModel.has_social_security = [NSNumber numberWithInteger:row];
             }
            
@@ -196,8 +202,10 @@ typedef NS_ENUM(NSUInteger, ApplicantManVCRequest) {
             break;
         case 4:{
             if (yes) {
+                // 公积金
                 self.applicantModel.has_accumulation_fund = [NSNumber numberWithInteger:row];
             }else{
+                // 名下房产
                 self.applicantModel.has_house_property = [NSNumber numberWithInteger:row];
             }
             
@@ -205,17 +213,20 @@ typedef NS_ENUM(NSUInteger, ApplicantManVCRequest) {
             break;
         case 5:{
             if (yes) {
+                // 社保
                 self.applicantModel.has_social_security = [NSNumber numberWithInteger:row];
             }else{
+                // 亲属名下房产
                 self.applicantModel.relatives_has_house_property = [NSNumber numberWithInteger:row];
             }
-           
         }
             break;
         case 6:{
             if (yes) {
+                // 名下房产
                 self.applicantModel.has_house_property = [NSNumber numberWithInteger:row];
             }else{
+                // 名下车辆
                 self.applicantModel.has_car_property = [NSNumber numberWithInteger:row];
             }
            
@@ -223,8 +234,10 @@ typedef NS_ENUM(NSUInteger, ApplicantManVCRequest) {
             break;
         case 7:{
             if (yes) {
+                // 亲属名下房产
                 self.applicantModel.relatives_has_house_property = [NSNumber numberWithInteger:row];
             }else{
+                // 信用状况
                 self.applicantModel.credit_info = [NSNumber numberWithInteger:row+1];
             }
            
@@ -232,15 +245,38 @@ typedef NS_ENUM(NSUInteger, ApplicantManVCRequest) {
             break;
         case 8:{
             if (yes) {
+                // 名下车辆
                 self.applicantModel.has_car_property = [NSNumber numberWithInteger:row];
             }else{
-                
+                // 保单
+                self.applicantModel.has_policy = [NSNumber numberWithInteger:row];
             }
         }
             break;
         case 9:{
             if (yes) {
+                // 信用状况
                 self.applicantModel.credit_info = [NSNumber numberWithInteger:row+1];
+            }else{
+                // 学历
+                self.applicantModel.education_type = [NSNumber numberWithInteger:row];
+            }
+            
+        }
+            break;
+        case 10:{
+            if (yes) {
+                // 保单
+                self.applicantModel.has_policy = [NSNumber numberWithInteger:row];
+            }else{
+                
+            }
+        }
+            break;
+        case 11:{
+            if (yes) {
+                // 学历
+               self.applicantModel.education_type = [NSNumber numberWithInteger:row];
             }else{
                 
             }
@@ -257,7 +293,7 @@ typedef NS_ENUM(NSUInteger, ApplicantManVCRequest) {
     if (row == 0) {
         self.dataDic = @{@"title":@[@"借款用途",@"职业身份",@"工资发放形式",@"当前单位工龄",
                                     @"本地公积金",@"本地社保",@"名下房产",@"亲属名下房产 (直系亲属、配偶)",
-                                    @"名下车辆",@"信用状况"]};
+                                    @"名下车辆",@"信用状况",@"保单",@"学历"]};
         dataArry = @[@[@"网上购物",@"实体店购物",@"教育培训",@"租房买房",@"出国留学",@"婚庆装修",@"餐饮娱乐",@"医疗美容",@"其他"],
                      @[@"上班族",@"个体户",@"无固定职业",@"企业主",@"学生"],
                      @[@"银行卡发放",@"现金发放",@"部分银行卡,部分现金"],
@@ -267,10 +303,12 @@ typedef NS_ENUM(NSUInteger, ApplicantManVCRequest) {
                      @[@"无",@"有"],
                      @[@"无",@"有"],
                      @[@"无",@"有"],
-                     @[@"1年内逾期超过3次或超过90天",@"1年内逾期少3次且少于90天",@"无信用卡或贷款",@"信用良好",@"无逾期"]];
+                     @[@"1年内逾期超过3次或超过90天",@"1年内逾期少3次且少于90天",@"无信用卡或贷款",@"信用良好",@"无逾期"],
+                     @[@"无",@"有"],
+                     @[@"高中",@"大专",@"本科",@"硕士",@"博士",@"其他"]];
     }else{
         self.dataDic = @{@"title":@[@"借款用途",@"职业身份",@"本地公积金",@"本地社保",
-                                    @"名下房产",@"亲属名下房产 (直系亲属、配偶)",@"名下车辆",@"信用状况"]};
+                                    @"名下房产",@"亲属名下房产 (直系亲属、配偶)",@"名下车辆",@"信用状况",@"保单",@"学历"]};
         dataArry = @[@[@"网上购物",@"实体店购物",@"教育培训",@"租房买房",@"出国留学",@"婚庆装修",@"餐饮娱乐",@"医疗美容",@"其他"],
                      @[@"上班族",@"个体户",@"无固定职业",@"企业主",@"学生"],
                      @[@"无",@"有"],
@@ -278,7 +316,9 @@ typedef NS_ENUM(NSUInteger, ApplicantManVCRequest) {
                      @[@"无",@"有"],
                      @[@"无",@"有"],
                      @[@"无",@"有"],
-                     @[@"1年内逾期超过3次或超过90天",@"1年内逾期少3次且少于90天",@"无信用卡或贷款",@"信用良好",@"无逾期"]];
+                     @[@"1年内逾期超过3次或超过90天",@"1年内逾期少3次且少于90天",@"无信用卡或贷款",@"信用良好",@"无逾期"],
+                     @[@"无",@"有"],
+                     @[@"高中",@"大专",@"本科",@"硕士",@"博士",@"其他"]];
     }
     
 }
@@ -327,6 +367,14 @@ typedef NS_ENUM(NSUInteger, ApplicantManVCRequest) {
     }
     if (self.applicantModel.credit_info == nil) {
         [self setHudWithName:@"请选择信用情况" Time:0.5 andType:1];
+        return;
+    }
+    if (self.applicantModel.has_policy == nil) {
+        [self setHudWithName:@"请选择是否有保单" Time:0.5 andType:1];
+        return;
+    }
+    if (self.applicantModel.education_type == nil) {
+        [self setHudWithName:@"请选择学历情况" Time:0.5 andType:1];
         return;
     }
     if (!self.authView.AgreementBtn.selected && self.creditInfoModel.applicant_qualification_status.integerValue == 0) {
@@ -381,7 +429,6 @@ typedef NS_ENUM(NSUInteger, ApplicantManVCRequest) {
         [self setupdata];
     }else if (self.requestCount == ApplicantManVCPost) {
         [self setHudWithName:@"提交成功" Time:1 andType:0];
-        
         [self prepareDataWithCount:ApplicantManVCLoanProList];
         return;
     }else if (self.requestCount == ApplicantManVCLoanProList){
@@ -398,6 +445,11 @@ typedef NS_ENUM(NSUInteger, ApplicantManVCRequest) {
     }
     [self.tableView reloadData];
 }
+-(void)requestFaildWithDictionary:(XResponse *)response{
+//    [self setHudWithName:response.errMsg Time:2 andType:1];
+    [self.navigationController popViewControllerAnimated:NO];
+    [[NSNotificationCenter defaultCenter]postNotificationName:@"Refresh" object:self userInfo:nil];
+}
 -(void)setupdata{
     if ([self.applicantModel.professional_identity.description isEqualToString:@"1"]) {
         dataArry = @[@[@"网上购物",@"实体店购物",@"教育培训",@"租房买房",@"出国留学",@"婚庆装修",@"餐饮娱乐",@"医疗美容",@"其他"],
@@ -409,7 +461,9 @@ typedef NS_ENUM(NSUInteger, ApplicantManVCRequest) {
                      @[@"无",@"有"],
                      @[@"无",@"有"],
                      @[@"无",@"有"],
-                     @[@"1年内逾期超过3次或超过90天",@"1年内逾期少3次且少于90天",@"无信用卡或贷款",@"信用良好",@"无逾期"]];
+                     @[@"1年内逾期超过3次或超过90天",@"1年内逾期少3次且少于90天",@"无信用卡或贷款",@"信用良好",@"无逾期"],
+                     @[@"无",@"有"],
+                     @[@"高中",@"大专",@"本科",@"硕士",@"博士",@"其他"]];
     } else {
         dataArry = @[@[@"网上购物",@"实体店购物",@"教育培训",@"租房买房",@"出国留学",@"婚庆装修",@"餐饮娱乐",@"医疗美容",@"其他"],
                      @[@"上班族",@"个体户",@"无固定职业",@"企业主",@"学生"],
@@ -418,7 +472,9 @@ typedef NS_ENUM(NSUInteger, ApplicantManVCRequest) {
                      @[@"无",@"有"],
                      @[@"无",@"有"],
                      @[@"无",@"有"],
-                     @[@"1年内逾期超过3次或超过90天",@"1年内逾期少3次且少于90天",@"无信用卡或贷款",@"信用良好",@"无逾期"]];
+                     @[@"1年内逾期超过3次或超过90天",@"1年内逾期少3次且少于90天",@"无信用卡或贷款",@"信用良好",@"无逾期"],
+                     @[@"无",@"有"],
+                     @[@"高中",@"大专",@"本科",@"硕士",@"博士",@"其他"]];
     }
 }
 

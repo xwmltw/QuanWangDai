@@ -10,15 +10,48 @@
 
 
 @interface XRootWebVC ()<WKUIDelegate,WKNavigationDelegate>
-
+//返回按钮
+@property (nonatomic, strong) UIBarButtonItem *backItem;
+@property (nonatomic, strong) UIBarButtonItem *item;
 @end
 
 @implementation XRootWebVC
+
+- (UIBarButtonItem *)backItem
+{
+    if (!_backItem) {
+        _backItem = [[UIBarButtonItem alloc] init];
+        UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
+        //这是一张“<”的图片，可以让美工给切一张
+        UIImage *image = [UIImage imageNamed:@"btn_back"];
+        [btn setImage:image forState:UIControlStateNormal];
+//        [btn setTitle:@"返回" forState:UIControlStateNormal];
+        [btn addTarget:self action:@selector(backNative) forControlEvents:UIControlEventTouchUpInside];
+        [btn.titleLabel setFont:[UIFont systemFontOfSize:17]];
+        //字体的多少为btn的大小
+        [btn sizeToFit];
+        //左对齐
+        btn.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
+        //让返回按钮内容继续向左边偏移15，如果不设置的话，就会发现返回按钮离屏幕的左边的距离有点儿大，不美观
+        btn.contentEdgeInsets = UIEdgeInsetsMake(0, 15, 0, 0);
+        btn.frame = CGRectMake(0, 0, 40, 40);
+        _backItem.customView = btn;
+    }
+    return _backItem;
+}
+
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self createWebViewWithURL:self.url];
 }
+//点击返回的方法
+- (void)backNative
+{
+    [self.webView goBack];
+  
+}
+
 -(void)setBackNavigationBarItem
 {
     UIView *view = [[UIView alloc]initWithFrame:CGRectMake(0, 0, 64, 44)];
@@ -39,8 +72,10 @@
     UIView *lineview  = [[UIView alloc] initWithFrame:CGRectMake(36, (button.frame.size.height- AdaptationWidth(16)) / 2, 0.5 , AdaptationWidth(16))];
     lineview.backgroundColor  = XColorWithRGB(233, 233, 235);
     [button addSubview:lineview];
-    UIBarButtonItem *item = [[UIBarButtonItem alloc]initWithCustomView:view];
-    self.navigationItem.leftBarButtonItem = item;
+    self.item = [[UIBarButtonItem alloc]initWithCustomView:view];
+   
+    self.navigationItem.leftBarButtonItem = self.item;
+    
 }
 -(void)createWebViewWithURL:(NSString *)url{
     
@@ -80,6 +115,15 @@
     [self.webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:url]]];
 }
 
+- (void)webView:(WKWebView *)webView didFinishNavigation:(null_unspecified WKNavigation *)navigation{
+    //判断是否有上一层H5页面
+    if ([self.webView canGoBack]) {
+        //同时设置返回按钮和关闭按钮为导航栏左边的按钮
+        self.navigationItem.leftBarButtonItems = @[self.backItem, self.item];
+    }else{
+        self.navigationItem.leftBarButtonItems = @[self.item];
+    }
+}
 //kvo观察者方法
 -(void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSString *,id> *)change context:(void *)context{
     if ([keyPath isEqualToString:@"estimatedProgress"]&&object == _webView) {

@@ -185,7 +185,7 @@ typedef NS_ENUM(NSInteger ,WorkInfoRequest) {
         [self setHudWithName:@"请填写公司地址(地址填写应不少于6个字)" Time:2 andType:1];
         return;
     }
-    if (self.workInfoModel.company_phone.length > 11) {
+    if (self.workInfoModel.company_phone.length > 16) {
         [self setHudWithName:@"请填写正确的公司电话" Time:1 andType:1];
         return;
     }

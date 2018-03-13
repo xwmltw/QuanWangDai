@@ -588,8 +588,8 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
     [raiderArry enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop){
         
         UIButton *raiderBtn = [[UIButton alloc]init];
-        [raiderBtn setBackgroundImage:[UIImage imageNamed:@"定制card"] forState:UIControlStateNormal];
-        [raiderBtn setBackgroundImage:[UIImage imageNamed:@"定制card-2"] forState:UIControlStateHighlighted];
+        [raiderBtn setBackgroundImage:[UIImage imageNamed:@"定制未登录卡片"] forState:UIControlStateNormal];
+        [raiderBtn setBackgroundImage:[UIImage imageNamed:@"定制未登录卡片点击态"] forState:UIControlStateHighlighted];
         raiderBtn.tag = RecommendBtnOnClickUnlogin;
         [raiderBtn addTarget:self action:@selector(btnOnClick:) forControlEvents:UIControlEventTouchUpInside];
         [scroll addSubview:raiderBtn];
@@ -603,7 +603,7 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
         
         UIImageView *imageView = [[UIImageView alloc]init];
         imageView.layer.masksToBounds = YES;
-        imageView.layer.cornerRadius = AdaptationWidth(12);
+        imageView.layer.cornerRadius = AdaptationWidth(2);
         imageView.backgroundColor = XColorWithRBBA(252, 93, 109, 1);
         [raiderBtn addSubview:imageView];
         
@@ -626,41 +626,37 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
         [btnSubTitleLabBgView addSubview:btnSubTitleLab];
         
         UILabel *levelLab = [[UILabel alloc]init];
-        levelLab.textAlignment = NSTextAlignmentLeft;
-        levelLab.numberOfLines = 2;
-        levelLab.text = [NSString stringWithFormat:@"戳我\n登录"];
+        levelLab.textAlignment = NSTextAlignmentCenter;
+        levelLab.text = [NSString stringWithFormat:@"戳我登录"];
         [levelLab setFont:[UIFont fontWithName:@"PingFangSC-Medium" size:AdaptationWidth(13)]];
         [levelLab setTextColor:XColorWithRBBA(255, 255, 255, 1)];
         [raiderBtn addSubview:levelLab];
         
         
         [imageView mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.left.mas_equalTo(raiderBtn).offset(AdaptationWidth(32));
-            make.top.mas_equalTo(raiderBtn).offset(AdaptationWidth(42));
-            make.width.height.mas_equalTo(AdaptationWidth(64));
-        }];
-        [btnTitleLab mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.left.mas_equalTo(imageView.mas_right).offset(AdaptationWidth(16));
-            make.right.mas_equalTo(raiderBtn).offset(-AdaptationWidth(24));
-            make.top.mas_equalTo(raiderBtn).offset(AdaptationWidth(49));
+            make.left.mas_equalTo(raiderBtn).offset(AdaptationWidth(172));
+            make.top.mas_equalTo(btnSubTitleLabBgView.mas_bottom).offset(AdaptationWidth(12));
+            make.width.mas_equalTo(AdaptationWidth(72));
             make.height.mas_equalTo(AdaptationWidth(28));
         }];
+        [btnTitleLab mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.mas_equalTo(raiderBtn).offset(AdaptationWidth(172));
+            make.top.mas_equalTo(raiderBtn).offset(AdaptationWidth(40));
+            make.height.mas_equalTo(AdaptationWidth(26));
+        }];
         [btnSubTitleLabBgView mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.left.mas_equalTo(imageView.mas_right).offset(AdaptationWidth(16));
-            make.top.mas_equalTo(btnTitleLab.mas_bottom).offset(AdaptationWidth(4));
-            make.height.mas_equalTo(AdaptationWidth(22));
+            make.left.mas_equalTo(raiderBtn).offset(AdaptationWidth(172));
+            make.top.mas_equalTo(btnTitleLab.mas_bottom).offset(AdaptationWidth(6));
+            make.height.mas_equalTo(AdaptationWidth(18));
         }];
         [btnSubTitleLab mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.left.mas_equalTo(btnSubTitleLabBgView);
-            make.right.mas_equalTo(btnSubTitleLabBgView).offset(-AdaptationWidth(2));
-            make.top.mas_equalTo(btnSubTitleLabBgView).offset(AdaptationWidth(2));
-            make.bottom.mas_equalTo(btnSubTitleLabBgView).offset(-AdaptationWidth(2));
+            make.left.right.top.bottom.mas_equalTo(btnSubTitleLabBgView);
         }];
         [levelLab mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.left.mas_equalTo(imageView).offset(AdaptationWidth(18));
-            make.top.mas_equalTo(imageView).offset(AdaptationWidth(12));
-            make.width.mas_equalTo(AdaptationWidth(28));
-            make.height.mas_equalTo(AdaptationWidth(40));
+            make.centerX.mas_equalTo(imageView.mas_centerX);
+            make.centerY.mas_equalTo(imageView.mas_centerY);
+            make.width.mas_equalTo(AdaptationWidth(72));
+            make.height.mas_equalTo(AdaptationWidth(18));
         }];
     }];
     if (imageArry.count == 0 ) {
@@ -720,12 +716,15 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
     [raiderArry enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop){
         
         UIButton *raiderBtn = [[UIButton alloc]init];
-        [raiderBtn setBackgroundImage:[UIImage imageNamed:@"定制card"] forState:UIControlStateNormal];
-        [raiderBtn setBackgroundImage:[UIImage imageNamed:@"定制card-2"] forState:UIControlStateHighlighted];
+        
         if ([message isEqualToString:@"D"] || [message isEqualToString:@"E"]  ) {
             raiderBtn.tag = RecommendBtnOnClickComplete;
+            [raiderBtn setBackgroundImage:[UIImage imageNamed:@"等级太低卡片"] forState:UIControlStateNormal];
+            [raiderBtn setBackgroundImage:[UIImage imageNamed:@"等级太低卡片点击态"] forState:UIControlStateHighlighted];
         }else{
             raiderBtn.tag = RecommendBtnOnClickCustomization;
+            [raiderBtn setBackgroundImage:[UIImage imageNamed:@"一键定制卡片"] forState:UIControlStateNormal];
+            [raiderBtn setBackgroundImage:[UIImage imageNamed:@"一键定制卡片点击态"] forState:UIControlStateHighlighted];
         }
         [raiderBtn addTarget:self action:@selector(btnOnClick:) forControlEvents:UIControlEventTouchUpInside];
         [scroll addSubview:raiderBtn];
@@ -746,11 +745,20 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
         UILabel *btnTitleLab = [[UILabel alloc]init];
         btnTitleLab.textAlignment = NSTextAlignmentLeft;
         if ([message isEqualToString:@"D"] || [message isEqualToString:@"E"]  ) {
-            btnTitleLab.text = @"等级太低, 无法为您推荐";
+            NSString *labelText = @"等级太低, 无法为您推荐";
+            NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:labelText];
+            NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
+            [paragraphStyle setLineSpacing:2.0];
+            [attributedString addAttribute:NSParagraphStyleAttributeName value:paragraphStyle range:NSMakeRange(0, [labelText length])];
+            btnTitleLab.attributedText = attributedString;
+            [btnTitleLab sizeToFit];
+            btnTitleLab.numberOfLines = 2;
         }else{
             btnTitleLab.text = @"找合适的产品太难？";
+            btnTitleLab.numberOfLines = 1;
         }
-        [btnTitleLab setFont:[UIFont fontWithName:@"PingFangSC-Medium" size:AdaptationWidth(19)]];
+
+        [btnTitleLab setFont:[UIFont fontWithName:@"PingFangSC-Medium" size:AdaptationWidth(16)]];
         [btnTitleLab setTextColor:XColorWithRBBA(34, 58, 80, 0.8)];
         [raiderBtn addSubview:btnTitleLab];
         
@@ -796,27 +804,25 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
         [raiderBtn addSubview:level];
         
         [imageView mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.left.mas_equalTo(raiderBtn).offset(AdaptationWidth(32));
-            make.top.mas_equalTo(raiderBtn).offset(AdaptationWidth(48));
+            make.left.mas_equalTo(raiderBtn).offset(AdaptationWidth(28));
+            make.top.mas_equalTo(raiderBtn).offset(AdaptationWidth(38));
             make.width.height.mas_equalTo(AdaptationWidth(64));
         }];
-        [btnTitleLab mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.left.mas_equalTo(imageView.mas_right).offset(AdaptationWidth(16));
-            make.right.mas_equalTo(raiderBtn).offset(-AdaptationWidth(24));
-            make.top.mas_equalTo(raiderBtn).offset(AdaptationWidth(50));
-            make.height.mas_equalTo(AdaptationWidth(30));
-        }];
-        [btnSubTitleLabBgView mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.left.mas_equalTo(imageView.mas_right).offset(AdaptationWidth(16));
-            make.top.mas_equalTo(btnTitleLab.mas_bottom).offset(AdaptationWidth(4));
-            make.height.mas_equalTo(AdaptationWidth(26));
-        }];
+
         if ([message isEqualToString:@"D"] || [message isEqualToString:@"E"]  ) {
             [btnSubTitleLab mas_makeConstraints:^(MASConstraintMaker *make) {
-                make.left.mas_equalTo(btnSubTitleLabBgView);
-                make.right.mas_equalTo(btnSubTitleLabBgView).offset(-AdaptationWidth(4));
-                make.top.mas_equalTo(btnSubTitleLabBgView).offset(AdaptationWidth(4));
-                make.bottom.mas_equalTo(btnSubTitleLabBgView).offset(-AdaptationWidth(4));
+                make.left.right.top.bottom.mas_equalTo(btnSubTitleLabBgView);
+            }];
+            [btnTitleLab mas_makeConstraints:^(MASConstraintMaker *make) {
+                make.left.mas_equalTo(imageView.mas_right).offset(AdaptationWidth(16));
+                make.top.mas_equalTo(raiderBtn).offset(AdaptationWidth(46));
+//                make.height.mas_equalTo(AdaptationWidth(48));
+                make.width.mas_equalTo(AdaptationWidth(112));
+            }];
+            [btnSubTitleLabBgView mas_makeConstraints:^(MASConstraintMaker *make) {
+                make.left.mas_equalTo(raiderBtn).offset(AdaptationWidth(28));
+                make.top.mas_equalTo(imageView.mas_bottom).offset(AdaptationWidth(30));
+                make.height.mas_equalTo(AdaptationWidth(18));
             }];
         }else{
             [btnSubTitleLab mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -824,6 +830,17 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
                 make.right.mas_equalTo(btnSubTitleLabBgView).offset(-AdaptationWidth(4));
                 make.top.mas_equalTo(btnSubTitleLabBgView).offset(AdaptationWidth(4));
                 make.bottom.mas_equalTo(btnSubTitleLabBgView).offset(-AdaptationWidth(4));
+            }];
+            [btnTitleLab mas_makeConstraints:^(MASConstraintMaker *make) {
+                make.left.mas_equalTo(imageView.mas_right).offset(AdaptationWidth(16));
+                make.right.mas_equalTo(raiderBtn).offset(-AdaptationWidth(24));
+                make.top.mas_equalTo(raiderBtn).offset(AdaptationWidth(50));
+                make.height.mas_equalTo(AdaptationWidth(30));
+            }];
+            [btnSubTitleLabBgView mas_makeConstraints:^(MASConstraintMaker *make) {
+                make.left.mas_equalTo(imageView.mas_right).offset(AdaptationWidth(16));
+                make.top.mas_equalTo(btnTitleLab.mas_bottom).offset(AdaptationWidth(4));
+                make.height.mas_equalTo(AdaptationWidth(26));
             }];
         }
         

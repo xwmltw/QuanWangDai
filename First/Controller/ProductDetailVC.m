@@ -28,8 +28,8 @@ typedef NS_ENUM(NSInteger ,ProductDetailRequest) {
 };
 typedef NS_ENUM(NSInteger ,RequiredType) {
     IDENTITYCARD = 1,
-    ZMXY,
     BASICINFO,
+    ZMXY,
     JXLINFO,
     CREDITINFO,
     LOANINFO,
@@ -427,7 +427,7 @@ typedef NS_ENUM(NSInteger ,RequiredType) {
 //    tfMoney.textAlignment = NSTextAlignmentCenter;
     tfMoney.rightView = yuan;
     tfMoney.rightViewMode = UITextFieldViewModeAlways;
-    tfMoney.text = [NSString stringWithFormat:@"%.f",(self.detailModel.loan_max_credit.intValue*0.01)];
+    tfMoney.text = [NSString stringWithFormat:@"%.f",(self.detailModel.loan_max_credit.integerValue*0.01)];
     
 //    [tfMoney setSelectedRange:NSMakeRange(2, tfMoney.text.length)];
 //    NSMutableAttributedString * pointMut = [[NSMutableAttributedString alloc] initWithString:self.detailModel.loan_max_credit];
@@ -623,10 +623,12 @@ typedef NS_ENUM(NSInteger ,RequiredType) {
 }
 #pragma mark - textField delegate
 - (void)textFieldDidEndEditing:(UITextField *)textField{
+//      [textField resignFirstResponder];
     if (!([textField.text rangeOfString:@"."].location == NSNotFound)) {
         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:nil message:@"仅能输入整数" delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil, nil] ;
         [alert show];
         textField.text = @"";
+        
         return;
     }
     if ( textField.tag == 100)
@@ -640,6 +642,7 @@ typedef NS_ENUM(NSInteger ,RequiredType) {
             return;
         }
         if([textField.text integerValue] *100 < [self.detailModel.loan_min_credit integerValue ] ){
+
             UIAlertView *alert = [[UIAlertView alloc] initWithTitle:nil message:@"借款金额不能低于最小值" delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil, nil] ;
             [alert show];
             textField.text = @"";
@@ -650,15 +653,19 @@ typedef NS_ENUM(NSInteger ,RequiredType) {
     if ( textField.tag == 101)
     {
         if(self.detailModel.loan_max_deadline.integerValue < textField.text.integerValue  ){
+           
             UIAlertView *alert = [[UIAlertView alloc] initWithTitle:nil message:@"借款期限不能超过最大值" delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil, nil] ;
             [alert show];
             textField.text = @"";
+        
             return;
         }
         if(self.detailModel.loan_min_deadline.integerValue > textField.text.integerValue ){
+            
             UIAlertView *alert = [[UIAlertView alloc] initWithTitle:nil message:@"借款期限不能低于最小值" delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil, nil] ;
             [alert show];
             textField.text = @"";
+           
             return;
         }
     }
@@ -723,7 +730,7 @@ typedef NS_ENUM(NSInteger ,RequiredType) {
     [self performSelector:@selector(changeButtonStatus:)withObject:nil afterDelay:2.0f];//防止重复点击
     
     if (self.detailModel.cooperation_type.integerValue == 3) {//商户后台显示
-        if (!tfDate.text.length && !tfMoney.text.length) {
+        if (!tfDate.text.length || !tfMoney.text.length) {
             [self setHudWithName:@"请输入想借金额和想借期限" Time:0.5 andType:1];
             return;
         }
@@ -754,7 +761,7 @@ typedef NS_ENUM(NSInteger ,RequiredType) {
             if(self.detailModel.cooperation_type.integerValue == 3){
                 
                 self.dict = @{@"loan_pro_id":self.detailModel.loan_pro_id,
-                              @"apply_loan_amount":[NSString stringWithFormat:@"%d",(tfMoney.text.intValue*100)],
+                              @"apply_loan_amount":[NSString stringWithFormat:@"%ld",(tfMoney.text.integerValue*100)],
                               @"apply_loan_days":tfDate.text
                               };
             }else{

@@ -19,6 +19,8 @@ typedef NS_ENUM(NSInteger , ApplicantCellCell) {
     ApplicantCellCellRelativeHouse,
     ApplicantCellCellCar,
     ApplicantCellCellCredit,
+    ApplicantCellCellChit,
+    ApplicantCellCellEducation,
 };
 @interface ApplicantManVC : XBaseViewController
 @property (nonatomic, strong)CreditInfoModel *creditInfoModel;

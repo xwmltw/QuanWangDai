@@ -754,6 +754,7 @@ typedef NS_ENUM(NSInteger ,XLoginRequest) {
       
     }else if (btn.tag == 11){//快速注册
         RegisterVC *vc = [[RegisterVC alloc]init];
+        vc.phoneName =  _phoneTextAccount.text;
         vc.hidesBottomBarWhenPushed = YES;
         [self.navigationController pushViewController:vc animated:YES];
     }else if (btn.tag == 20) {//登录
@@ -773,6 +774,7 @@ typedef NS_ENUM(NSInteger ,XLoginRequest) {
         
     }else if (btn.tag == 21){//快速注册
         RegisterVC *vc = [[RegisterVC alloc]init];
+        vc.phoneName =  _phoneTextQuick.text;
         vc.hidesBottomBarWhenPushed = YES;
         [self.navigationController pushViewController:vc animated:YES];
     }
@@ -883,6 +885,7 @@ typedef NS_ENUM(NSInteger ,XLoginRequest) {
     [self setHudWithName:response.errMsg Time:2 andType:1];
     if (response.errCode.integerValue ==3) {
         RegisterVC *vc = [[RegisterVC alloc]init];
+        vc.phoneName =  _phoneTextQuick.text;
         vc.hidesBottomBarWhenPushed = YES;
         [self.navigationController pushViewController:vc animated:YES];
     }

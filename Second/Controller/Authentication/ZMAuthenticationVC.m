@@ -44,7 +44,7 @@ typedef NS_ENUM(NSUInteger, ZMAdultIdentityVerifyRequest) {
 }
 - (void)launchSDK {
     // 商户需要从服务端获取
-    NSString* appId = XZMAPPID;
+    NSString* appId = [ZMAuthorizeQryModel sharedInstance].app_id;
     [[ALCreditService sharedService] queryUserAuthReq:appId sign:[ZMAuthorizeQryModel sharedInstance].sign params:[ZMAuthorizeQryModel sharedInstance].params extParams:nil selector:@selector(result:) target:self];
 }
 

@@ -46,8 +46,14 @@ typedef NS_ENUM(NSUInteger, AdultIdentityVerifyRequest) {
     button.tag = 9999;
     button.titleLabel.font = [UIFont fontWithName:@"PingFangSC-Medium" size:AdaptationWidth(17)];
     [button setTitle:@"身份信息" forState:UIControlStateNormal];
-    [button setTitleColor:XColorWithRBBA(34, 58, 80, 0.8) forState:UIControlStateNormal];
-    [button setImage:[UIImage imageNamed:@"btn_back"] forState:UIControlStateNormal];\
+    if (self.creditInfoModel.identity_status.integerValue == 1) {//判断是否认证过
+        [button setTitleColor:XColorWithRBBA(34, 58, 80, 0.8) forState:UIControlStateNormal];
+    }else{
+        [button setTitleColor:XColorWithRBBA(34, 58, 80, 0) forState:UIControlStateNormal];
+    }
+    
+//    [button setTitleColor:XColorWithRBBA(34, 58, 80, 0.8) forState:UIControlStateNormal];
+    [button setImage:[UIImage imageNamed:@"btn_back"] forState:UIControlStateNormal];
     button.titleEdgeInsets = UIEdgeInsetsMake(0, AdaptationWidth(28), 0, -AdaptationWidth(28));
     [button addTarget:self action:@selector(BarbuttonClick:) forControlEvents:UIControlEventTouchUpInside];
     [view addSubview:button];
@@ -227,8 +233,14 @@ typedef NS_ENUM(NSUInteger, AdultIdentityVerifyRequest) {
 -(UILabel *)detailLab{
     if (!_detailLab) {
         _detailLab = [UILabel new];
-        _detailLab.numberOfLines = 0;
-        _detailLab.text = @"您只需将身份证正、反面及您的正脸通过摄像头即可完成认证。";
+        NSString *labelText = @"您只需将身份证正、反面及您的正脸通过摄像头即可完成认证。";
+        NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:labelText];
+        NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
+        [paragraphStyle setLineSpacing:4.0];
+        [attributedString addAttribute:NSParagraphStyleAttributeName value:paragraphStyle range:NSMakeRange(0, [labelText length])];
+        _detailLab.attributedText = attributedString;
+        [_detailLab sizeToFit];
+        _detailLab.numberOfLines = 2;
         _detailLab.font = [UIFont fontWithName:@"PingFang-SC-Light" size:AdaptationWidth(16)];
         _detailLab.textColor = XColorWithRBBA(34, 58, 80, 0.8);
 //        _detailLab.textAlignment = NSTextAlignmentCenter;

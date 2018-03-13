@@ -39,11 +39,11 @@ typedef NS_ENUM(NSInteger ,AuthenticationBankRequest) {
     [super viewDidLoad];
     self.bankInfoModel = [BankInfoModel new];
     [self setUI];
-    
 }
 - (void)viewWillAppear:(BOOL)animated{
     [self.navigationController setNavigationBarHidden:NO animated:NO];
     if (self.isScanBan) {
+        [self.view removeAllSubviews];
         [self setUI];
     }
 }
@@ -100,7 +100,6 @@ typedef NS_ENUM(NSInteger ,AuthenticationBankRequest) {
     [bankNume setFont:[UIFont fontWithName:@"PingFangSC-Regular" size:AdaptationWidth(18)]];
     [self.bgView addSubview:bankNume];
     
-
     UIButton *btn = [[UIButton alloc]init];
     [btn  addTarget:self action:@selector(btnOnClick:) forControlEvents:UIControlEventTouchUpInside];
     [btn setImage:[UIImage imageNamed:@"credit_Scan"] forState:UIControlStateNormal];
@@ -248,7 +247,6 @@ typedef NS_ENUM(NSInteger ,AuthenticationBankRequest) {
         make.left.right.mas_equalTo(_bankTextAccount);
         make.height.mas_equalTo(0.5);
     }];
-    
     [lalPwd mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.mas_equalTo(lineView.mas_bottom).offset(AdaptationWidth(15));
         make.left.mas_equalTo(lineView);

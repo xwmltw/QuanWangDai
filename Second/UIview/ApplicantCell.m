@@ -297,6 +297,17 @@
                 if (str.length != 0) {
                     [_detailLab setTextColor:XColorWithRGB(7, 137, 133)];
                 }
+            }else{
+                NSString *str = @"";
+                if ([model.has_policy.description isEqualToString:@"0"]) {
+                    str = @"无";
+                }else if([model.has_policy.description isEqualToString:@"1"]){
+                    str = @"有";
+                }
+                _detailLab.text =  str.length ? str : @"是否有保单";
+                if (str.length != 0) {
+                    [_detailLab setTextColor:XColorWithRGB(7, 137, 133)];
+                }
             }
         }
             break;
@@ -315,8 +326,69 @@
                     str = @"信用良好";
                 }else if([model.credit_info.description isEqualToString:@"5"]){
                     str = @"无逾期";
+                }else if([model.credit_info.description isEqualToString:@"5"]){
+                    str = @"无逾期";
                 }
                 _detailLab.text =  str.length ? str : @"选择您的信用情况";
+                if (str.length != 0) {
+                    [_detailLab setTextColor:XColorWithRGB(7, 137, 133)];
+                }
+            }else{
+                NSString *str = @"";
+                if ([model.education_type.description isEqualToString:@"0"]) {
+                    str = @"高中";
+                }else if([model.education_type.description isEqualToString:@"1"]){
+                    str = @"大专";
+                }else if([model.education_type.description isEqualToString:@"2"]){
+                    str = @"本科";
+                }else if([model.education_type.description isEqualToString:@"3"]){
+                    str = @"硕士";
+                }else if([model.education_type.description isEqualToString:@"4"]){
+                    str = @"博士";
+                }else if([model.education_type.description isEqualToString:@"5"]){
+                    str = @"其他";
+                }
+                _detailLab.text =  str.length ? str : @"选择您的学历情况";
+                if (str.length != 0) {
+                    [_detailLab setTextColor:XColorWithRGB(7, 137, 133)];
+                }
+            }
+        }
+            break;
+        case ApplicantCellCellChit:
+        {
+            if (yes) {
+                NSString *str = @"";
+                if ([model.has_policy.description isEqualToString:@"0"]) {
+                    str = @"无";
+                }else if([model.has_policy.description isEqualToString:@"1"]){
+                    str = @"有";
+                }
+                _detailLab.text =  str.length ? str : @"是否有保单";
+                if (str.length != 0) {
+                    [_detailLab setTextColor:XColorWithRGB(7, 137, 133)];
+                }
+            }
+        }
+            break;
+        case ApplicantCellCellEducation:
+        {
+            if (yes) {
+                NSString *str = @"";
+                if ([model.education_type.description isEqualToString:@"0"]) {
+                    str = @"高中";
+                }else if([model.education_type.description isEqualToString:@"1"]){
+                    str = @"大专";
+                }else if([model.education_type.description isEqualToString:@"2"]){
+                    str = @"本科";
+                }else if([model.education_type.description isEqualToString:@"3"]){
+                    str = @"硕士";
+                }else if([model.education_type.description isEqualToString:@"4"]){
+                    str = @"博士";
+                }else if([model.education_type.description isEqualToString:@"5"]){
+                    str = @"其他";
+                }
+                _detailLab.text =  str.length ? str : @"选择您的学历情况";
                 if (str.length != 0) {
                     [_detailLab setTextColor:XColorWithRGB(7, 137, 133)];
                 }

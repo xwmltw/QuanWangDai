@@ -25,8 +25,8 @@
 
 typedef NS_ENUM(NSInteger ,RequiredType) {
     IDENTITYCARD = 1,
-    ZMXY,
     BASICINFO,
+    ZMXY,
     JXLINFO,
     CREDITINFO,
     LOANINFO,

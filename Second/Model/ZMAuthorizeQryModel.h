@@ -11,5 +11,6 @@
 @interface ZMAuthorizeQryModel : NSObject
 @property (nonatomic, copy) NSString *sign;
 @property (nonatomic, copy) NSString *params;
+@property (nonatomic, copy) NSString *app_id;
 + (instancetype)sharedInstance;
 @end

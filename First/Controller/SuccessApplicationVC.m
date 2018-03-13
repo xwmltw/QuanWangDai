@@ -74,7 +74,7 @@
 }
 #pragma mark - tableviewdelegate
 - (UIView *)creatHeader{
-    UIView *view = [[UIView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, AdaptationWidth(411))];
+    UIView *view = [[UIView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, AdaptationWidth(347))];
     
     UIImageView *image = [[UIImageView alloc]init];
     [view addSubview:image];
@@ -94,30 +94,58 @@
     
     UILabel *labDetail = [[UILabel alloc]init];
     if (self.errCode.integerValue == 33) {
-        [labDetail setText:@"小贷掐指一算，您的资质申请以下产品更容易通过哦！"];
+        NSString *labelText = @"小贷掐指一算，您的资质申请以下产品更容易\n通过哦！";
+        NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:labelText];
+        NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
+        [paragraphStyle setLineSpacing:4.0];
+        [attributedString addAttribute:NSParagraphStyleAttributeName value:paragraphStyle range:NSMakeRange(0, [labelText length])];
+        labDetail.attributedText = attributedString;
+        [labDetail sizeToFit];
+        labDetail.numberOfLines = 2;
     }else{
         if (self.applyProductModel.contact_wechat_public.length > 0) {
-            [labDetail setText:@"请保持手机通畅，稍后会有工作人员与您联系；您也可以主动添加对方微信 公众号进行联系。"];
+            NSString *labelText = @"请保持手机通畅，稍后会有工作人员与您联系；您可以关注对方的公众号，办理效率更高";
+            NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:labelText];
+            NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
+            [paragraphStyle setLineSpacing:4.0];
+            [attributedString addAttribute:NSParagraphStyleAttributeName value:paragraphStyle range:NSMakeRange(0, [labelText length])];
+            labDetail.attributedText = attributedString;
+            [labDetail sizeToFit];
+            labDetail.numberOfLines = 2;
         }else if (self.applyProductModel.contact_qq.length > 0) {
-            [labDetail setText:@"请保持手机通畅，稍后会有工作人员与您联系；您也可以主动添加对方QQ进行联系。"];
+            NSString *labelText = @"请保持手机通畅，稍后会有工作人员与您联系；您也可以主动添加对方QQ进行联系。";
+            NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:labelText];
+            NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
+            [paragraphStyle setLineSpacing:4.0];
+            [attributedString addAttribute:NSParagraphStyleAttributeName value:paragraphStyle range:NSMakeRange(0, [labelText length])];
+            labDetail.attributedText = attributedString;
+            [labDetail sizeToFit];
+            labDetail.numberOfLines = 2;
         }else{
-            [labDetail setText:@"请保持手机通畅，稍后会有工作人员与您联系。"];
+            NSString *labelText = @"请保持手机通畅，稍后会有工作人员与您联系。";
+            NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:labelText];
+            NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
+            [paragraphStyle setLineSpacing:4.0];
+            [attributedString addAttribute:NSParagraphStyleAttributeName value:paragraphStyle range:NSMakeRange(0, [labelText length])];
+            labDetail.attributedText = attributedString;
+            [labDetail sizeToFit];
+            labDetail.numberOfLines = 2;
         }
     }
-    labDetail.numberOfLines = 0;
+    labDetail.numberOfLines = 2;
     [labDetail setFont:[UIFont fontWithName:@"PingFangSC-Light" size:AdaptationWidth(16)]];
     [labDetail setTextColor:XColorWithRBBA(34, 58, 80, 0.64)];
     [view addSubview:labDetail];
     
     
     [labTitle mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.mas_equalTo(view).offset(AdaptationWidth(64));
+        make.top.mas_equalTo(view).offset(AdaptationWidth(32));
         make.left.mas_equalTo(view).offset(AdaptationWidth(24));
     }];
     
     [labDetail mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.mas_equalTo(view).offset(AdaptationWidth(24));
-        make.right.mas_equalTo(view).offset(-AdaptationWidth(24));
+        make.right.mas_equalTo(view).offset(-AdaptationWidth(12));
         make.top.mas_equalTo(labTitle.mas_bottom).offset(AdaptationWidth(4));
     }];
     
@@ -125,6 +153,7 @@
         make.top.mas_equalTo(labDetail.mas_bottom).offset(AdaptationWidth(32));
         make.left.mas_equalTo(view).offset(AdaptationWidth(24));
         make.right.mas_equalTo(view).offset(-AdaptationWidth(24));
+//        make.bottom.mas_equalTo(AdaptationWidth(-32));
         make.height.mas_equalTo(AdaptationWidth(161));
     }];
     
@@ -134,13 +163,19 @@
     return view;
 }
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
-    if (self.applyProductModel.contact_qq.length || self.applyProductModel.contact_wechat_public.length) {
+    if (self.applyProductModel.contact_qq.length || self.applyProductModel.contact_wechat_public.length){
         return 2;
     }
     return 1;
 }
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
-    return 68;
+    
+    if (section == 0){
+        if (self.applyProductModel.contact_qq.length || self.applyProductModel.contact_wechat_public.length){
+           return AdaptationWidth(68);
+        }
+    }
+    return AdaptationWidth(60);
 }
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
     UIView *view = [[UIView alloc]init];
@@ -156,12 +191,12 @@
                 copyStr = self.applyProductModel.contact_qq;
             }
             
-            [labTitle setFont:[UIFont fontWithName:@"PingFangSC-Medium" size:AdaptationWidth(16)]];
-            [labTitle setTextColor:XColorWithRBBA(34, 58, 80, 0.8)];
+            [labTitle setFont:[UIFont fontWithName:@"PingFangSC-Medium" size:AdaptationWidth(18)]];
+            [labTitle setTextColor:XColorWithRBBA(252, 93, 109, 1)];
             [view addSubview:labTitle];
             
             [labTitle mas_makeConstraints:^(MASConstraintMaker *make) {
-                make.left.mas_equalTo(view).offset(AdaptationWidth(16));
+                make.left.mas_equalTo(view).offset(AdaptationWidth(24));
                 make.centerY.mas_equalTo(view);
             }];
             
@@ -170,6 +205,8 @@
             [btnCopy.titleLabel setFont:[UIFont fontWithName:@"PingFangSC-Regular" size:AdaptationWidth(16)]];
             [btnCopy setTitle:@"复制" forState:UIControlStateNormal];
             [btnCopy setBackgroundColor:XColorWithRGB(252, 93, 109)];
+            btnCopy.layer.masksToBounds = YES;
+            [btnCopy setCornerValue:2];
             [btnCopy setTitleColor:XColorWithRGB(255, 255, 255) forState:UIControlStateNormal];
             [btnCopy setTitleColor:XColorWithRBBA(255, 255, 255, 0.4) forState:UIControlStateHighlighted];
             [btnCopy addTarget:self action:@selector(btnOnClick:) forControlEvents:UIControlEventTouchUpInside];
@@ -192,16 +229,16 @@
         }
     }
 
-        UILabel *labTitle = [[UILabel alloc]init];
-        [labTitle setText:@"和您资质相近的产品"];
-        [labTitle setFont:[UIFont fontWithName:@"PingFangSC-Medium" size:AdaptationWidth(20)]];
-        [labTitle setTextColor:XColorWithRBBA(34, 58, 80, 0.32)];
-        [view addSubview:labTitle];
-        
-        [labTitle mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.left.mas_equalTo(view).offset(AdaptationWidth(16));
-            make.centerY.mas_equalTo(view);
-        }];
+    UILabel *labTitle = [[UILabel alloc]init];
+    [labTitle setText:@"和您资质相近的产品"];
+    [labTitle setFont:[UIFont fontWithName:@"PingFangSC-Medium" size:AdaptationWidth(20)]];
+    [labTitle setTextColor:XColorWithRBBA(34, 58, 80, 0.32)];
+    [view addSubview:labTitle];
+    
+    [labTitle mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.mas_equalTo(view).offset(AdaptationWidth(16));
+        make.bottom.mas_equalTo(view);
+    }];
     
     return view;
 }

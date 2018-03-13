@@ -439,21 +439,25 @@ typedef NS_ENUM(NSInteger ,CreditRequest) {
 //    }
     if ([creditModel.identity_status.description isEqual:@"0"] || [creditModel.base_info_status.description isEqual:@"0"] || [creditModel.zhima_status.description isEqual:@"0"] ||[creditModel.operator_status.description isEqual:@"0"] ) {
         
-        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"提示" message:@"您的信用信息太少，小贷无法给您推荐合适的产品。请先完善信息~" preferredStyle:UIAlertControllerStyleAlert];
-        UIView *subView1 = alertController.view.subviews[0];
-        UIView *subView2 = subView1.subviews[0];
-        UIView *subView3 = subView2.subviews[0];
-        UIView *subView4 = subView3.subviews[0];
-        UIView *subView5 = subView4.subviews[0];
-        UILabel *message = subView5.subviews[1];
-        message.textAlignment = NSTextAlignmentLeft;
-        [message setFont:[UIFont fontWithName:@"PingFangSC-Regular" size:AdaptationWidth(16)]];
-        message.textColor = XColorWithRBBA(34, 58, 80, 0.32);
-        UILabel *title = subView5.subviews[0];
-        title.textAlignment = NSTextAlignmentLeft;
-        UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleDestructive handler:nil];
-        [alertController addAction:cancelAction];
-        UIAlertAction *confrmlAction = [UIAlertAction actionWithTitle:@"确认" style:UIAlertActionStyleDestructive handler:nil];
+        NSString *title = @"提示";
+        NSString *message = @"您的信用信息太少，小贷无法给您推荐合适的产品。请先完善信息~";
+        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:title message:message preferredStyle:UIAlertControllerStyleAlert];
+        // 使用富文本来改变alert的title字体大小和颜色
+        NSMutableAttributedString *titleText = [[NSMutableAttributedString alloc] initWithString:title];
+        [titleText addAttribute:NSFontAttributeName value:[UIFont fontWithName:@"PingFangSC-Medium" size:AdaptationWidth(16)] range:NSMakeRange(0, title.length)];
+        [titleText addAttribute:NSForegroundColorAttributeName value:XColorWithRGB(34, 58, 80) range:NSMakeRange(0, title.length)];
+        [alertController setValue:titleText forKey:@"attributedTitle"];
+        // 使用富文本来改变alert的message字体大小和颜色
+        NSMutableAttributedString *messageText = [[NSMutableAttributedString alloc] initWithString:message];
+        NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
+        [paragraphStyle setLineSpacing:4.0];
+        paragraphStyle.alignment = NSTextAlignmentCenter;
+        [messageText addAttribute:NSParagraphStyleAttributeName value:paragraphStyle range:NSMakeRange(0, [messageText length])];
+        [messageText addAttribute:NSFontAttributeName value:[UIFont fontWithName:@"PingFangSC-Regular" size:AdaptationWidth(12)] range:NSMakeRange(0, message.length)];
+        [messageText addAttribute:NSForegroundColorAttributeName value:XColorWithRBBA(34, 58, 80, 0.64) range:NSMakeRange(0, message.length)];
+        [alertController setValue:messageText forKey:@"attributedMessage"];
+
+        UIAlertAction *confrmlAction = [UIAlertAction actionWithTitle:@"知道了" style:UIAlertActionStyleDestructive handler:nil];
         [alertController addAction:confrmlAction];
         [self presentViewController:alertController animated:YES completion:nil];
     }else if(creditModel.applicant_qualification_status.integerValue == 0){

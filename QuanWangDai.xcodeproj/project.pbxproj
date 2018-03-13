@@ -112,7 +112,6 @@
 		04799C8F1FCFA6D200245F93 /* touch_focus_x@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 04799C681FCFA6D200245F93 /* touch_focus_x@2x.png */; };
 		04799C901FCFA6D200245F93 /* SCCaptureCameraController.m in Sources */ = {isa = PBXBuildFile; fileRef = 04799C6E1FCFA6D200245F93 /* SCCaptureCameraController.m */; };
 		04799C911FCFA6D300245F93 /* libIOSOCRLIB.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 04799C741FCFA6D200245F93 /* libIOSOCRLIB.a */; };
-		047CE1911FDA600600C1257B /* loading.gif in Resources */ = {isa = PBXBuildFile; fileRef = 047CE1901FDA600500C1257B /* loading.gif */; };
 		047FE6711FBA8AC30092ADB5 /* ForgetPwdVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 047FE6701FBA8AC30092ADB5 /* ForgetPwdVC.m */; };
 		047FE6751FBAC9020092ADB5 /* ParamModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 047FE6741FBAC9020092ADB5 /* ParamModel.m */; };
 		047FE6781FBACAF40092ADB5 /* NSObject+Json.m in Sources */ = {isa = PBXBuildFile; fileRef = 047FE6771FBACAF30092ADB5 /* NSObject+Json.m */; };
@@ -147,6 +146,7 @@
 		04D05E771FC84EEB00677647 /* OperatorAuthenticationSecondVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 04D05E761FC84EEB00677647 /* OperatorAuthenticationSecondVC.m */; };
 		04D4BA301FAB0864004E4146 /* XCommonHepler.m in Sources */ = {isa = PBXBuildFile; fileRef = 04D4BA2F1FAB0864004E4146 /* XCommonHepler.m */; };
 		04D4BA331FAB1359004E4146 /* UITabBar+MKExtension.m in Sources */ = {isa = PBXBuildFile; fileRef = 04D4BA311FAB1359004E4146 /* UITabBar+MKExtension.m */; };
+		04DA4054204FB3C0004F73E9 /* loading.gif in Resources */ = {isa = PBXBuildFile; fileRef = 04DA4053204FB3C0004F73E9 /* loading.gif */; };
 		04EBA7AA1FBD635C008218F3 /* BasicEncodingRules.m in Sources */ = {isa = PBXBuildFile; fileRef = 04EBA7A01FBD635B008218F3 /* BasicEncodingRules.m */; };
 		04EBA7AB1FBD635C008218F3 /* NSData+Base64.m in Sources */ = {isa = PBXBuildFile; fileRef = 04EBA7A21FBD635B008218F3 /* NSData+Base64.m */; };
 		04EBA7AC1FBD635C008218F3 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 04EBA7A31FBD635B008218F3 /* README.md */; };
@@ -378,7 +378,6 @@
 		04799C721FCFA6D200245F93 /* ScranResultViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScranResultViewController.h; sourceTree = "<group>"; };
 		04799C731FCFA6D200245F93 /* SCSlider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SCSlider.h; sourceTree = "<group>"; };
 		04799C741FCFA6D200245F93 /* libIOSOCRLIB.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libIOSOCRLIB.a; sourceTree = "<group>"; };
-		047CE1901FDA600500C1257B /* loading.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = loading.gif; sourceTree = "<group>"; };
 		047FE66F1FBA8AC30092ADB5 /* ForgetPwdVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ForgetPwdVC.h; sourceTree = "<group>"; };
 		047FE6701FBA8AC30092ADB5 /* ForgetPwdVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ForgetPwdVC.m; sourceTree = "<group>"; };
 		047FE6731FBAC9020092ADB5 /* ParamModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ParamModel.h; sourceTree = "<group>"; };
@@ -448,6 +447,7 @@
 		04D4BA2F1FAB0864004E4146 /* XCommonHepler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = XCommonHepler.m; sourceTree = "<group>"; };
 		04D4BA311FAB1359004E4146 /* UITabBar+MKExtension.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UITabBar+MKExtension.m"; sourceTree = "<group>"; };
 		04D4BA321FAB1359004E4146 /* UITabBar+MKExtension.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UITabBar+MKExtension.h"; sourceTree = "<group>"; };
+		04DA4053204FB3C0004F73E9 /* loading.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = loading.gif; sourceTree = "<group>"; };
 		04EBA79F1FBD635B008218F3 /* BasicEncodingRules.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BasicEncodingRules.h; sourceTree = "<group>"; };
 		04EBA7A01FBD635B008218F3 /* BasicEncodingRules.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BasicEncodingRules.m; sourceTree = "<group>"; };
 		04EBA7A11FBD635B008218F3 /* NSData+Base64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSData+Base64.h"; sourceTree = "<group>"; };
@@ -703,7 +703,7 @@
 		042338D51FD536BA007754D6 /* ProgressRolling */ = {
 			isa = PBXGroup;
 			children = (
-				047CE1901FDA600500C1257B /* loading.gif */,
+				04DA4053204FB3C0004F73E9 /* loading.gif */,
 				04526B431FD62D6200B65CCD /* FeRollingLoader.h */,
 				04526B451FD62D6200B65CCD /* FeRollingLoader.m */,
 				04526B441FD62D6200B65CCD /* UIColor+flat.h */,
@@ -1454,11 +1454,11 @@
 				04799C811FCFA6D200245F93 /* flashing_off@2x.png in Resources */,
 				04799C791FCFA6D200245F93 /* close_cha.png in Resources */,
 				0432D91A1FB98C5200BA8C9B /* XWMCodeImage.xib in Resources */,
+				04DA4054204FB3C0004F73E9 /* loading.gif in Resources */,
 				04799C7C1FCFA6D200245F93 /* close_cha_h@2x.png in Resources */,
 				0428904F1FB5560A00C7009A /* ico_make.png in Resources */,
 				04799C801FCFA6D200245F93 /* flashing_off.png in Resources */,
 				04799C8A1FCFA6D200245F93 /* switch_camera_h.png in Resources */,
-				047CE1911FDA600600C1257B /* loading.gif in Resources */,
 				04799C761FCFA6D200245F93 /* camera_line@2x.png in Resources */,
 				04ED3E4F1FA99DE8008C9FDE /* Main.storyboard in Resources */,
 			);
