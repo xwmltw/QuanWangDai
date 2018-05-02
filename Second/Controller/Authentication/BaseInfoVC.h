@@ -22,4 +22,5 @@ typedef NS_ENUM(NSInteger , BaseInfoTableViewCell) {
 };
 @interface BaseInfoVC : XBaseViewController
 @property (nonatomic ,strong) CreditInfoModel *creditInfoModel;
+@property (nonatomic ,copy) NSNumber *isBlock;
 @end

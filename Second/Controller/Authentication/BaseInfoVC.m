@@ -19,9 +19,12 @@
 #import "XChooseBankView.h"
 #import "AuthorizationView.h"
 #import "XRootWebVC.h"
+#import "PersonalTailorVC.h"
 typedef NS_ENUM(NSInteger ,BaseInfoRequest) {
     BaseInfoRequestPostInfo,
     BaseInfoRequestGetInfo,
+    CreditRequestDetailInfo,
+    HalfWithAllProduct,
 };
 @interface BaseInfoVC ()<BaseInfoCellTextDelegate,BaseInfoCellViewDelegate,XChooseCityViewDelegate,CNContactPickerDelegate,ABPeoplePickerNavigationControllerDelegate,XChooseBankPickerViewDelegate>
 //从通讯录拿到的数据
@@ -32,6 +35,7 @@ typedef NS_ENUM(NSInteger ,BaseInfoRequest) {
 @property (nonatomic, strong) ShipModel *contactModel;
 @property (nonatomic, strong) ClientGlobalInfoRM *clientGlobalInfoModel;
 @property (nonatomic, strong) AuthorizationView *authView;
+@property (nonatomic ,copy) NSNumber *isAllProduct;//1全流程 2流程
 @end
 
 @implementation BaseInfoVC
@@ -46,6 +50,7 @@ typedef NS_ENUM(NSInteger ,BaseInfoRequest) {
 }
 - (void)viewDidLoad {
     [super viewDidLoad];
+    [TalkingData trackEvent:@"【基本信息认证】页"];
     [self setData];
     [self createTableViewWithFrame:CGRectZero];
     [self.tableView mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -752,10 +757,19 @@ typedef NS_ENUM(NSInteger ,BaseInfoRequest) {
             break;
         case BaseInfoRequestGetInfo:{
             self.cmd = XGetContactInfo;
-            self.dict = @{};
+            self.dict = [NSDictionary dictionary];
         }
             break;
-            
+        case CreditRequestDetailInfo:{
+            self.cmd = XGetCreditInfo;
+            self.dict = [NSDictionary dictionary];
+        }
+            break;
+        case HalfWithAllProduct:{
+            self.cmd  = XGetSpecialLoanProList;
+            self.dict =@{@"query_type":self.isAllProduct};
+        }
+            break;
         default:
             break;
     }
@@ -764,6 +778,13 @@ typedef NS_ENUM(NSInteger ,BaseInfoRequest) {
     switch (self.requestCount) {
         case BaseInfoRequestPostInfo:{
             [self setHudWithName:@"提交成功" Time:1 andType:0];
+            
+            if (self.isBlock.integerValue == 1) {
+                [self prepareDataWithCount:CreditRequestDetailInfo];
+                
+                return;
+            }
+            
             [self.navigationController popViewControllerAnimated:NO];
             [[NSNotificationCenter defaultCenter]postNotificationName:@"Refresh" object:self userInfo:nil];
         }
@@ -778,10 +799,42 @@ typedef NS_ENUM(NSInteger ,BaseInfoRequest) {
             [self.tableView reloadData];
         }
             break;
+        case CreditRequestDetailInfo:{
+            [[CreditInfoModel sharedInstance]saveCreditStateInfo:[CreditInfoModel mj_objectWithKeyValues:response.content]];
+            if ([CreditState creditStateWith:self.creditInfoModel]) {
+                self.isAllProduct = @1;
+            }else{
+                self.isAllProduct = @2;
+            }
+            [self prepareDataWithCount:HalfWithAllProduct];
+
+        }
+            break;
+        case HalfWithAllProduct:{
+            NSNumber *row = response.content[@"loan_pro_list_count"];
+       
+            if(row.integerValue > 0){
+                PersonalTailorVC *vc = [[PersonalTailorVC alloc]init];
+                vc.isAllProduct = self.isAllProduct;
+                [self.navigationController pushViewController:vc animated:YES];
+                return;
+            }
             
+            if (self.isBlock.integerValue == 1) {
+                [CreditState selectCreaditState:self with:self.creditInfoModel];
+                return;
+            }
+        }
+            break;
         default:
             break;
     }
+}
+- (CreditInfoModel *)creditInfoModel{
+    if (!_creditInfoModel) {
+        _creditInfoModel = [[CreditInfoModel sharedInstance]getCreditStateInfo];
+    }
+    return _creditInfoModel;
 }
 - (BaseInfoModel *)baseInfoModel{
     if (!_baseInfoModel) {

@@ -149,6 +149,9 @@
  @param response 失败之后的数据
  */
 -(void)requestFaildWithDictionary:(XResponse *)response{
+    if (response.errCode.integerValue == 34 || response.errCode.integerValue == 31) {//申请人资质没填,信息不完善
+        return;
+    }
     [self setHudWithName:response.errMsg Time:2 andType:1];
 }
 /**  网络请求
@@ -329,8 +332,8 @@
         hud.delegate = self;
         hud.mode = MBProgressHUDModeCustomView;
         hud.detailsLabel.text = name;
-        hud.contentColor = [UIColor whiteColor];
-        hud.bezelView.backgroundColor = XColorWithRBBA(0, 0, 0, 0.8);
+        hud.contentColor = XColorWithRBBA(34, 58, 80, 0.8);
+        hud.bezelView.backgroundColor = XColorWithRBBA(34, 58, 80, 0.8);
         [hud hideAnimated:YES afterDelay:time];
     });
 }
@@ -420,7 +423,7 @@
     if (@available(iOS 11.0, *)) {
         self.tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
     } else {
-        // Fallback on earlier versions
+        self.automaticallyAdjustsScrollViewInsets = NO;
     }
     _tableView.delegate = self;
     _tableView.dataSource = self;
@@ -555,7 +558,7 @@
                     LoginVC *vc = [[LoginVC alloc]init];
                     vc.loginblock = ^(id result) {
     
-                        [self showAlertView];
+                        [self showAlertView:nil];
                     };
                     vc.hidesBottomBarWhenPushed = YES;
                     [self.navigationController pushViewController:vc animated:YES];
@@ -563,14 +566,16 @@
             }];
 }
 
-- (void)showAlertView{
+- (void)showAlertView:(XBlock)block{
     [XAlertView alertWithTitle:@"温馨提示" message:@"在使用过程中，全网贷会为您推荐相应的贷款产品，您部分必要的个人信息（包括但不限于手机号、工作信息等）可能会根据您的需求，匹配给对应的第三方机构。" cancelButtonTitle:@"不同意" confirmButtonTitle:@"同意授权" viewController:self completion:^(UIAlertAction *action, NSInteger buttonIndex) {
         self.requestCount = 100;
         if (buttonIndex == 1) {
+            XBlockExec(block, nil);
             [[UserInfo sharedInstance]savePhone:nil password:nil userId:nil grantAuthorization:@(1)];
             [self prepareDataGetUrlWithModel:XGrantAuthorization andparmeter:@{@"opt_type":@"1"}];
         }
         if (buttonIndex == 0) {
+            
             [[UserInfo sharedInstance]savePhone:nil password:nil userId:nil grantAuthorization:@(2)];
             [self prepareDataGetUrlWithModel:XGrantAuthorization andparmeter:@{@"opt_type":@"2"}];
         }

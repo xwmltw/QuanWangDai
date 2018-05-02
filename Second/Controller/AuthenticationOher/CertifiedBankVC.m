@@ -97,7 +97,7 @@
 }
 - (void)setRequestParams{
     self.cmd = XGetBankCardCheckInfo;
-    self.dict = @{};
+    self.dict = [NSDictionary dictionary];
 }
 - (void)requestSuccessWithDictionary:(XResponse *)response{
     self.bankInfoModel = [BankInfoModel mj_objectWithKeyValues:response.content];

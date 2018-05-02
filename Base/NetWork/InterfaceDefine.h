@@ -11,7 +11,7 @@
 
 /** TalkingData */
 #ifdef DEBUG
-static NSString *const TalkingData_AppID =   @"0840A8EB6BC34C9B9A36403D7123D176";
+static NSString *const TalkingData_AppID =   @"";
 static NSString *const TD_AdTrackingID =     @"";
 #else
 static NSString *const TalkingData_AppID =   @"0840A8EB6BC34C9B9A36403D7123D176";
@@ -39,6 +39,8 @@ static NSString *const XZMAPPID =   @"300000041";
 /** 网络环境*/
 #ifdef DEBUG
 #define SERVICEURL @"http://192.168.5.151:8080/qwd-server/openapi/1"//测试环境
+//#define SERVICEURL @"http://192.168.5.126:8080/qwd-server/openapi/1"//阿福测试环境
+
 #else
 
 #define SERVICEURL @"http://api.91qwd.com/openapi/1" //正式环境
@@ -86,7 +88,7 @@ static NSString *const XNotificationAlert = @"XNotificationAlert";
 #define XGetSpecialLoanProList @"qwd_getSpecialRecommendLoanProduct" /*!< 查询首页推荐贷款产品信息*/
 #define XGetHotLoanProList @"qwd_getHotLoanProList"             /*!< 查询热门贷款推荐列表*/
 #define XGetLoanProDetail @"qwd_getLoanProDetail"               /*!< 查询贷款产品详情*/
-#define XGetLoanProList @"qwd_getLoanProList"                   /*!< 查询贷款产品列表*/
+#define XGetLoanProList @"qwd_getLoanProList"                   /*!< 查询全部贷款产品列表*/
 #define XAdClickLogRecord @"qwd_adClickLogRecord"               /*!< 记录广告点击日志*/
 #define XArticleClickRecord @"qwd_articleClickRecord"           /*!< 记录文章详情点击日志*/
 #define XGetZiXunCenter @"qwd_getZiXunCenter"                   /*!< 获取资讯中心内容*/
@@ -95,5 +97,13 @@ static NSString *const XNotificationAlert = @"XNotificationAlert";
 #define XGetRecommendLoanProList @"qwd_getRecommendLoanProList" /*!< 查询推荐贷款产品列表*/
 #define XGetSpecialEntryList @"qwd_getSpecialEntryList"         /*!< 下发特色入口*/
 #define XQuerySpecialEntryLoanProductList @"qwd_querySpecialEntryLoanProductList" /*!<根据特色入口id查询贷款产品列表*/
+#define XGetLoanApplyList @"qwd_getLoanApplyList"               /*!< 用户查询贷款产品申请列表*/
+#define XGetMoneyDetailList @"qwd_getMoneyDetailList"           /*!< 账户交易流水查询*/
+#define XGetCreditReportInfo @"qwd_getCreditReportInfo"         /*!< 查询信用报告信息*/
+#define XPayCreditReportOrder @"qwd_payCreditReportOrder"       /*!< 支付信用报告订单*/
+#define XRechargeCreditReport @"qwd_rechargeCreditReport"       /*!< 用户购买信用报告*/
+#define XBatchApplyLoan @"qwd_batchApplyLoan"                   /*!< 一键申请产品*/
+
+
 
 #endif /* InterfaceDefine_h */

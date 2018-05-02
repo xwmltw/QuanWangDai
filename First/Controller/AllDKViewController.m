@@ -12,6 +12,7 @@
 #import "ProductDetailVC.h"
 #import "ProductListModel.h"
 #import "LoanTypeInfo.h"
+#import "XRootWebVC.h"
 
 typedef NS_ENUM(NSInteger ,AllDKViewRequest) {
     AllDKViewRequestProductList,
@@ -38,16 +39,15 @@ typedef NS_ENUM(NSInteger ,AllDKViewRequest) {
     if (self.typeIndex == 3 || self.typeIndex == 4) {
         self.productListModel.loan_pro_type = @(self.typeIndex);
     }
-    [self.dataSourceArr removeAllObjects];
-    self.queryParamModel.page_num = @(1);
-    [self prepareDataWithCount:AllDKViewRequestProductType];
     [self.navigationController setNavigationBarHidden:NO animated:NO];
 }
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    //talkingdata
-    [TalkingData trackEvent:@"【贷款大全】页"];
+    
+    [self.dataSourceArr removeAllObjects];
+    self.queryParamModel.page_num = @(1);
+    [self prepareDataWithCount:AllDKViewRequestProductType];
     
     [self createTableViewWithFrame:CGRectZero];
     [self.tableView mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -56,8 +56,6 @@ typedef NS_ENUM(NSInteger ,AllDKViewRequest) {
     }];
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     self.tableView.mj_footer.hidden = NO;
-    
-    
 }
 
 -(void)setBackNavigationBarItem
@@ -66,12 +64,15 @@ typedef NS_ENUM(NSInteger ,AllDKViewRequest) {
     view.userInteractionEnabled = YES;
     
     UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
-    button.frame = CGRectMake(0, 0, 104, 44);
+    button.frame = CGRectMake(0, 0, 130, 44);
     button.tag = 9999;
     button.titleLabel.font = [UIFont fontWithName:@"PingFangSC-Medium" size:AdaptationWidth(17)];
-    if (self.loan_product_type) {
+    if (self.loan_product_type.integerValue) {
         [button setTitle:self.titleStr forState:UIControlStateNormal];
     }else{
+        //talkingdata
+        [TalkingData trackEvent:@"【贷款大全】页"];
+        
         [button setTitle:@"贷款大全" forState:UIControlStateNormal];
     }
     button.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
@@ -194,11 +195,13 @@ typedef NS_ENUM(NSInteger ,AllDKViewRequest) {
         [self setHudWithName:@"名额已满" Time:0.5 andType:1];
         return;
     }
+
     ProductDetailVC *vc = [[ProductDetailVC alloc]init];
     vc.loan_pro_id = self.dataSourceArr[indexPath.row][@"loan_pro_id"];
     vc.hidesBottomBarWhenPushed = YES;
-    
     [self.navigationController pushViewController:vc animated:YES];
+    
+    
 }
 
 #pragma mark - dropDownMenu
@@ -468,9 +471,9 @@ typedef NS_ENUM(NSInteger ,AllDKViewRequest) {
         case AllDKViewRequestProductType:{
             self.cmd = XGetLoanClassifyList;
             if (self.loanTypeInfo.md5_hash.length) {
-                self.dict = @{@"md5_hash":self.loanTypeInfo.md5_hash};
+                self.dict = [NSDictionary dictionaryWithObjectsAndKeys:self.loanTypeInfo.md5_hash,@"md5_hash", nil];
             }else{
-                self.dict = @{@"md5_hash":@""};
+                self.dict = [NSDictionary dictionaryWithObjectsAndKeys:@"",@"md5_hash", nil];
             }
         }
             break;
@@ -521,7 +524,7 @@ typedef NS_ENUM(NSInteger ,AllDKViewRequest) {
             [self.dataSourceArr addObjectsFromArray:response.content[@"loan_pro_list"]];
             if (!self.dataSourceArr.count) {
                 self.tableView.tableFooterView = [self creatFooterView];
-                [self showNoDataAlertView];
+//                [self showNoDataAlertView];
             }else{
                 self.tableView.tableFooterView = nil;
             }

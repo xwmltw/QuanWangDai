@@ -8,6 +8,8 @@
 
 #import <UIKit/UIKit.h>
 #import "SpecialEntryModel.h"
+//#import "LoanTypeInfo.h"
 @interface ReconmendCollectionCell : UICollectionViewCell
 - (void)configureWith:(SpecialEntryModel *)model indexPath:(NSInteger)row ;
+- (void)SpecialconfigureWith:(NSMutableArray *)modelArr indexPath:(NSInteger)row ;
 @end

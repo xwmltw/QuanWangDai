@@ -309,13 +309,16 @@ typedef NS_ENUM(NSInteger ,XForgetPwdVCReuqset ) {
 - (void)setRequestParams{
     if (self.requestCount == XForgetPwdVCReuqsetMessageCode) {
         self.cmd = XSmsAuthenticationCode;
-        self.dict = @{@"phone_num":_phoneTextAccount.text,@"opt_type":@3};
+        self.dict = [NSDictionary dictionaryWithObjectsAndKeys:_phoneTextAccount.text,@"phone_num",@3,@"opt_type", nil];
     }else if (self.requestCount == XForgetPwdVCReuqsetRevise){
          NSData* passDada = [RsaHelper encryptString:_pwdTextAccount.text publicKey:nil];
         self.cmd = XResetPasswordByPhoneNum;
-        self.dict = @{@"phone_num":_phoneTextAccount.text,
-                      @"password":[SecurityUtil bytesToHexString:passDada],
-                      @"sms_authentication_code":_verificationText.text};
+        self.dict = [NSDictionary dictionaryWithObjectsAndKeys:
+                     _phoneTextAccount.text,@"phone_num",
+                     [SecurityUtil bytesToHexString:passDada],@"password",
+                     _verificationText.text,@"sms_authentication_code", nil];
+        
+        
     }
     
 }

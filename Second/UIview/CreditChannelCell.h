@@ -9,10 +9,12 @@
 #import <UIKit/UIKit.h>
 
 @protocol CreditPassDelegate<NSObject>
-- (void)pushAllDK;
+- (void)pushAllDK:(UIButton *)button;
 @end
 @interface CreditChannelCell : UICollectionViewCell
-@property (nonatomic,strong) UIButton *btn;
-@property (nonatomic,strong) UILabel *lab;
+@property (nonatomic,strong) UIButton *leftbtn;
+@property (nonatomic,strong) UILabel *leftlab;
+@property (nonatomic,strong) UIButton *rightbtn;
+@property (nonatomic,strong) UILabel *rightlab;
 @property (nonatomic ,weak) id <CreditPassDelegate>delegate;
 @end

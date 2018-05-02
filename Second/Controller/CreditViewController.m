@@ -27,6 +27,8 @@
 #import "WorkInfoVC.h"
 #import "ApplicantManVC.h"
 #import "PersonalTailorVC.h"
+#import "WDWavesView.h"
+#import "ReportController.h"
 typedef NS_ENUM(NSInteger, SectionType) {
     SectionInfo,
     SectionChannel,
@@ -47,7 +49,8 @@ typedef NS_ENUM(NSInteger ,CreditRequest) {
 @property (nonatomic, strong) NSDictionary *borrowDic;
 @property (nonatomic, strong) NSDictionary *improveDic;
 @property (nonatomic, strong) ClientGlobalInfoRM *clientGlobalInfoRM;
-@property (nonatomic,strong) UIView *bgView;
+@property (nonatomic, strong) UIView *bgView;
+@property (nonatomic, strong) WDWavesView *wave;
 @end
 
 @implementation CreditViewController
@@ -61,6 +64,14 @@ typedef NS_ENUM(NSInteger ,CreditRequest) {
         _clientGlobalInfoRM = [ClientGlobalInfoRM getClientGlobalInfoModel];
     }
     return _clientGlobalInfoRM;
+}
+-(WDWavesView *)wave{
+    if (!_wave) {
+        _wave = [[WDWavesView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, AdaptationWidth(182))];
+        _wave.backgroundColor = XColorWithRBBA(255, 201, 179, 1);
+        [_wave startWaveAnimation];
+    }
+    return _wave;
 }
 
 - (void)viewDidLoad {
@@ -81,15 +92,17 @@ typedef NS_ENUM(NSInteger ,CreditRequest) {
     [self prepareDataWithCount:CreditRequestDetailInfo];
     [self.navigationController setNavigationBarHidden:YES animated:YES];
     [self showTabBar];
-    
+
     UIView *statusBar = [[[UIApplication sharedApplication] valueForKey:@"statusBarWindow"] valueForKey:@"statusBar"];
     statusBar.backgroundColor = XColorWithRGB(255, 201, 179);
 }
 -(void)viewWillDisappear:(BOOL)animated{
     [super viewWillDisappear:animated];
-    
+	
     UIView *statusBar = [[[UIApplication sharedApplication] valueForKey:@"statusBarWindow"] valueForKey:@"statusBar"];
     statusBar.backgroundColor = [UIColor whiteColor];
+	
+	
 }
 
 - (void)getData{
@@ -164,29 +177,28 @@ typedef NS_ENUM(NSInteger ,CreditRequest) {
         case SectionInfo:
         {
             CreditInfoCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:NSStringFromClass([CreditInfoCell class]) forIndexPath:indexPath];
-            cell.backgroundColor = XColorWithRGB(255, 201, 179);
+
+            cell.backgroundView = self.wave;
             [cell configureWith:creditModel];
             return cell;
         }
         case SectionChannel:
         {
             CreditChannelCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:NSStringFromClass([CreditChannelCell class]) forIndexPath:indexPath];
+        
             UIImageView *image = [[UIImageView alloc]init];
             image.image = [UIImage imageNamed:@"信用助手"];
             cell.backgroundView = image;
             cell.delegate = self;
             if (self.clientGlobalInfoRM.recomment_entry_hide.integerValue == 1) {
-                cell.btn.hidden = YES;
-                cell.lab.hidden = YES;
+                cell.leftbtn.hidden = YES;
+				cell.rightbtn.hidden = YES;
                 [self.tableView reloadData];
             }
             return cell;
         }
         case SectionBorrow:{
             CreditMaterialCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:NSStringFromClass([CreditMaterialCell class]) forIndexPath:indexPath];
-            UIImageView *image = [[UIImageView alloc]init];
-            image.image = [UIImage imageNamed:@"信用助手3"];
-            cell.backgroundView = image;
             [cell configureWithFirst:self.borrowDic indexPath:indexPath.row model:creditModel];
             return cell;
         }
@@ -194,10 +206,6 @@ typedef NS_ENUM(NSInteger ,CreditRequest) {
         case SectionImprove:{
     
             CreditMaterialCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:NSStringFromClass([CreditMaterialCell class]) forIndexPath:indexPath];
-            UIImageView *image = [[UIImageView alloc]init];
-            image.image = [UIImage imageNamed:@""];
-            cell.backgroundView = image;
-            cell.backgroundColor = [UIColor whiteColor];
             cell.selectedBackgroundView = [[UIImageView alloc] initWithImage:nil];
             [cell configureWith:self.improveDic indexPath:indexPath.row model:creditModel];
 
@@ -215,12 +223,12 @@ typedef NS_ENUM(NSInteger ,CreditRequest) {
     if (kind == UICollectionElementKindSectionHeader) {
         CreditSectionHeaderView *headerView = [collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:NSStringFromClass([CreditSectionHeaderView class]) forIndexPath:indexPath];
         if (indexPath.section == 2) {
-            headerView.imageView.image = [UIImage imageNamed:@"信用助手2"];
-            headerView.titleLabe.text = @"借款资料(必填)";
-        }else if (indexPath.section == 3){
-            headerView.imageView.image = [UIImage imageNamed:@""];
-            headerView.backgroundColor = [UIColor whiteColor];
-            headerView.titleLabe.text = @"提额资料";
+            headerView.titleLabe.text = @"提升信用等级";
+            if (creditModel.complete_schedule.integerValue != 100) {
+                headerView.subtitleLabe.text = @"补充以下资料，可提升信用等级";
+            }else{
+                headerView.subtitleLabe.hidden = YES;
+            }
         }
         return headerView;
     }
@@ -295,9 +303,13 @@ typedef NS_ENUM(NSInteger ,CreditRequest) {
         }
     }
     if(indexPath.section == SectionImprove){
-        if (creditModel.identity_status.integerValue == 1) {
+        
             switch (indexPath.row) {
                 case 0:{
+                    if (creditModel.identity_status.integerValue != 1) {
+                        [self setHudWithName:@"请先完成身份认证" Time:0.5 andType:3];
+                        return;
+                    }
                     if (creditModel.bank_status.integerValue == 1) {
                         CertifiedBankVC *vc = [[CertifiedBankVC alloc]init];
                         vc.hidesBottomBarWhenPushed = YES;
@@ -311,6 +323,10 @@ typedef NS_ENUM(NSInteger ,CreditRequest) {
                 }
                     break;
                 case 1:{
+                    if (creditModel.identity_status.integerValue != 1) {
+                        [self setHudWithName:@"请先完成身份认证" Time:0.5 andType:3];
+                        return;
+                    }
                     if (self.clientGlobalInfoRM.recomment_entry_hide.integerValue == 1){
                         WorkInfoVC *vc = [[WorkInfoVC alloc]init];
                         vc.creditInfoModel = creditModel;
@@ -331,6 +347,10 @@ typedef NS_ENUM(NSInteger ,CreditRequest) {
                         vc.hidesBottomBarWhenPushed = YES;
                         [self.navigationController pushViewController:vc animated:YES];
                     }else{
+                        if (creditModel.identity_status.integerValue != 1) {
+                            [self setHudWithName:@"请先完成身份认证" Time:0.5 andType:3];
+                            return;
+                        }
                         WorkInfoVC *vc = [[WorkInfoVC alloc]init];
                         vc.creditInfoModel = creditModel;
                         vc.hidesBottomBarWhenPushed = YES;
@@ -349,9 +369,7 @@ typedef NS_ENUM(NSInteger ,CreditRequest) {
                 default:
                     break;
             }
-        } else {
-            [self setHudWithName:@"请先完成身份认证" Time:0.5 andType:3];
-        }
+        
     }
 }
 
@@ -375,10 +393,10 @@ typedef NS_ENUM(NSInteger ,CreditRequest) {
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout referenceSizeForHeaderInSection:(NSInteger)section {
     switch (section) {
         case SectionBorrow:
-            return CGSizeMake(self.collectionView.bounds.size.width, AdaptationWidth(20));
-        case SectionImprove:
-            return CGSizeMake(self.collectionView.bounds.size.width, AdaptationWidth(20));
-        default: 
+            return CGSizeMake(self.collectionView.bounds.size.width, AdaptationWidth(87));
+//        case SectionImprove:
+//            return CGSizeMake(self.collectionView.bounds.size.width, AdaptationWidth(20));
+        default:
             return CGSizeZero;
     }
 }
@@ -401,9 +419,9 @@ typedef NS_ENUM(NSInteger ,CreditRequest) {
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
     switch (indexPath.section) {
         case SectionInfo:
-            return CGSizeMake(self.collectionView.bounds.size.width, AdaptationWidth(189));
+            return CGSizeMake(self.collectionView.bounds.size.width, AdaptationWidth(181));
         case SectionChannel:
-            return CGSizeMake(self.collectionView.bounds.size.width, AdaptationWidth(151));
+            return CGSizeMake(self.collectionView.bounds.size.width, AdaptationWidth(100));
         case SectionBorrow:
         case SectionImprove:
             return CGSizeMake([self fixSlitWith:self.collectionView.bounds colCount:4 space:0], AdaptationWidth(111));
@@ -413,97 +431,120 @@ typedef NS_ENUM(NSInteger ,CreditRequest) {
 }
 
 #pragma mark - CreditChannelCell-delegate
-- (void)pushAllDK{
-    [super prepareDataWithCount:CreditRequestDetailInfo];
+- (void)pushAllDK:(UIButton *)button{
     if(![[UserInfo sharedInstance]isSignIn]){
         dispatch_async(dispatch_get_main_queue(), ^{
             [self getBlackLogin:self];//判断是否登录状态
         });
         return;
     }
-    if (_clientGlobalInfoRM.recomment_entry_hide.integerValue == 1) {
-        [self setHudWithName:@"暂未开发，敬请期待！" Time:0.5 andType:1];
-        return;
-    }
-//    if ([creditModel.credit_level isEqualToString:@"E"] || [creditModel.credit_level isEqualToString:@"D"]) {
-//        [self setHudWithName:@"您的信用信息太少，小贷无法给您推荐合适的产品。请先完善信息~" Time:2 andType:3];
-//    }else if ([creditModel.credit_level isEqualToString:@"C"] || [creditModel.credit_level isEqualToString:@"B"] || [creditModel.credit_level isEqualToString:@"A"]){
-//        AllDKViewController *vc = [[AllDKViewController alloc]init];
-//        if ([creditModel.credit_level isEqualToString:@"C"]) {
-//            vc.typeIndex = 3;
-//        }else{
-//            vc.typeIndex = 4;
-//        }
-//        vc.hidesBottomBarWhenPushed = YES;
-//        [self.navigationController pushViewController:vc animated:YES];
-//    }
-    if ([creditModel.identity_status.description isEqual:@"0"] || [creditModel.base_info_status.description isEqual:@"0"] || [creditModel.zhima_status.description isEqual:@"0"] ||[creditModel.operator_status.description isEqual:@"0"] ) {
-        
-        NSString *title = @"提示";
-        NSString *message = @"您的信用信息太少，小贷无法给您推荐合适的产品。请先完善信息~";
-        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:title message:message preferredStyle:UIAlertControllerStyleAlert];
-        // 使用富文本来改变alert的title字体大小和颜色
-        NSMutableAttributedString *titleText = [[NSMutableAttributedString alloc] initWithString:title];
-        [titleText addAttribute:NSFontAttributeName value:[UIFont fontWithName:@"PingFangSC-Medium" size:AdaptationWidth(16)] range:NSMakeRange(0, title.length)];
-        [titleText addAttribute:NSForegroundColorAttributeName value:XColorWithRGB(34, 58, 80) range:NSMakeRange(0, title.length)];
-        [alertController setValue:titleText forKey:@"attributedTitle"];
-        // 使用富文本来改变alert的message字体大小和颜色
-        NSMutableAttributedString *messageText = [[NSMutableAttributedString alloc] initWithString:message];
-        NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
-        [paragraphStyle setLineSpacing:4.0];
-        paragraphStyle.alignment = NSTextAlignmentCenter;
-        [messageText addAttribute:NSParagraphStyleAttributeName value:paragraphStyle range:NSMakeRange(0, [messageText length])];
-        [messageText addAttribute:NSFontAttributeName value:[UIFont fontWithName:@"PingFangSC-Regular" size:AdaptationWidth(12)] range:NSMakeRange(0, message.length)];
-        [messageText addAttribute:NSForegroundColorAttributeName value:XColorWithRBBA(34, 58, 80, 0.64) range:NSMakeRange(0, message.length)];
-        [alertController setValue:messageText forKey:@"attributedMessage"];
-
-        UIAlertAction *confrmlAction = [UIAlertAction actionWithTitle:@"知道了" style:UIAlertActionStyleDestructive handler:nil];
-        [alertController addAction:confrmlAction];
-        [self presentViewController:alertController animated:YES completion:nil];
-    }else if(creditModel.applicant_qualification_status.integerValue == 0){
-        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"提示" message:@"您的信用等级不错哦，适合您的产品很多。试试一键定制吧~" preferredStyle:UIAlertControllerStyleAlert];
-        UIView *subView1 = alertController.view.subviews[0];
-        UIView *subView2 = subView1.subviews[0];
-        UIView *subView3 = subView2.subviews[0];
-        UIView *subView4 = subView3.subviews[0];
-        UIView *subView5 = subView4.subviews[0];
-        UILabel *message = subView5.subviews[1];
-        message.textAlignment = NSTextAlignmentLeft;
-        [message setFont:[UIFont fontWithName:@"PingFangSC-Regular" size:AdaptationWidth(16)]];
-        message.textColor = XColorWithRBBA(34, 58, 80, 0.32);
-        UILabel *title = subView5.subviews[0];
-        title.textAlignment = NSTextAlignmentLeft;
-        UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"以后再说" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
-            
-        }];
-       
-        [alertController addAction:cancelAction];
-        UIAlertAction *confrmlAction = [UIAlertAction actionWithTitle:@"去定制" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
-            ApplicantManVC *vc = [[ApplicantManVC alloc]init];
-            vc.comeFrom = @(1);
+	switch (button.tag) {
+		case 1000:{  // 获取专属贷款
+            if (_clientGlobalInfoRM.recomment_entry_hide.integerValue == 1) {
+                [self setHudWithName:@"暂未开发，敬请期待！" Time:0.5 andType:1];
+                return;
+            }
+//            if ([creditModel.credit_level isEqualToString:@"E"] || [creditModel.credit_level isEqualToString:@"D"]) {
+//                [self setHudWithName:@"您的信用信息太少，小贷无法给您推荐合适的产品。请先完善信息~" Time:2 andType:3];
+//            }else if ([creditModel.credit_level isEqualToString:@"C"] || [creditModel.credit_level isEqualToString:@"B"] || [creditModel.credit_level isEqualToString:@"A"]){
+//                AllDKViewController *vc = [[AllDKViewController alloc]init];
+//                if ([creditModel.credit_level isEqualToString:@"C"]) {
+//                    vc.typeIndex = 3;
+//                }else{
+//                    vc.typeIndex = 4;
+//                }
+//                vc.hidesBottomBarWhenPushed = YES;
+//                [self.navigationController pushViewController:vc animated:YES];
+//            }
+            if ([creditModel.identity_status.description isEqual:@"0"] || [creditModel.base_info_status.description isEqual:@"0"] || [creditModel.zhima_status.description isEqual:@"0"] ||[creditModel.operator_status.description isEqual:@"0"] ) {
+                
+                NSString *title = @"提示";
+                NSString *message = @"您的信用信息太少，小贷无法给您推荐合适的产品。请先完善信息~";
+                UIAlertController *alertController = [UIAlertController alertControllerWithTitle:title message:message preferredStyle:UIAlertControllerStyleAlert];
+                // 使用富文本来改变alert的title字体大小和颜色
+                NSMutableAttributedString *titleText = [[NSMutableAttributedString alloc] initWithString:title];
+                [titleText addAttribute:NSFontAttributeName value:[UIFont fontWithName:@"PingFangSC-Medium" size:AdaptationWidth(16)] range:NSMakeRange(0, title.length)];
+                [titleText addAttribute:NSForegroundColorAttributeName value:XColorWithRGB(34, 58, 80) range:NSMakeRange(0, title.length)];
+                [alertController setValue:titleText forKey:@"attributedTitle"];
+                // 使用富文本来改变alert的message字体大小和颜色
+                NSMutableAttributedString *messageText = [[NSMutableAttributedString alloc] initWithString:message];
+                NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
+                [paragraphStyle setLineSpacing:4.0];
+                paragraphStyle.alignment = NSTextAlignmentCenter;
+                [messageText addAttribute:NSParagraphStyleAttributeName value:paragraphStyle range:NSMakeRange(0, [messageText length])];
+                [messageText addAttribute:NSFontAttributeName value:[UIFont fontWithName:@"PingFangSC-Regular" size:AdaptationWidth(12)] range:NSMakeRange(0, message.length)];
+                [messageText addAttribute:NSForegroundColorAttributeName value:XColorWithRBBA(34, 58, 80, 0.64) range:NSMakeRange(0, message.length)];
+                [alertController setValue:messageText forKey:@"attributedMessage"];
+                
+               
+                UIAlertAction *ok = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                    [CreditState selectCreaditState:self with:nil];
+                }];
+                UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                    
+                }];
+                [alertController addAction:ok];
+                [alertController addAction:cancel];
+                [self presentViewController:alertController animated:YES completion:nil];
+            }else if(creditModel.applicant_qualification_status.integerValue == 0){
+                UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"提示" message:@"您的信用等级不错哦，适合您的产品很多。试试一键定制吧~" preferredStyle:UIAlertControllerStyleAlert];
+                UIView *subView1 = alertController.view.subviews[0];
+                UIView *subView2 = subView1.subviews[0];
+                UIView *subView3 = subView2.subviews[0];
+                UIView *subView4 = subView3.subviews[0];
+                UIView *subView5 = subView4.subviews[0];
+                UILabel *message = subView5.subviews[1];
+                message.textAlignment = NSTextAlignmentLeft;
+                [message setFont:[UIFont fontWithName:@"PingFangSC-Regular" size:AdaptationWidth(16)]];
+                message.textColor = XColorWithRBBA(34, 58, 80, 0.32);
+                UILabel *title = subView5.subviews[0];
+                title.textAlignment = NSTextAlignmentLeft;
+                UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"以后再说" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
+                    
+                }];
+                
+                [alertController addAction:cancelAction];
+                UIAlertAction *confrmlAction = [UIAlertAction actionWithTitle:@"去定制" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
+                    ApplicantManVC *vc = [[ApplicantManVC alloc]init];
+                    vc.comeFrom = @(1);
+                    vc.hidesBottomBarWhenPushed = YES;
+                    [self.navigationController pushViewController:vc animated:YES];
+                }];
+                [alertController addAction:confrmlAction];
+                [self presentViewController:alertController animated:YES completion:nil];
+            }else if( self.dataSourceArr.count > 0){
+                //判断是否有可推荐的产品
+                PersonalTailorVC *vc = [[PersonalTailorVC alloc]init];
+                vc.isAllProduct = @1;
+                vc.hidesBottomBarWhenPushed = YES;
+                [self.navigationController pushViewController:vc animated:YES];
+                return;
+                
+            }else{
+                
+                AllDKViewController *vc = [[AllDKViewController alloc]init];
+                if ([creditModel.credit_level isEqualToString:@"C"]) {
+                    vc.typeIndex = 3;
+                }else{
+                    vc.typeIndex = 4;
+                }
+                vc.hidesBottomBarWhenPushed = YES;
+                [self.navigationController pushViewController:vc animated:YES];
+            }
+		}
+			break;
+		case 1001:{  // 查看我的信用
+            ReportController *vc = [[ReportController alloc]init];
             vc.hidesBottomBarWhenPushed = YES;
             [self.navigationController pushViewController:vc animated:YES];
-        }];
-        [alertController addAction:confrmlAction];
-        [self presentViewController:alertController animated:YES completion:nil];
-    }else if( self.dataSourceArr.count > 0){
-        //判断是否有可推荐的产品
-        PersonalTailorVC *vc = [[PersonalTailorVC alloc]init];
-        vc.hidesBottomBarWhenPushed = YES;
-        [self.navigationController pushViewController:vc animated:YES];
-        return;
-       
-    }else{
-        
-        AllDKViewController *vc = [[AllDKViewController alloc]init];
-        if ([creditModel.credit_level isEqualToString:@"C"]) {
-            vc.typeIndex = 3;
-        }else{
-            vc.typeIndex = 4;
-        }
-        vc.hidesBottomBarWhenPushed = YES;
-        [self.navigationController pushViewController:vc animated:YES];
-    }
+		}
+			break;
+		default:
+			break;
+	}
+//    [super prepareDataWithCount:CreditRequestDetailInfo];
+
+    
     
 }
 #pragma  mark - 网络
@@ -511,7 +552,7 @@ typedef NS_ENUM(NSInteger ,CreditRequest) {
     switch (self.requestCount) {
         case CreditRequestDetailInfo:
             self.cmd = XGetCreditInfo;
-            self.dict = @{};
+            self.dict = [NSDictionary dictionary];
             break;
         case CreditRequestLoanProList:{
             self.cmd = XGetRecommendLoanProList;
@@ -530,7 +571,7 @@ typedef NS_ENUM(NSInteger ,CreditRequest) {
     
     switch (self.requestCount) {
         case CreditRequestDetailInfo:{
-//            [_collectionView.mj_header endRefreshing];
+            [[CreditInfoModel sharedInstance]saveCreditStateInfo:[CreditInfoModel mj_objectWithKeyValues:response.content]];
             creditModel = nil;
             creditModel = [CreditInfoModel mj_objectWithKeyValues:response.content];
             [self.collectionView reloadData];

@@ -44,8 +44,9 @@ typedef NS_ENUM(NSInteger ,SeviceURLRequest) {
     switch (self.requestCount) {
         case SeviceURLRequestSignIn:
             self.cmd = XUserLogin;
-            self.dict = @{@"username":[[UserInfo sharedInstance]getUserInfo].phoneName,
-                          @"password":[[[NSString stringWithFormat:@"%@%@",[[UserInfo sharedInstance]getUserInfo].password,[XSessionMgr sharedInstance].challenge]MD5] uppercaseString]};
+            self.dict = [NSDictionary dictionaryWithObjectsAndKeys:
+                         [[UserInfo sharedInstance]getUserInfo].phoneName,@"username",
+                         [[[NSString stringWithFormat:@"%@%@",[[UserInfo sharedInstance]getUserInfo].password,[XSessionMgr sharedInstance].challenge]MD5] uppercaseString],@"password", nil];
             break;
         case SeviceURLRequestGlobalInfo:
             self.cmd = XClientGlobalInfo;

@@ -30,7 +30,7 @@ typedef NS_ENUM(NSInteger ,WorkInfoRequest) {
 }
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
+    [TalkingData trackEvent:@"【工作信息认证】页"];
     [self prepareDataWithCount:WorkInfoRequestGetInfo];
     
     [self createTableViewWithFrame:CGRectZero];
@@ -229,7 +229,7 @@ typedef NS_ENUM(NSInteger ,WorkInfoRequest) {
     switch (self.requestCount) {
         case WorkInfoRequestGetInfo:
             self.cmd = XGetWorkInfo;
-            self.dict = @{};
+            self.dict = [NSDictionary dictionary];
             break;
         case WorkInfoRequestPostInfo:
             self.cmd = XPostWorkInfo;

@@ -50,6 +50,7 @@ typedef NS_ENUM(NSInteger ,InformationRequest) {
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    [TalkingData trackEvent:@"【资讯】页"];
     [self getData];
     [self prepareDataWithCount:InformationRequestGetInfo];
     
@@ -417,11 +418,11 @@ typedef NS_ENUM(NSInteger ,InformationRequest) {
     switch (self.requestCount) {
         case InformationRequestGetInfo:
             self.cmd = XGetZiXunCenter;
-            self.dict = @{};
+            self.dict = [NSDictionary dictionary];
             break;
         case InformationRequestClickRecord:
             self.cmd = XArticleClickRecord;
-            self.dict = @{@"content_id":click_id};
+            self.dict = [NSDictionary dictionaryWithObjectsAndKeys:click_id,@"content_id", nil];
             break;
             
         default:

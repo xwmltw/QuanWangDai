@@ -10,5 +10,4 @@
 #import "ApplyProductModel.h"
 @interface SuccessApplicationVC : XBaseViewController
 @property (nonatomic, strong) ApplyProductModel *applyProductModel;
-@property (nonatomic, copy) NSNumber *errCode; //33用户资质不符合产品要求
 @end

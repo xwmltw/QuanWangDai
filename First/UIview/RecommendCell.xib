@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="13529" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
-    <device id="retina4_7" orientation="portrait">
+    <device id="retina4_0" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
@@ -35,9 +35,9 @@
                     <nil key="highlightedColor"/>
                 </label>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="优时贷贷贷" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="IB9-J1-4Q4">
-                    <rect key="frame" x="112" y="19" width="114" height="26"/>
+                    <rect key="frame" x="112" y="19" width="180" height="26"/>
                     <constraints>
-                        <constraint firstAttribute="width" constant="114" id="Ahc-vF-Mge"/>
+                        <constraint firstAttribute="width" constant="180" id="Ahc-vF-Mge"/>
                     </constraints>
                     <fontDescription key="fontDescription" name="PingFangSC-Semibold" family="PingFang SC" pointSize="18"/>
                     <color key="textColor" red="0.13333333333333333" green="0.22745098039215686" blue="0.31372549019607843" alpha="0.80000000000000004" colorSpace="calibratedRGB"/>
@@ -96,6 +96,14 @@
                         <constraint firstAttribute="width" constant="80" id="Up5-j6-vI1"/>
                     </constraints>
                 </imageView>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fM6-1w-nB5">
+                    <rect key="frame" x="325" y="14" width="40" height="40"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="40" id="C2p-pt-iJO"/>
+                        <constraint firstAttribute="width" constant="40" id="xgg-g7-5OO"/>
+                    </constraints>
+                    <state key="normal" image="select"/>
+                </button>
             </subviews>
             <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
             <constraints>
@@ -106,6 +114,7 @@
                 <constraint firstItem="IB9-J1-4Q4" firstAttribute="leading" secondItem="evD-nM-dgS" secondAttribute="leading" id="B6r-Mb-cbo"/>
                 <constraint firstItem="evD-nM-dgS" firstAttribute="leading" secondItem="UDA-ew-ZG0" secondAttribute="leading" id="EvC-9Q-w65"/>
                 <constraint firstItem="t4x-SE-A3J" firstAttribute="top" secondItem="ugB-kp-ylM" secondAttribute="bottom" constant="17" id="FyD-Ko-OAa"/>
+                <constraint firstAttribute="trailing" secondItem="fM6-1w-nB5" secondAttribute="trailing" constant="10" id="QrF-Ih-9py"/>
                 <constraint firstAttribute="trailing" secondItem="t4x-SE-A3J" secondAttribute="trailing" constant="16" id="RTn-os-5Jp"/>
                 <constraint firstItem="UDA-ew-ZG0" firstAttribute="top" secondItem="evD-nM-dgS" secondAttribute="bottom" constant="2" id="Yfo-GH-gBI"/>
                 <constraint firstItem="ugB-kp-ylM" firstAttribute="baseline" secondItem="gLJ-9i-6Oc" secondAttribute="baseline" id="ZSH-Xa-ldC"/>
@@ -120,6 +129,7 @@
                 <constraint firstItem="v3V-Kp-bIw" firstAttribute="leading" secondItem="yAL-dh-q9J" secondAttribute="leadingMargin" id="uC3-fH-EFv"/>
                 <constraint firstItem="v3V-Kp-bIw" firstAttribute="centerY" secondItem="yAL-dh-q9J" secondAttribute="centerY" id="wRZ-5S-RiL"/>
                 <constraint firstAttribute="bottom" secondItem="t4x-SE-A3J" secondAttribute="bottom" id="yv4-An-nkT"/>
+                <constraint firstItem="fM6-1w-nB5" firstAttribute="top" secondItem="yAL-dh-q9J" secondAttribute="top" constant="14" id="zQ4-vd-NXx"/>
             </constraints>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
             <connections>
@@ -131,9 +141,13 @@
                 <outlet property="labState" destination="ljC-C3-ZgY" id="ui5-pK-aad"/>
                 <outlet property="labTitle" destination="IB9-J1-4Q4" id="kmm-et-arS"/>
                 <outlet property="quota" destination="evD-nM-dgS" id="uRL-47-ldE"/>
+                <outlet property="selected_btn" destination="fM6-1w-nB5" id="6JZ-zx-ff3"/>
                 <outlet property="typelabel" destination="ugB-kp-ylM" id="vEj-rt-Evc"/>
             </connections>
             <point key="canvasLocation" x="14.5" y="93.5"/>
         </view>
     </objects>
+    <resources>
+        <image name="select" width="28" height="28"/>
+    </resources>
 </document>

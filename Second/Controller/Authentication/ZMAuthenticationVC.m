@@ -8,15 +8,21 @@
 
 #import "ZMAuthenticationVC.h"
 #import "ZMAuthorizeQryModel.h"
+#import "CreditInfoModel.h"
 #import <ZMCreditSDK/ALCreditService.h>
+#import "PersonalTailorVC.h"
 typedef NS_ENUM(NSUInteger, ZMAdultIdentityVerifyRequest) {
     ZMAdultIdentityVerifyRequestZM,
     ZMAdultIdentityVerifyRequestZMBack,
+    CreditRequestDetailInfo,
+    HalfWithAllProduct,
 };
 @interface ZMAuthenticationVC ()
 {
     NSDictionary *_zmDict;
 }
+@property (nonatomic, strong)CreditInfoModel *creditInfoModel;
+@property (nonatomic ,copy) NSNumber *isAllProduct;//1全流程 2流程
 @end
 
 @implementation ZMAuthenticationVC
@@ -34,6 +40,7 @@ typedef NS_ENUM(NSUInteger, ZMAdultIdentityVerifyRequest) {
 }
 - (void)viewDidLoad {
     [super viewDidLoad];
+    [TalkingData trackEvent:@"【芝麻信用认证】页"];
     [self prepareDataWithCount:ZMAdultIdentityVerifyRequestZM];
     self.navigationController.interactivePopGestureRecognizer.enabled = NO;
 }
@@ -54,7 +61,7 @@ typedef NS_ENUM(NSUInteger, ZMAdultIdentityVerifyRequest) {
     NSString *str = dict[@"authResult"];
     if ([str isEqualToString:@""]) {
         [self setHudWithName:@"芝麻信用认证失败" Time:0.5 andType:0];
-        [self popToCenterController];
+        [self.navigationController popToRootViewControllerAnimated:YES];
         return;
     }
     
@@ -63,6 +70,7 @@ typedef NS_ENUM(NSUInteger, ZMAdultIdentityVerifyRequest) {
 }
 - (void)popToCenterController
 {
+    
     [[NSNotificationCenter defaultCenter]postNotificationName:@"Refresh" object:self userInfo:nil];
     [self.navigationController popViewControllerAnimated:YES];
 }
@@ -71,14 +79,19 @@ typedef NS_ENUM(NSUInteger, ZMAdultIdentityVerifyRequest) {
 {
     if  (self.requestCount == ZMAdultIdentityVerifyRequestZM) {
         self.cmd = XAuthorizeQry;
-        self.dict = @{};
+        self.dict = [NSDictionary dictionary];
     }else if (self.requestCount == ZMAdultIdentityVerifyRequestZMBack) {
         self.cmd = XZhimaCallBack;
         NSString *paramsStr = _zmDict[@"params"];
         NSString *sign = _zmDict[@"sign"];
         sign = [sign stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-        self.dict = @{@"params":[paramsStr stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet punctuationCharacterSet]],
-                      @"sign":[sign stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet punctuationCharacterSet]]};
+        self.dict = [NSDictionary dictionaryWithObjectsAndKeys:[paramsStr stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet punctuationCharacterSet]],@"params",[sign stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet punctuationCharacterSet]],@"sign", nil];
+    }else if (self.requestCount ==CreditRequestDetailInfo){
+        self.cmd = XGetCreditInfo;
+        self.dict = [NSDictionary dictionary];
+    }else if(self.requestCount == HalfWithAllProduct){
+        self.cmd  = XGetSpecialLoanProList;
+        self.dict =@{@"query_type":self.isAllProduct};
     }
 }
 
@@ -91,7 +104,31 @@ typedef NS_ENUM(NSUInteger, ZMAdultIdentityVerifyRequest) {
         [self launchSDK];
     }else if (self.requestCount == ZMAdultIdentityVerifyRequestZMBack) {
         [self setHudWithName:response.errMsg Time:0.5 andType:0];
+        if (self.isBlock.integerValue == 1) {
+            [self prepareDataWithCount:CreditRequestDetailInfo];
+            return;
+        }
         [self popToCenterController];
+    }else if (self.requestCount ==CreditRequestDetailInfo){
+        [[CreditInfoModel sharedInstance]saveCreditStateInfo:[CreditInfoModel mj_objectWithKeyValues:response.content]];
+        if ([CreditState creditStateWith:self.creditInfoModel]) {
+            self.isAllProduct = @1;
+        }else{
+            self.isAllProduct = @2;
+        }
+        [self prepareDataWithCount:HalfWithAllProduct];
+    }else if(self.requestCount == HalfWithAllProduct){
+        NSNumber *row = response.content[@"loan_pro_list_count"];
+        if(row.integerValue > 0){
+            PersonalTailorVC *vc = [[PersonalTailorVC alloc]init];
+            vc.isAllProduct = self.isAllProduct;
+            [self.navigationController pushViewController:vc animated:YES];
+            return;
+        }
+        if (self.isBlock.integerValue == 1) {
+            [CreditState selectCreaditState:self with:self.creditInfoModel];
+            return;
+        }
     }
 }
 
@@ -109,5 +146,11 @@ typedef NS_ENUM(NSUInteger, ZMAdultIdentityVerifyRequest) {
         [super requestFaildWithDictionary:response];
         
     }
+}
+- (CreditInfoModel *)creditInfoModel{
+    if (!_creditInfoModel) {
+        _creditInfoModel = [[CreditInfoModel sharedInstance]getCreditStateInfo];
+    }
+    return _creditInfoModel;
 }
 @end

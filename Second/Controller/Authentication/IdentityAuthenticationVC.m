@@ -13,10 +13,13 @@
 #import "IdCardModel.h"
 #import "AuthorizationView.h"
 #import "XRootWebVC.h"
+#import "PersonalTailorVC.h"
 
 typedef NS_ENUM(NSUInteger, AdultIdentityVerifyRequest) {
     AdultIdentityVerifySubmitInfo,//提交姓名与身份证号
     AdultIdentityVerifyRequestNotificationInfo,//请求订单号和回调地址
+    CreditRequestDetailInfo,
+    HalfWithAllProduct,
     
 };
 @interface IdentityAuthenticationVC ()<UDIDSafeAuthDelegate>
@@ -30,6 +33,8 @@ typedef NS_ENUM(NSUInteger, AdultIdentityVerifyRequest) {
 //@property (nonatomic,retain)AuthorizationBtnOnClick AuthorizationBtnOnClick;
 @property (nonatomic, strong) ClientGlobalInfoRM *clientGlobalInfoModel;
 @property (nonatomic, strong) AuthorizationView *authView;
+@property (nonatomic, strong) IdCardModel *idCardModel;
+@property (nonatomic ,copy) NSNumber *isAllProduct;//1全流程 2流程
 @end
 
 @implementation IdentityAuthenticationVC
@@ -67,7 +72,7 @@ typedef NS_ENUM(NSUInteger, AdultIdentityVerifyRequest) {
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
+    [TalkingData trackEvent:@"【身份信息认证】页"];
     if (self.creditInfoModel.identity_status.integerValue == 1) {//判断是否认证过
         [self setStatusUI];
     }else{
@@ -76,7 +81,7 @@ typedef NS_ENUM(NSUInteger, AdultIdentityVerifyRequest) {
 }
 - (void)setStatusUI{
     UILabel *nameLab = [UILabel new];
-    nameLab.text = self.creditInfoModel.true_name;
+    [nameLab setText:self.creditInfoModel.true_name];
     nameLab.font = [UIFont fontWithName:@"PingFangSC-Medium" size:AdaptationWidth(30)];
     nameLab.textColor = XColorWithRBBA(34, 58, 80, 0.8);
     [self.view addSubview:nameLab];
@@ -311,8 +316,8 @@ typedef NS_ENUM(NSUInteger, AdultIdentityVerifyRequest) {
 //            _identityCardNum = [userInfo objectForKey:@"id_no"] ? [NSString stringWithFormat:@"%@",[userInfo objectForKey:@"id_no"]] : @"";
 //            _gender =  [userInfo objectForKey:@"flag_sex"] ? [NSString stringWithFormat:@"%@",[userInfo objectForKey:@"flag_sex"]] : @"";
             
-            [[IdCardModel sharedInstance] mj_setKeyValues:userInfo];
-            
+//            [[IdCardModel sharedInstance] mj_setKeyValues:userInfo];
+            self.idCardModel = [IdCardModel mj_objectWithKeyValues:userInfo];
             [self prepareDataWithCount:AdultIdentityVerifySubmitInfo];
         }else{
             [self setHudWithName:@"身份认证失败，请重新认证！" Time:1.0 andType:0];
@@ -329,12 +334,21 @@ typedef NS_ENUM(NSUInteger, AdultIdentityVerifyRequest) {
 {
     if (self.requestCount == AdultIdentityVerifyRequestNotificationInfo) {
         self.cmd = XGetIdCardVerifyParams;
-        self.dict = @{};
+        self.dict = [NSDictionary dictionary];
         
     }else if (self.requestCount == AdultIdentityVerifySubmitInfo) {
         self.cmd = XPostIdCardInfo;
-        self.dict = @{@"identity_card":[IdCardModel sharedInstance].id_no,@"true_name":[IdCardModel sharedInstance].id_name,@"gender":[IdCardModel sharedInstance].flag_sex};
+        self.dict = [NSDictionary dictionaryWithObjectsAndKeys:
+                     self.idCardModel.id_no,@"identity_card",
+                     self.idCardModel.id_name,@"true_name",
+                     self.idCardModel.flag_sex,@"gender", nil];
         
+    }else if (self.requestCount ==CreditRequestDetailInfo){
+        self.cmd = XGetCreditInfo;
+        self.dict = [NSDictionary dictionary];
+    }else if(self.requestCount == HalfWithAllProduct){
+        self.cmd  = XGetSpecialLoanProList;
+        self.dict =@{@"query_type":self.isAllProduct};
     }
 }
 
@@ -345,7 +359,38 @@ typedef NS_ENUM(NSUInteger, AdultIdentityVerifyRequest) {
         [self launchUDSDKWithDictionary:response.content];
     }else if (self.requestCount == AdultIdentityVerifySubmitInfo) {
         [self setHudWithName:@"身份证认证成功" Time:0.5 andType:3];
+        if (self.isBlock.integerValue) {
+            [self prepareDataWithCount:CreditRequestDetailInfo];
+            return;
+        }
         [self popToCenterController];
+        
+    }else if (self.requestCount ==CreditRequestDetailInfo){
+        [[CreditInfoModel sharedInstance]saveCreditStateInfo:[CreditInfoModel mj_objectWithKeyValues:response.content]];
+        if ([CreditState creditStateWith:self.creditInfoModel]) {
+            self.isAllProduct = @1;
+        }else{
+            self.isAllProduct = @2;
+        }
+        [self prepareDataWithCount:HalfWithAllProduct];
+
+    }else if (self.requestCount == HalfWithAllProduct){
+        NSNumber *row = response.content[@"loan_pro_list_count"];
+        if(row.integerValue > 0){
+            PersonalTailorVC *vc = [[PersonalTailorVC alloc]init];
+            vc.isAllProduct = self.isAllProduct;
+            [self.navigationController pushViewController:vc animated:YES];
+            return;
+        }
+        
+        if (self.isBlock.integerValue == 1) {
+            [CreditState selectCreaditState:self with:self.creditInfoModel];
+            return;
+        }
+        if (self.isBlock.integerValue == 3) {
+            [CreditState selectIdentityCreaditState:self];
+            return;
+        }
     }
 }
 
@@ -355,10 +400,23 @@ typedef NS_ENUM(NSUInteger, AdultIdentityVerifyRequest) {
     }
     return _clientGlobalInfoModel;
 }
+- (IdCardModel *)idCardModel{
+    if (!_idCardModel) {
+        _idCardModel  = [[IdCardModel alloc]init];
+    }
+    return _idCardModel;
+}
 - (void)popToCenterController
 {
+    
     [[NSNotificationCenter defaultCenter]postNotificationName:@"Refresh" object:self userInfo:nil];
     [self.navigationController popViewControllerAnimated:YES];
+}
+- (CreditInfoModel *)creditInfoModel{
+    if (!_creditInfoModel) {
+        _creditInfoModel = [[CreditInfoModel sharedInstance]getCreditStateInfo];
+    }
+    return _creditInfoModel;
 }
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];

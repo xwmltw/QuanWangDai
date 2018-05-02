@@ -18,24 +18,29 @@ typedef NS_ENUM(NSUInteger, ApplicantManVCRequest) {
     ApplicantManVCPost,
     ApplicantManVCGet,
     ApplicantManVCLoanProList,
+    HalfWithAllProduct,
+    CreditRequestDetailInfo
 };
 @interface ApplicantManVC ()<XChooseBankPickerViewDelegate>
 {
     NSArray *dataArry;
     XChooseBankView *pickerView;
     NSInteger pickerRow;
+    
 }
 @property (nonatomic, strong) NSDictionary *dataDic;
 @property (nonatomic, strong) NSDictionary *otherdataDic;
 @property (nonatomic, strong) ApplicantModel *applicantModel;
 @property (nonatomic, strong) ClientGlobalInfoRM *clientGlobalInfoModel;
 @property (nonatomic, strong) AuthorizationView *authView;
+@property (nonatomic ,copy) NSNumber *isAllProduct;//1全流程 2流程
 @end
 
 @implementation ApplicantManVC
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    [TalkingData trackEvent:@"【申请人资质】页"];
     [self prepareDataWithCount:ApplicantManVCGet];
     [self createTableViewWithFrame:CGRectZero];
     [self.tableView mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -408,7 +413,7 @@ typedef NS_ENUM(NSUInteger, ApplicantManVCRequest) {
 {
     if (self.requestCount == ApplicantManVCGet) {
         self.cmd = XGetLoanQualificationInfo;
-        self.dict = @{};
+        self.dict = [NSDictionary dictionary];
         
     }else if (self.requestCount == ApplicantManVCPost) {
         self.cmd = XPostLoanQualificationInfo;
@@ -420,6 +425,12 @@ typedef NS_ENUM(NSUInteger, ApplicantManVCRequest) {
                                       },
                      @"query_entry_type":@(2)
                      };
+    }else if(self.requestCount == HalfWithAllProduct){
+        self.cmd  = XGetSpecialLoanProList;
+        self.dict =@{@"query_type":self.isAllProduct};
+    }else if(self.requestCount == CreditRequestDetailInfo){
+        self.cmd = XGetCreditInfo;
+        self.dict = [NSDictionary dictionary];
     }
 }
 
@@ -427,14 +438,21 @@ typedef NS_ENUM(NSUInteger, ApplicantManVCRequest) {
     if (self.requestCount == ApplicantManVCGet) {
         self.applicantModel = [ApplicantModel mj_objectWithKeyValues:response.content];
         [self setupdata];
+        [self.tableView reloadData];
     }else if (self.requestCount == ApplicantManVCPost) {
         [self setHudWithName:@"提交成功" Time:1 andType:0];
+        if (self.isBlock.integerValue == 1) {
+            
+            [self prepareDataWithCount:CreditRequestDetailInfo];
+            
+            return;
+        }
         [self prepareDataWithCount:ApplicantManVCLoanProList];
         return;
     }else if (self.requestCount == ApplicantManVCLoanProList){
-        [self.dataSourceArr addObjectsFromArray:response.content[@"loan_pro_list"]];
+        NSNumber *row = response.content[@"loan_pro_list_count"];
         if(self.comeFrom.integerValue == 1){
-            if (self.dataSourceArr.count > 0) {//判断是否有可推荐的产品
+            if (row.integerValue > 0) {//判断是否有可推荐的产品
                 PersonalTailorVC *vc = [[PersonalTailorVC alloc]init];
                 [self.navigationController pushViewController:vc animated:YES];
                 return;
@@ -442,8 +460,31 @@ typedef NS_ENUM(NSUInteger, ApplicantManVCRequest) {
         }
         [self.navigationController popViewControllerAnimated:NO];
         [[NSNotificationCenter defaultCenter]postNotificationName:@"Refresh" object:self userInfo:nil];
+    }else if (self.requestCount == HalfWithAllProduct){
+        
+        NSNumber *row = response.content[@"loan_pro_list_count"];
+        
+        if(row.integerValue > 0){
+            PersonalTailorVC *vc = [[PersonalTailorVC alloc]init];
+            vc.isAllProduct = self.isAllProduct;
+            [self.navigationController pushViewController:vc animated:YES];
+            return;
+        }
+        [CreditState selectCreaditState:self with:self.creditInfoModel];
+        
+        
+        
+    }else if(self.requestCount == CreditRequestDetailInfo){
+         [[CreditInfoModel sharedInstance]saveCreditStateInfo:[CreditInfoModel mj_objectWithKeyValues:response.content]];
+        if ([CreditState creditStateWith:self.creditInfoModel]) {
+            self.isAllProduct = @1;
+        }else{
+            self.isAllProduct = @2;
+        }
+        [self prepareDataWithCount:HalfWithAllProduct];
+ 
     }
-    [self.tableView reloadData];
+    
 }
 -(void)requestFaildWithDictionary:(XResponse *)response{
 //    [self setHudWithName:response.errMsg Time:2 andType:1];
@@ -477,7 +518,12 @@ typedef NS_ENUM(NSUInteger, ApplicantManVCRequest) {
                      @[@"高中",@"大专",@"本科",@"硕士",@"博士",@"其他"]];
     }
 }
-
+- (CreditInfoModel *)creditInfoModel{
+    if (!_creditInfoModel) {
+        _creditInfoModel = [[CreditInfoModel sharedInstance]getCreditStateInfo];
+    }
+    return _creditInfoModel;
+}
 -(ApplicantModel *)applicantModel{
     if (!_applicantModel) {
         _applicantModel = [[ApplicantModel alloc]init];

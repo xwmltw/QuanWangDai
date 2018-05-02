@@ -1023,7 +1023,7 @@ const NSInteger kMaxColumnsInMenu = 5;
 
 - (void)confiMenuWithSelectRow:(NSInteger)row leftOrRight:(NSInteger)leftOrRight{
     CATextLayer *title = (CATextLayer *)_titles[_currentSelectedMenudIndex];
-//    title.string = [self.dataSource menu:self titleForRowAtIndexPath:[JSIndexPath indexPathWithCol:self.currentSelectedMenudIndex leftOrRight:leftOrRight leftRow:_leftSelectedRow row:row]];
+    title.string = [self.dataSource menu:self titleForRowAtIndexPath:[JSIndexPath indexPathWithCol:self.currentSelectedMenudIndex leftOrRight:leftOrRight leftRow:_leftSelectedRow row:row]];
     
     if (row == 0) {
         title.string = [self.dataSource menu:self titleForColumn:self.currentSelectedMenudIndex];

@@ -18,11 +18,14 @@
 @property (nonatomic, copy) NSNumber *base_info_status;
 @property (nonatomic, copy) NSNumber *zhima_status;
 @property (nonatomic, copy) NSNumber *operator_status;
+@property (nonatomic, copy) NSNumber *verify_yys_again;
 @property (nonatomic, copy) NSNumber *bank_status;
 @property (nonatomic, copy) NSNumber *loan_info_status;
 @property (nonatomic, copy) NSNumber *company_status;
 @property (nonatomic, copy) NSNumber *applicant_qualification_status;
 + (instancetype)sharedInstance;
+- (void)saveCreditStateInfo:(id)info;
+- (CreditInfoModel *)getCreditStateInfo;
 @end
 //“credit_level”: “xxxx”, // 信用等级 BCDE
 //“complete_schedule”: “50%”, // 资料填写进度
@@ -37,4 +40,5 @@
 //“loan_info_status”: “xxxxxxx”,  //贷款信息填写状态 1已填写 0未填写
 //“company_status”: “xxxxxxx”,  //工作信息填写状态 1已填写 0未填写
 //“applicant_qualification_status”: “xxxxxxx”,  //申请人资质资料填写状态 1已填写 0未填写
+//verify_yys_again”: “xxxx”,  // 是否需要重新运营商认证 1需要0不需要
 

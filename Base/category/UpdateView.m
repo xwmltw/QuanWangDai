@@ -15,7 +15,6 @@
 @property (nonatomic, copy) XIntegerBlock block;
 
 @end
-
 @implementation UpdateView
 - (instancetype)initWithFrame:(CGRect)frame{
     self = [super initWithFrame:frame];

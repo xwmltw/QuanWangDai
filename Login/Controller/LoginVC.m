@@ -14,7 +14,7 @@
 #import "ForgetPwdVC.h"
 #import "NSString+NSHash.h"
 #import "XWMCodeImageView.h"
-
+#import <AudioToolbox/AudioToolbox.h>
 typedef NS_ENUM(NSInteger ,XLoginRequest) {
     XLoginRequestMessageCode,
     XLoginRequestSignIn,
@@ -279,6 +279,15 @@ typedef NS_ENUM(NSInteger ,XLoginRequest) {
  *  密码切换显示
  */
 - (void)securePasswordClick:(UIButton *)sender{
+    if (@available(iOS 10.0, *)) {
+        UIImpactFeedbackGenerator *generator = [[UIImpactFeedbackGenerator alloc] initWithStyle: UIImpactFeedbackStyleLight];
+        [generator prepare];
+        [generator impactOccurred];
+    } else {
+        // Fallback on earlier versions
+    }
+    
+//    AudioServicesPlaySystemSound(1520);
     sender.selected = !sender.selected;
     if (sender.selected) {
         _pwdTextAccount.secureTextEntry = NO;
@@ -822,15 +831,13 @@ typedef NS_ENUM(NSInteger ,XLoginRequest) {
         self.cmd = XUserLogin;
         
         NSString *str =[[[NSString stringWithFormat:@"%@%@",_pwdTextAccount.text,[XSessionMgr sharedInstance].challenge]MD5] uppercaseString];
-        self.dict = @{@"username":_phoneTextAccount.text,@"password":str};
-        //        ,@"dynamic_sms_code":_verificationTextQuick.text
+        self.dict = [NSDictionary dictionaryWithObjectsAndKeys:_phoneTextAccount.text,@"username",str,@"password", nil];
     }else if (self.requestCount == XLoginRequestMessageCode ){
         self.cmd = XSmsAuthenticationCode;
         self.dict = @{@"phone_num":_phoneTextQuick.text,@"opt_type":@2};
     }else if (self.requestCount == XLoginRequestQuick ){
         self.cmd = XUserLogin;
-        self.dict = @{@"username":_phoneTextQuick.text,
-                      @"dynamic_sms_code":_verificationTextQuick.text};
+        self.dict = [NSDictionary dictionaryWithObjectsAndKeys:_phoneTextQuick.text,@"username",_verificationTextQuick.text,@"dynamic_sms_code", nil];
     }
 }
 - (void)requestSuccessWithDictionary:(XResponse *)response{

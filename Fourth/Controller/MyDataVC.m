@@ -249,7 +249,7 @@ static NSString *identifier = @"myDataCell";
 #pragma  mark - 网络
 - (void)setRequestParams{
     self.cmd = XGetCreditInfo;
-    self.dict = @{};
+    self.dict = [NSDictionary dictionary];
 }
 -(void)requestSuccessWithDictionary:(XResponse *)response{
     self.creditInfoModel = [CreditInfoModel mj_objectWithKeyValues:response.content];

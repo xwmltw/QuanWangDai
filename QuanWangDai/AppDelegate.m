@@ -24,6 +24,7 @@
 // 如果需要使用idfa功能所需要引入的头文件（可选）
 #import <AdSupport/AdSupport.h>
 
+#import "MyViewController.h"
 
 
 
@@ -89,7 +90,24 @@
     self.window.rootViewController = vc;
     [self.window makeKeyAndVisible];
     
-    
+    NSDictionary *activityDictionary = [launchOptions objectForKey:UIApplicationLaunchOptionsUserActivityDictionaryKey];
+    if (activityDictionary) {
+        NSUserActivity *userActivity = [activityDictionary valueForKey:@"UIApplicationLaunchOptionsUserActivityKey"];
+        if ([userActivity.activityType isEqualToString:NSUserActivityTypeBrowsingWeb]) {
+            NSURL *webUrl = userActivity.webpageURL;
+            if ([webUrl.query rangeOfString:@"ProductDetailVC"].location != NSNotFound) {
+                //            NSString *str = webUrl.query
+                NSRange range = [webUrl.query rangeOfString:@"loan_pro_id="];
+                NSString *str = [webUrl.query substringFromIndex:(range.location+range.length)];
+                [WDNotificationCenter postNotificationName:@"ActivityProductVC" object:nil userInfo:@{@"url":str}];
+                
+//                MyViewController *vc = [[MyViewController alloc]init];
+//                [self.window.rootViewController presentViewController:vc animated:YES completion:nil];
+            }
+           
+            return YES;
+        }
+    }
     
     return YES;
 }
@@ -268,10 +286,10 @@
                 NSString * FirstSeparateString=@"\"&";
                 NSString *  SecondSeparateString=@"=\"";
                 NSMutableDictionary *dic=[self setComponentsStringToDic:allString withSeparateString:FirstSeparateString AndSeparateString:SecondSeparateString];
-                NSLog(@"ali=%@",dic);
-                if ([dic[@"success"]isEqualToString:@"true"]) {
+                MyLog(@"ali=%@",dic);
+//                if ([dic[@"msg"]isEqualToString:@"success"]) {
                     [[NSNotificationCenter defaultCenter] postNotificationName:@"AliPaySucceed" object:nil userInfo:@{@"success":@"支付成功"}];
-                }
+//                }
             }else{
                 NSString *returnStr;
                 switch (orderState) {
@@ -315,6 +333,22 @@
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     // Saves changes in the application's managed object context before the application terminates.
     [self saveContext];
+}
+-(BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void (^)(NSArray * _Nullable))restorationHandler{
+    
+    NSLog(@"userActivity : %@",userActivity.webpageURL.description);
+    if ([userActivity.activityType isEqualToString:NSUserActivityTypeBrowsingWeb]) {
+        NSURL *webUrl = userActivity.webpageURL;
+        if ([webUrl.query rangeOfString:@"ProductDetailVC"].location != NSNotFound) {
+//            NSString *str = webUrl.query
+            NSRange range = [webUrl.query rangeOfString:@"loan_pro_id="];
+            NSString *str = [webUrl.query substringFromIndex:(range.location+range.length)];
+            [WDNotificationCenter postNotificationName:@"ActivityProductVC" object:nil userInfo:@{@"url":str}];
+        }
+    }
+    
+    
+    return YES;
 }
 
 

@@ -12,7 +12,6 @@
 
 @property (nonatomic, copy) NSString *md5_hash;
 @property (nonatomic, strong) NSArray *special_entry_list;
-
 + (instancetype)sharedInstance;
 - (void)saveSpecialEntryModel:(id)info;
 - (SpecialEntryModel *)getSpecialEntryModel;
@@ -25,7 +24,7 @@
 //    “special_entry_type”:<int>特色入口类型
 //    “special_entry_url”:<string>特色入口url
 //    “special_entry_icon”:<string>特色入口图标url
-//
+//查询特色入口接口增加下发字段list_properties，// 列表属性  1 表示产品标签,2 产品分类
 //    special_entry_type=3时下发下面字段：
 //    “loan_product_type”: xxx // 产品分类：1,2,3,4,5(ABCDE)
 //    “loan_classify_ids_str”: xxx, // 贷款类型id字串 (例如：11,12,13)

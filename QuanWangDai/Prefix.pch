@@ -62,6 +62,7 @@
 
 /** 通知 */
 #define WDNotificationCenter [NSNotificationCenter defaultCenter]
+
 #define WDUserDefaults       [NSUserDefaults standardUserDefaults]
 
 /** 单例*/

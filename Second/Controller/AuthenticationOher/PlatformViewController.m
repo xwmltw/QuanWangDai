@@ -29,6 +29,7 @@
 }
 - (void)viewDidLoad {
     [super viewDidLoad];
+    [TalkingData trackEvent:@"【第三方借贷信息】页"];
     /** 请求数据 */
     [self prepareDataWithCount:1];
     /** 表视图 */
@@ -158,6 +159,7 @@
 #pragma mark - UITabelViewDelegate
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    
     PlatformDetailViewController *detail = [[PlatformDetailViewController alloc]init];
     detail.name = self.modelArr[indexPath.row];
     detail.model = self.model.loan_plat_list[indexPath.row];
@@ -176,7 +178,7 @@
 - (void)setRequestParams
 {
     self.cmd = XGetLoanPlatInfo;
-    self.dict = @{};
+    self.dict = [NSDictionary dictionary];
 }
 - (void)requestSuccessWithDictionary:(XResponse *)response
 {

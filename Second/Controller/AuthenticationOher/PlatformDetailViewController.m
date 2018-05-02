@@ -237,11 +237,11 @@
     self.cmd  = XPostLoanPlatInfo;
     UITextField *account = [self.view viewWithTag:1000];
     UITextField *password = [self.view viewWithTag:1001];
-    self.dict = @{@"plat_account"    :account.text,
-                  @"plat_account_pwd":password.text,
-                  @"plat_type"       :self.model.plat_type,
-                  @"plat_info_id"    :self.model.plat_info_id > 0 ? self.model.plat_info_id : @""
-                  };
+    self.dict = [NSDictionary dictionaryWithObjectsAndKeys:
+                 account.text,@"plat_account",
+                 password.text,@"plat_account_pwd",
+                 self.model.plat_type,@"plat_type",
+                 self.model.plat_info_id > 0 ? self.model.plat_info_id : @"",@"plat_info_id", nil];
 }
 - (void)requestSuccessWithDictionary:(XResponse *)response
 {

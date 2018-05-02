@@ -14,7 +14,7 @@
 #import "RsaHelper.h"
 #import "ParamModel.h"
 #import "XRootWebVC.h"
-
+#import <AudioToolbox/AudioToolbox.h>
 typedef NS_ENUM(NSInteger , XRegisterReuqst) {
     XRegisterReuqstMessageCode,
     XRegisterReuqstRegist,
@@ -365,6 +365,14 @@ typedef NS_ENUM(NSInteger , XRegisterReuqst) {
  *  密码切换显示
  */
 - (void)securePasswordClick:(UIButton *)sender{
+    if (@available(iOS 10.0, *)) {
+        UIImpactFeedbackGenerator *generator = [[UIImpactFeedbackGenerator alloc] initWithStyle: UIImpactFeedbackStyleLight];
+        [generator prepare];
+        [generator impactOccurred];
+    } else {
+        // Fallback on earlier versions
+    }
+//    AudioServicesPlaySystemSound(1520);
     sender.selected = !sender.selected;
     if (sender.selected) {
         _pwdTextAccount.secureTextEntry = NO;
@@ -430,21 +438,24 @@ typedef NS_ENUM(NSInteger , XRegisterReuqst) {
         
         NSString *pwdStr = _pwdTextAccount.text;
         NSData* passDada = [RsaHelper encryptString:pwdStr publicKey:nil];
-        
+        NSString *str = [SecurityUtil bytesToHexString:passDada];
         self.cmd = XRegistUserByPhoneNum;
-        self.dict = @{@"phone_num":_phoneTextAccount.text,
-                      @"password":[SecurityUtil bytesToHexString:passDada],
-                      @"sms_authentication_code":_verificationText.text};
+        self.dict = @{@"phone_num":_phoneTextAccount.text,@"password":str,@"sms_authentication_code":_verificationText.text};
+//        self.dict = [NSDictionary dictionaryWithObjectsAndKeys:
+//                     _phoneTextAccount.text,@"phone_num",
+//                     str,"password",
+//                     _verificationText.text,@"sms_authentication_code", nil];
+
     
     }else if (self.requestCount == XRegisterReuqstMessageCode){
         self.cmd = XSmsAuthenticationCode;
-        self.dict = @{@"phone_num":_phoneTextAccount.text,@"opt_type":@1};
+        self.dict = [NSDictionary dictionaryWithObjectsAndKeys:_phoneTextAccount.text,@"phone_num",@1,@"opt_type",nil];
     }else if(self.requestCount == 100){
         self.cmd = XGrantAuthorization;
-        self.dict = @{@"opt_type":@"2"};
+        self.dict = [NSDictionary dictionaryWithObjectsAndKeys:@"2",@"opt_type", nil];
     }else if (self.requestCount == 101){
         self.cmd = XGrantAuthorization;
-        self.dict = @{@"opt_type":@"2"};
+        self.dict = [NSDictionary dictionaryWithObjectsAndKeys:@"2",@"opt_type", nil];
     }
 }
 -(void)requestSuccessWithDictionary:(XResponse *)response{
@@ -454,9 +465,9 @@ typedef NS_ENUM(NSInteger , XRegisterReuqst) {
         [TalkingData onRegister:_phoneTextAccount.text type:TDAccountTypeRegistered name:@"全网贷"];
         
         [[UserInfo sharedInstance]savePhone:_phoneTextAccount.text password:_pwdTextAccount.text userId:@"100" grantAuthorization:response.content[@"has_grant_authorization"]];
-        if (self.clientGlobalInfoRM.recomment_entry_hide.integerValue != 1){
-            [self showAlertView];
-        }
+//        if (self.clientGlobalInfoRM.recomment_entry_hide.integerValue != 1){
+//            [self showAlertView];
+//        }
         [self.navigationController popToRootViewControllerAnimated:YES];
         
         

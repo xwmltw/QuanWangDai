@@ -17,12 +17,18 @@
 #import "AuthorizationVC.h"
 #import "XCacheHelper.h"
 #import "AutoScrollLabel.h"
+#import "ApplyRecordController.h"
+#import "BuyRecordController.h"
 typedef NS_ENUM(NSInteger ,MineTableViewCell) {
     MineTableViewCellHelp,
     MineTableViewCellModifyPwd,
     MineTableViewCellAboutMe,
     MineTableViewCellauthorization,
     MineTableViewCellGetOut,
+};
+typedef NS_ENUM(NSInteger ,MineTableViewCell2) {
+	MineTableViewCellApplyRecord,
+	MineTableViewCellBuyRecord,
 };
 typedef NS_ENUM(NSInteger ,MineRequest) {
     MineRequestGetOut,
@@ -35,12 +41,18 @@ typedef NS_ENUM(NSInteger,MineBtnOnClick) {
 @interface MyViewController ()
 @property (nonatomic, strong) ClientGlobalInfoRM *clientGlobalInfoModel;
 @property (nonatomic,strong) UILabel *phoneLab;
-
+@property (nonatomic,strong) NSMutableArray *recordArr;
 @end
 
 @implementation MyViewController
 {
     UIImageView *bgImage;
+}
+-(NSMutableArray *)recordArr{
+	if (!_recordArr) {
+		_recordArr = [NSMutableArray array];
+	}
+	return _recordArr;
 }
 -(ClientGlobalInfoRM *)clientGlobalInfoModel{
     if (!_clientGlobalInfoModel) {
@@ -58,7 +70,7 @@ typedef NS_ENUM(NSInteger,MineBtnOnClick) {
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
+    [TalkingData trackEvent:@"【我的】页"];
     [self getData];
     [self createTableViewWithFrame:CGRectZero];
     [self.tableView mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -75,6 +87,10 @@ typedef NS_ENUM(NSInteger,MineBtnOnClick) {
     }
 }
 - (void)getData{
+	[self.recordArr removeAllObjects];
+	[self.recordArr addObject:@(MineTableViewCellApplyRecord)];
+	[self.recordArr addObject:@(MineTableViewCellBuyRecord)];
+	
     [self.dataSourceArr removeAllObjects];
     [self.dataSourceArr addObject:@(MineTableViewCellHelp)];
     [self.dataSourceArr addObject:@(MineTableViewCellModifyPwd)];
@@ -245,8 +261,37 @@ typedef NS_ENUM(NSInteger,MineBtnOnClick) {
     }
     return view;
 }
+-(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
+	return 2;
+}
+-(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
+	UIView *view = [UIView new];
+	view.backgroundColor = XColorWithRBBA(248, 249, 250, 1);
+	return view;
+}
+-(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
+	if (section == 0) {
+		return 0.1;
+	}
+	return 10;
+}
+- (nullable UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section{
+	UIView *view = [UIView new];
+	return view;
+}
+-(CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section{
+	if (section == 0) {
+		return 1;
+	}
+	return 0.1;
+}
 - (NSInteger )tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-    return self.dataSourceArr.count;
+	if (section == 0) {
+		return self.recordArr.count;
+	}else{
+		return self.dataSourceArr.count;
+	}
+	
 }
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
     return AdaptationWidth(64);
@@ -261,8 +306,7 @@ typedef NS_ENUM(NSInteger,MineBtnOnClick) {
 //    cell.selectionStyle = UITableViewCellSelectionStyleNone;
     cell.selectedBackgroundView = [[UIImageView alloc] initWithImage:nil];
     cell.selectedBackgroundView.backgroundColor = XColorWithRGB(248, 249, 250);
-    MineTableViewCell row = [self.dataSourceArr[indexPath.row]integerValue];
-    
+	
     UILabel *lab = [[UILabel alloc]init];
     [lab setFont:[UIFont fontWithName:@"PingFangSC-Regular" size:AdaptationWidth(18)]];
     [lab setTextColor:XColorWithRBBA(34, 58, 80, 0.8)];
@@ -271,9 +315,18 @@ typedef NS_ENUM(NSInteger,MineBtnOnClick) {
     UIImageView *Image = [[UIImageView alloc]init];
     [cell addSubview:Image];
     
-    UIView *line = [[UIView alloc]init];
-    line.backgroundColor = XColorWithRGB(233, 233, 235);
-    [cell addSubview:line];
+    if ((indexPath.section == 0 && indexPath.row !=1) || indexPath.section == 1) {
+        UIView *line = [[UIView alloc]init];
+        line.backgroundColor = XColorWithRGB(233, 233, 235);
+        [cell addSubview:line];
+        
+        [line mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.mas_equalTo(cell).offset(AdaptationWidth(24));
+            make.right.mas_equalTo(cell).offset(-AdaptationWidth(24));
+            make.height.mas_equalTo(0.5);
+            make.bottom.mas_equalTo(cell);
+        }];
+    }
     
     _phoneLab = [[UILabel alloc]init];
     [_phoneLab setFont:[UIFont fontWithName:@"PingFangSC-Regular" size:AdaptationWidth(12)]];
@@ -289,58 +342,75 @@ typedef NS_ENUM(NSInteger,MineBtnOnClick) {
         make.right.mas_equalTo(cell).offset(-AdaptationWidth(24));
         make.centerY.mas_equalTo(cell);
     }];
-    [line mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.mas_equalTo(cell).offset(AdaptationWidth(24));
-        make.right.mas_equalTo(cell).offset(-AdaptationWidth(24));
-        make.height.mas_equalTo(0.5);
-        make.bottom.mas_equalTo(cell);
-    }];
-    
-    
-    switch (row) {
-        case MineTableViewCellHelp:{
-            
-            [lab setText:@"帮助与反馈"];
-            [Image setImage:[UIImage imageNamed:@"mine_help"]];
-            
-        }
-            break;
-        case MineTableViewCellModifyPwd:{
-            [lab setText:@"修改密码"];
-            [Image setImage:[UIImage imageNamed:@"mine_modifyPwd"]];
-        } 
-            break;
-        case MineTableViewCellAboutMe:{
-            [lab setText:@"关于全网贷"];
-            [Image setImage:[UIImage imageNamed:@"mine_aboutMe"]];
-        }
-            break;
-        case MineTableViewCellauthorization:{
-            [lab setText:@"授权设置"];
-            [Image setImage:[UIImage imageNamed:@"mine_Authorization"]];
-        }
-            break;
-            
-        case MineTableViewCellGetOut:{
-            if([[UserInfo sharedInstance]isSignIn] ){
-                NSString *str = [UserInfo sharedInstance].phoneName;
-                _phoneLab.text = [str stringByReplacingCharactersInRange:NSMakeRange(3, 4) withString:@"****"];
-                _phoneLab.hidden = NO;
-            }
-            [lab mas_updateConstraints:^(MASConstraintMaker *make) {
-                make.top.mas_equalTo(cell).offset(AdaptationWidth(10));
-            }];
-            [_phoneLab mas_makeConstraints:^(MASConstraintMaker *make) {
-                make.left.mas_equalTo(lab);
-                make.top.mas_equalTo(lab.mas_bottom).offset(AdaptationWidth(3));
-            }];
-            [lab setText:@"退出账号"];
-            [Image setImage:[UIImage imageNamed:@"mine_getOut"]];
-        }
-            break;
-        default:
-            break;
-    }
+
+	if (indexPath.section == 0) {
+		MineTableViewCell2 row2 = [self.recordArr[indexPath.row]integerValue];
+		switch (row2) {
+			case MineTableViewCellApplyRecord:{
+				[lab setText:@"申请记录"];
+				[Image setImage:[UIImage imageNamed:@"icon_recommand_record"]];
+			}
+				break;
+			case MineTableViewCellBuyRecord:{
+				[lab setText:@"交易记录"];
+				[Image setImage:[UIImage imageNamed:@"icon_trade_record"]];
+			}
+				break;
+				
+			default:
+				break;
+		}
+	}else{
+		MineTableViewCell row = [self.dataSourceArr[indexPath.row]integerValue];
+		switch (row) {
+				
+			case MineTableViewCellHelp:{
+				
+				[lab setText:@"帮助与反馈"];
+				[Image setImage:[UIImage imageNamed:@"mine_help"]];
+				
+			}
+				break;
+			case MineTableViewCellModifyPwd:{
+				[lab setText:@"修改密码"];
+				[Image setImage:[UIImage imageNamed:@"mine_modifyPwd"]];
+			}
+				break;
+			case MineTableViewCellAboutMe:{
+				[lab setText:@"关于全网贷"];
+				[Image setImage:[UIImage imageNamed:@"mine_aboutMe"]];
+			}
+				break;
+			case MineTableViewCellauthorization:{
+				[lab setText:@"授权设置"];
+				[Image setImage:[UIImage imageNamed:@"mine_Authorization"]];
+			}
+				break;
+				
+			case MineTableViewCellGetOut:{
+				if([[UserInfo sharedInstance]isSignIn] ){
+					NSString *str = [UserInfo sharedInstance].phoneName;
+					_phoneLab.text = [str stringByReplacingCharactersInRange:NSMakeRange(3, 4) withString:@"****"];
+					_phoneLab.hidden = NO;
+				}
+				[lab mas_updateConstraints:^(MASConstraintMaker *make) {
+					make.top.mas_equalTo(cell).offset(AdaptationWidth(10));
+				}];
+				[_phoneLab mas_makeConstraints:^(MASConstraintMaker *make) {
+					make.left.mas_equalTo(lab);
+					make.top.mas_equalTo(lab.mas_bottom).offset(AdaptationWidth(3));
+				}];
+				[lab setText:@"退出账号"];
+				[Image setImage:[UIImage imageNamed:@"mine_getOut"]];
+			}
+				break;
+			default:
+				break;
+		}
+	}
+
+	
+	
     
     
     return cell;
@@ -348,73 +418,104 @@ typedef NS_ENUM(NSInteger,MineBtnOnClick) {
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
     
     [tableView deselectRowAtIndexPath:indexPath animated:YES];// 取消选中
-    MineTableViewCell row = [self.dataSourceArr[indexPath.row]integerValue];
-    switch (row) {
-        case MineTableViewCellHelp:{
-           
-            OpinionFeedBackVC *vc = [[OpinionFeedBackVC alloc]init];
-            vc.hidesBottomBarWhenPushed = YES;
-            [self.navigationController pushViewController:vc animated:YES];
-        }
-            
-            break;
-        case MineTableViewCellModifyPwd:{
-            if(![[UserInfo sharedInstance]isSignIn] ){
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self getBlackLogin:self];//判断是否登录状态
-                });
-                return;
-            }
-            ModifyPwdVC *vc = [[ModifyPwdVC alloc]init];
-            vc.hidesBottomBarWhenPushed = YES;
-            [self.navigationController pushViewController:vc animated:YES];
-        }
-            break;
-        case MineTableViewCellAboutMe:{
-            XRootWebVC *vc = [[XRootWebVC alloc]init];
-            vc.hidesBottomBarWhenPushed = YES;
-            NSString * about_qwd_url = self.clientGlobalInfoModel.wap_url_list.about_qwd_url;
-            NSString *version = [XDeviceHelper getAppBundleVersion];
-            NSString * about_qwd_url2 = [about_qwd_url stringByAppendingFormat:@"?version=%@&clientType=2",version];
-            vc.url = about_qwd_url2;
-            [self.navigationController pushViewController:vc animated:YES];
-        }
-            
-            break;
-        case MineTableViewCellauthorization:{
-            if(![[UserInfo sharedInstance]isSignIn] ){
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self getBlackLogin:self];//判断是否登录状态
-                });
-                return;
-            }
-            AuthorizationVC *vc = [[AuthorizationVC alloc]init];
-            vc.hidesBottomBarWhenPushed = YES;
-            [self.navigationController pushViewController:vc animated:YES];
-        }
-            
-            break;
-        case MineTableViewCellGetOut:{
+	
+	if (indexPath.section == 0 ) {
+        if(![[UserInfo sharedInstance]isSignIn] ){
             dispatch_async(dispatch_get_main_queue(), ^{
-                [XAlertView alertWithTitle:@"温馨提示" message:@"是否退出登录" cancelButtonTitle:@"取消" confirmButtonTitle:@"退出" viewController:self completion:^(UIAlertAction *action, NSInteger buttonIndex) {
-                    if (buttonIndex == 1) {
-                        [self prepareDataWithCount:MineRequestGetOut];
-                    }
-                }];
+                [self getBlackLogin:self];//判断是否登录状态
             });
-            
+            return;
         }
-            break;
-            
-        default:
-            break;
-    }
-    
+		MineTableViewCell2 row2 = [self.recordArr[indexPath.row]integerValue];
+		switch (row2) {
+			case MineTableViewCellApplyRecord:{
+                [TalkingData trackEvent:@"【申请记录】页"];
+				ApplyRecordController *vc = [[ApplyRecordController alloc]init];
+				vc.hidesBottomBarWhenPushed = YES;
+				[self.navigationController pushViewController:vc animated:YES];
+			}
+				break;
+			case MineTableViewCellBuyRecord:{
+                [TalkingData trackEvent:@"【交易记录】页"];
+				BuyRecordController *vc = [[BuyRecordController alloc]init];
+				vc.hidesBottomBarWhenPushed = YES;
+				[self.navigationController pushViewController:vc animated:YES];
+			}
+				break;
+				
+			default:
+				break;
+		}
+	}else{
+		MineTableViewCell row = [self.dataSourceArr[indexPath.row]integerValue];
+		switch (row) {
+				
+			case MineTableViewCellHelp:{
+				
+				OpinionFeedBackVC *vc = [[OpinionFeedBackVC alloc]init];
+				vc.hidesBottomBarWhenPushed = YES;
+				[self.navigationController pushViewController:vc animated:YES];
+			}
+				
+				break;
+			case MineTableViewCellModifyPwd:{
+				if(![[UserInfo sharedInstance]isSignIn] ){
+					dispatch_async(dispatch_get_main_queue(), ^{
+						[self getBlackLogin:self];//判断是否登录状态
+					});
+					return;
+				}
+				ModifyPwdVC *vc = [[ModifyPwdVC alloc]init];
+				vc.hidesBottomBarWhenPushed = YES;
+				[self.navigationController pushViewController:vc animated:YES];
+			}
+				break;
+			case MineTableViewCellAboutMe:{
+				XRootWebVC *vc = [[XRootWebVC alloc]init];
+				vc.hidesBottomBarWhenPushed = YES;
+				NSString * about_qwd_url = self.clientGlobalInfoModel.wap_url_list.about_qwd_url;
+				NSString *version = [XDeviceHelper getAppBundleVersion];
+				NSString * about_qwd_url2 = [about_qwd_url stringByAppendingFormat:@"?version=%@&clientType=2",version];
+				vc.url = about_qwd_url2;
+				[self.navigationController pushViewController:vc animated:YES];
+			}
+				
+				break;
+			case MineTableViewCellauthorization:{
+				if(![[UserInfo sharedInstance]isSignIn] ){
+					dispatch_async(dispatch_get_main_queue(), ^{
+						[self getBlackLogin:self];//判断是否登录状态
+					});
+					return;
+				}
+				AuthorizationVC *vc = [[AuthorizationVC alloc]init];
+				vc.hidesBottomBarWhenPushed = YES;
+				[self.navigationController pushViewController:vc animated:YES];
+			}
+				
+				break;
+			case MineTableViewCellGetOut:{
+				dispatch_async(dispatch_get_main_queue(), ^{
+					[XAlertView alertWithTitle:@"温馨提示" message:@"是否退出登录" cancelButtonTitle:@"取消" confirmButtonTitle:@"退出" viewController:self completion:^(UIAlertAction *action, NSInteger buttonIndex) {
+						if (buttonIndex == 1) {
+							[self prepareDataWithCount:MineRequestGetOut];
+						}
+					}];
+				});
+				
+			}
+				break;
+				
+			default:
+				break;
+		}
+	}
 }
 #pragma mark - btn
 - (void)btnOnClick:(UIButton *)btn{
     
     if ([[UserInfo sharedInstance]isSignIn] ) {
+        [TalkingData trackEvent:@"【我的贷款资料】页"];
         MyDataVC *vc = [[MyDataVC alloc]init];
         vc.hidesBottomBarWhenPushed = YES;
         [self.navigationController pushViewController:vc animated:YES];
@@ -422,7 +523,7 @@ typedef NS_ENUM(NSInteger,MineBtnOnClick) {
         LoginVC *vc = [[LoginVC alloc]init];
         vc.hidesBottomBarWhenPushed = YES;
         vc.loginblock = ^(id result) {
-            [self showAlertView];
+            [self showAlertView:nil];
         };
         [self.navigationController pushViewController:vc animated:YES];
     }
@@ -433,20 +534,26 @@ typedef NS_ENUM(NSInteger,MineBtnOnClick) {
 - (void)setRequestParams{
     if(self.requestCount == MineRequestGetOut){
         self.cmd = XUserLogout;
-        self.dict = @{};
+        self.dict = [NSDictionary dictionary];
         return;
     }
 }
 -(void)requestSuccessWithDictionary:(XResponse *)response{
     if(self.requestCount == MineRequestGetOut){
         [self setHudWithName:@"退出成功" Time:0.5 andType:3];
+        
+        //清空时间状态
+        [WDUserDefaults setValue:@"xwm" forKey:@"UserName"];
+        [WDUserDefaults setValue:@"xwm" forKey:@"tadayDate"];
+        [WDUserDefaults synchronize];
+        
         [[NSNotificationCenter defaultCenter]postNotificationName:@"Refresh" object:self userInfo:nil];
         [XCacheHelper clearCacheFolder];
         LoginVC *vc = [[LoginVC alloc]init];
         vc.hidesBottomBarWhenPushed = YES;
         vc.loginblock = ^(id result) {
             
-            [self showAlertView];
+            [self showAlertView:nil];
         };
         [self.navigationController pushViewController:vc animated:YES];
 

@@ -286,7 +286,7 @@
     NSData* newPwd = [RsaHelper encryptString:_verificationText.text publicKey:nil];
     
     self.cmd = XModifyPassword;
-    self.dict = @{@"oldPassword":[SecurityUtil bytesToHexString:oldPwd],@"newPassword":[SecurityUtil bytesToHexString:newPwd]};
+    self.dict =[NSDictionary dictionaryWithObjectsAndKeys:[SecurityUtil bytesToHexString:oldPwd],@"oldPassword",[SecurityUtil bytesToHexString:newPwd],@"newPassword", nil];
 }
 - (void)requestSuccessWithDictionary:(XResponse *)response{
     [self setHudWithName:@"修改成功" Time:0.5 andType:3];

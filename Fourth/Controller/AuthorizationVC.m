@@ -141,7 +141,14 @@
 
 #pragma mark - 一一一一一 <* 开关 *> 一一一一一
 -(void)switchAction:(UIButton *)btn{
-    AudioServicesPlaySystemSound(1519);
+    if (@available(iOS 10.0, *)) {
+        UIImpactFeedbackGenerator *generator = [[UIImpactFeedbackGenerator alloc] initWithStyle: UIImpactFeedbackStyleLight];
+        [generator prepare];
+        [generator impactOccurred];
+    } else {
+        // Fallback on earlier versions
+    }
+//    AudioServicesPlaySystemSound(1519);
     btn.selected = !btn.selected;
     if (btn.selected == YES) {
         [UIView animateWithDuration:0.3 animations:^{
@@ -167,7 +174,7 @@
 #pragma mark - 一一一一一 <* 网络请求 *> 一一一一一
 -(void)setRequestParams{
     self.cmd = XGrantAuthorization;
-    self.dict = @{@"opt_type":self.optType};
+    self.dict = [NSDictionary dictionaryWithObjectsAndKeys:self.optType,@"opt_type", nil];
 }
 -(void)requestSuccessWithDictionary:(XResponse *)response{
     

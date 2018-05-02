@@ -166,7 +166,7 @@ typedef NS_ENUM(NSInteger , OpinionFeedBackRequest) {
     switch (self.requestCount) {
         case OpinionFeedBackRequestPostInfo:
             self.cmd = XPostFeedback;
-            self.dict = @{@"feedback_desc":textView.text};
+            self.dict = [NSDictionary dictionaryWithObjectsAndKeys:textView.text,@"feedback_desc", nil];
             break;
             
         default:

@@ -31,6 +31,7 @@ typedef NS_ENUM(NSInteger, OperatorsCreditRequest) {
 }
 - (void)viewDidLoad {
     [super viewDidLoad];
+    [TalkingData trackEvent:@"【运营商认证】页"];
     [self prepareDataWithCount:OperatorsCreditRequestInfo];
     [self setUI];
     
@@ -274,15 +275,15 @@ typedef NS_ENUM(NSInteger, OperatorsCreditRequest) {
     switch (self.requestCount) {
         case OperatorsCreditRequestInfo:
             self.cmd = XGetOperatorInfo;
-            self.dict = @{};
+            self.dict = [NSDictionary dictionary];
             break;
         case OperatorsCreditRequestVerify:
             self.cmd  = XPostOperatorVerify;
-            self.dict = @{@"operator_phone":_phoneText.text,
-                          @"operator_password":_operatorsText.text,
-                          @"operator_website":[OperatorModel sharedInstance].operator_website,
-                          @"operator_token":[OperatorModel sharedInstance].operator_token
-                          };
+            self.dict = [NSDictionary dictionaryWithObjectsAndKeys:
+                         _phoneText.text,@"operator_phone",
+                         _operatorsText.text,@"operator_password",
+                         [OperatorModel sharedInstance].operator_website,@"operator_website",
+                         [OperatorModel sharedInstance].operator_token,@"operator_token", nil];
             break;
             
         default:
@@ -312,6 +313,7 @@ typedef NS_ENUM(NSInteger, OperatorsCreditRequest) {
             OperatorAuthenticationSecondVC *vc = [[OperatorAuthenticationSecondVC alloc]init];
             vc.phoneStr = _phoneText.text;
             vc.pwdStr = _operatorsText.text;
+            vc.isBlock = self.isBlock;
             [self.navigationController pushViewController:vc animated:YES];
 //            [[NSNotificationCenter defaultCenter]postNotificationName:@"Refresh" object:self userInfo:nil];
         }

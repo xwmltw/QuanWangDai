@@ -37,14 +37,14 @@ typedef NS_ENUM(NSInteger ,AuthenticationBankRequest) {
 }
 - (void)viewDidLoad {
     [super viewDidLoad];
+    [TalkingData trackEvent:@"【银行卡认证】页"];
     self.bankInfoModel = [BankInfoModel new];
     [self setUI];
 }
 - (void)viewWillAppear:(BOOL)animated{
     [self.navigationController setNavigationBarHidden:NO animated:NO];
-    if (self.isScanBan) {
-        [self.view removeAllSubviews];
-        [self setUI];
+    if (self.bankInfoModel.bank_name && self.bankInfoModel.bank_card_no ) {
+        _bankTextAccount.text = [NSString stringWithFormat:@"%@:   %@",self.bankInfoModel.bank_name,self.bankInfoModel.bank_card_no];
     }
 }
 
@@ -116,9 +116,7 @@ typedef NS_ENUM(NSInteger ,AuthenticationBankRequest) {
     
     _bankTextAccount = [[UITextField alloc]init];
     [_bankTextAccount setTextColor:XColorWithRGB(35, 58, 80)];
-    if (self.bankInfoModel.bank_name && self.bankInfoModel.bank_card_no ) {
-        _bankTextAccount.text = [NSString stringWithFormat:@"%@:   %@",self.bankInfoModel.bank_name,self.bankInfoModel.bank_card_no];
-    }
+
     _bankTextAccount.backgroundColor = [UIColor whiteColor];
     _bankTextAccount.borderStyle = UITextBorderStyleNone;
     _bankTextAccount.attributedPlaceholder = [[NSAttributedString alloc] initWithString:@"扫描银行卡后将自动录入" attributes:@{NSForegroundColorAttributeName:XColorWithRBBA(34, 58, 80, 0.16)}];
@@ -423,9 +421,7 @@ typedef NS_ENUM(NSInteger ,AuthenticationBankRequest) {
     switch (self.requestCount) {
         case AuthenticationBankRequestMessageCode:{
             self.cmd = XSmsAuthenticationCode;
-            self.dict = @{@"phone_num":_phoneTextAccount.text,
-                          @"opt_type":@4
-                          };
+            self.dict = [NSDictionary dictionaryWithObjectsAndKeys:_phoneTextAccount.text,@"phone_num",@4,@"opt_type", nil];
         }
             break;
        

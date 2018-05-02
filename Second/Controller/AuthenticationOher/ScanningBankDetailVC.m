@@ -386,11 +386,11 @@ static NSInteger const kGroupSize = 4;
     switch (self.requestCount) {
         case ScanningBankDetailRequestBankList:
             self.cmd = XGetSupportedBankList;
-            self.dict = @{};
+            self.dict = [NSDictionary dictionary];
             break;
         case ScanningBankDetailRequestSupport:
             self.cmd = XGetBankIsSupported;
-            self.dict = @{@"bank_name":bankName.text};
+            self.dict = [NSDictionary dictionaryWithObjectsAndKeys:bankName.text,@"bank_name", nil];
             
             
             break;

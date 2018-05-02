@@ -10,4 +10,5 @@
 #import "CreditInfoModel.h"
 @interface OperatorAuthenticationVC : XBaseViewController
 @property (nonatomic ,strong) CreditInfoModel *creditInfoModel;
+@property (nonatomic ,copy) NSNumber *isBlock;//1专属认证流程 2运营商报告流程 3信贷预测
 @end

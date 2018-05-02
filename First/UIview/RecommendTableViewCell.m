@@ -47,7 +47,7 @@
         default:
             break;
     }
-    if (model.loan_year_rate.intValue > 36) {
+    if (model.loan_year_rate.intValue >= 36) {
         [self.typelabel setText:[NSString stringWithFormat:@"浮动利率"]];
         self.interestRate.hidden = YES;
     }else{
@@ -70,9 +70,20 @@
     }else{
         self.appState.hidden = YES;
     }
+    if ( !model.itemIsSelected) {
+        self.selected_btn.hidden = YES;
+    }else{
+        self.selected_btn.hidden = NO;
+    }
     self.labState.text = model.hot_label;
     self.labState.font = [UIFont fontWithName:@"PingFangSC-Regular" size:AdaptationWidth(13)];
     [self.appState setCornerValue:AdaptationWidth(2)];
+    
+    [self.selected_btn addTarget:self action:@selector(selectedAction:) forControlEvents:UIControlEventTouchUpInside];
+    [self.selected_btn setImage:[UIImage imageNamed:@"select"] forState:UIControlStateNormal];
+    [self.selected_btn setImage:[UIImage imageNamed:@"selected"] forState:UIControlStateSelected];
+    self.selected_btn.selected = YES;
+    
     
 //    [self.appState mas_makeConstraints:^(MASConstraintMaker *make) {
 //        make.left.equalTo(self.labState.mas_left).offset(-AdaptationWidth(8));
@@ -110,6 +121,13 @@
         self.date_type.alpha = 0.5;
     }
 }
+
+-(void)selectedAction:(UIButton *)button{
+    if ([self.delegate respondsToSelector:@selector(isSelectedOrNot:)]) {
+        [self.delegate isSelectedOrNot:button];
+    }
+}
+
 - (void)setDetailColor:(BOOL)type quotaSelect:(BOOL)quota dataSelect:(BOOL)data{
     
     if (type) {

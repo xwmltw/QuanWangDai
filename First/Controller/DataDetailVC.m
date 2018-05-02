@@ -22,7 +22,7 @@
 #import "ApplyProductModel.h"
 #import "AuthorizationVC.h"
 #import "ApplicantManVC.h"
-
+#import "FailApplicantionController.h"
 typedef NS_ENUM(NSInteger ,RequiredType) {
     IDENTITYCARD = 1,
     BASICINFO,
@@ -479,17 +479,17 @@ typedef NS_ENUM(NSInteger , DataDetailRequest) {
     switch (self.requestCount) {
         case DataDetailRequestGetCreditInfo:
             self.cmd = XGetCreditInfo;
-            self.dict = @{};
+            self.dict = [NSDictionary dictionary];
             break;
         case DataDetailRequestApplyLoan:{
             self.cmd = XApplyLoan;
             if(self.productModel.cooperation_type.integerValue == 3){
-                self.dict = @{@"loan_pro_id":self.productModel.loan_pro_id,
-                              @"apply_loan_amount":self.apply_loan_amount,
-                              @"apply_loan_days":self.apply_loan_days
-                              };
+                self.dict = [NSDictionary dictionaryWithObjectsAndKeys:
+                             self.productModel.loan_pro_id,@"loan_pro_id",
+                             self.apply_loan_amount,@"apply_loan_amount",
+                             self.apply_loan_days,@"apply_loan_days", nil];
             }else{
-                self.dict = @{@"loan_pro_id":self.productModel.loan_pro_id};
+                self.dict = [NSDictionary dictionaryWithObjectsAndKeys:self.productModel.loan_pro_id,@"loan_pro_id", nil];
             }
            
         }
@@ -519,7 +519,16 @@ typedef NS_ENUM(NSInteger , DataDetailRequest) {
             break;
     }
 }
-
+- (void)requestFaildWithDictionary:(XResponse *)response{
+    if (response.errCode.integerValue == 33 || response.errCode.integerValue == 35) {
+        FailApplicantionController *vc  =[[FailApplicantionController alloc]init];
+        vc.errCode = response.errCode;
+        [self.navigationController pushViewController:vc animated:YES];
+        return;
+    }
+    [self setHudWithName:response.errMsg Time:1 andType:1];
+    
+}
 #pragma mark - 跳转界面
 - (void)pushControllerView{
     NSInteger row = self.productModel.cooperation_type.integerValue;

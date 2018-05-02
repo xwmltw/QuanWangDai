@@ -16,7 +16,9 @@
 @end
 
 @implementation XRootWebVC
-
+{
+    UIView *lineview;
+}
 - (UIBarButtonItem *)backItem
 {
     if (!_backItem) {
@@ -33,8 +35,8 @@
         //左对齐
         btn.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
         //让返回按钮内容继续向左边偏移15，如果不设置的话，就会发现返回按钮离屏幕的左边的距离有点儿大，不美观
-        btn.contentEdgeInsets = UIEdgeInsetsMake(0, 15, 0, 0);
-        btn.frame = CGRectMake(0, 0, 40, 40);
+        btn.contentEdgeInsets = UIEdgeInsetsMake(0, 0, 0, 0);
+        btn.frame = CGRectMake(0, 0, 30, 40);
         _backItem.customView = btn;
     }
     return _backItem;
@@ -43,6 +45,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
     [self createWebViewWithURL:self.url];
 }
 //点击返回的方法
@@ -54,9 +57,8 @@
 
 -(void)setBackNavigationBarItem
 {
-    UIView *view = [[UIView alloc]initWithFrame:CGRectMake(0, 0, 64, 44)];
+    UIView *view = [[UIView alloc]initWithFrame:CGRectMake(0, 0, 44, 44)];
     view.userInteractionEnabled = YES;
-    
     UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
     button.frame = CGRectMake(0, 0, 104, 44);
     button.tag = 9999;
@@ -64,20 +66,19 @@
     [button setTitle:@"" forState:UIControlStateNormal];
     [button setTitleColor:XColorWithRBBA(34, 58, 80, 0.8) forState:UIControlStateNormal];
     [button setImage:[UIImage imageNamed:@"XX"] forState:UIControlStateNormal];
-    button.imageEdgeInsets = UIEdgeInsetsMake(0, -AdaptationWidth(38), 0, AdaptationWidth(38));
+    button.imageEdgeInsets = UIEdgeInsetsMake(0, -AdaptationWidth(28), 0, AdaptationWidth(38));
     button.titleEdgeInsets = UIEdgeInsetsMake(0, AdaptationWidth(28), 0, -AdaptationWidth(28));
     [button addTarget:self action:@selector(BarbuttonClick:) forControlEvents:UIControlEventTouchUpInside];
     [view addSubview:button];
     
-    UIView *lineview  = [[UIView alloc] initWithFrame:CGRectMake(36, (button.frame.size.height- AdaptationWidth(16)) / 2, 0.5 , AdaptationWidth(16))];
+    lineview  = [[UIView alloc] initWithFrame:CGRectMake(36, (button.frame.size.height- AdaptationWidth(16)) / 2, 0.5 , AdaptationWidth(16))];
     lineview.backgroundColor  = XColorWithRGB(233, 233, 235);
     [button addSubview:lineview];
     self.item = [[UIBarButtonItem alloc]initWithCustomView:view];
-   
     self.navigationItem.leftBarButtonItem = self.item;
     
 }
--(void)createWebViewWithURL:(NSString *)url{
+-(void) createWebViewWithURL:(NSString *)url{
     
     self.progressView = [[UIProgressView alloc] init];
     self.progressView.progressTintColor = [UIColor grayColor];
@@ -109,7 +110,6 @@
         make.left.right.bottom.equalTo(self.view);
     }];
     
-    
     [self.webView addObserver:self forKeyPath:@"estimatedProgress" options:NSKeyValueObservingOptionNew|NSKeyValueObservingOptionOld context:nil];
     
     [self.webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:url]]];
@@ -119,10 +119,27 @@
     //判断是否有上一层H5页面
     if ([self.webView canGoBack]) {
         //同时设置返回按钮和关闭按钮为导航栏左边的按钮
+        lineview.frame = CGRectMake(0, 14, 0.5, 16);
         self.navigationItem.leftBarButtonItems = @[self.backItem, self.item];
     }else{
+        lineview.frame = CGRectMake(36, 14, 0.5, 16);
         self.navigationItem.leftBarButtonItems = @[self.item];
     }
+}
+//在navigationDelegate中拦截，手动openURL才能跳转至AppStore
+- (void)webView:(WKWebView*)webView decidePolicyForNavigationAction:(WKNavigationAction*)navigationAction decisionHandler:(void(^)(WKNavigationActionPolicy))decisionHandler{
+
+     WKNavigationActionPolicy policy =WKNavigationActionPolicyAllow;
+
+
+      if([[navigationAction.request.URL host] isEqualToString:@"itunes.apple.com"] &&[[UIApplication sharedApplication] openURL:navigationAction.request.URL]){
+
+            policy =WKNavigationActionPolicyCancel;
+
+    }
+       decisionHandler(policy);
+
+
 }
 //kvo观察者方法
 -(void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSString *,id> *)change context:(void *)context{

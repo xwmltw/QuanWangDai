@@ -18,12 +18,16 @@
         
         
         _titleLabe = [[UILabel alloc]initWithFrame:CGRectZero];
-//        _titleLabe.text = @"借款资料";
-        [_titleLabe setFont:[UIFont fontWithName:@"PingFangSC-Regular" size:AdaptationWidth(14)]];
-        [_titleLabe setTextColor:XColorWithRBBA(34, 58, 80, 0.48)];
+        [_titleLabe setFont:[UIFont fontWithName:@"PingFangSC-Medium" size:AdaptationWidth(20)]];
+        [_titleLabe setTextColor:XColorWithRBBA(34, 58, 80, 0.32)];
+		
+		_subtitleLabe = [[UILabel alloc]initWithFrame:CGRectZero];
+		[_subtitleLabe setFont:[UIFont fontWithName:@"PingFangSC-Medium" size:AdaptationWidth(12)]];
+		[_subtitleLabe setTextColor:XColorWithRBBA(34, 58, 80, 0.32)];
         
         [self addSubview:_imageView];
         [_imageView addSubview:_titleLabe];
+		[_imageView addSubview:_subtitleLabe];
     }
     return self;
 }
@@ -36,12 +40,16 @@
 - (void)updateConstraints {
     [_titleLabe mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.mas_equalTo(self.imageView).offset(AdaptationWidth(24));
-//        make.centerY.mas_equalTo(self.imageView);
-        make.bottom.mas_equalTo(self);
-        make.height.equalTo(@(20));
+        make.bottom.mas_equalTo(self.imageView).offset(-AdaptationWidth(31));
+        make.height.mas_equalTo(AdaptationWidth(28));
     }];
+	[_subtitleLabe mas_makeConstraints:^(MASConstraintMaker *make) {
+		make.left.mas_equalTo(self.imageView).offset(AdaptationWidth(24));
+		make.bottom.mas_equalTo(self.imageView).offset(-AdaptationWidth(10));
+		make.height.mas_equalTo(AdaptationWidth(17));
+	}];
     [_imageView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.mas_equalTo(self).offset(0);
+        make.left.mas_equalTo(self);
         make.centerY.mas_equalTo(self);
         make.bottom.mas_equalTo(self);
     }];

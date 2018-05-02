@@ -11,4 +11,5 @@
 @interface OperatorAuthenticationSecondVC : XBaseViewController
 @property (nonatomic , copy) NSString *phoneStr;
 @property (nonatomic , copy) NSString *pwdStr;
+@property (nonatomic,copy) NSNumber *isBlock;
 @end

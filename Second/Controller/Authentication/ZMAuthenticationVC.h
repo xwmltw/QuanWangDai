@@ -9,5 +9,5 @@
 #import "XBaseViewController.h"
 
 @interface ZMAuthenticationVC : XBaseViewController
-
+@property (nonatomic ,copy) NSNumber *isBlock;
 @end

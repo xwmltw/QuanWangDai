@@ -12,6 +12,7 @@
 #import "UserInfo.h"
 #import "XAlertView.h"
 #import "ParamModel.h"
+#import "CreditState.h"
 
 @interface XBaseViewController : UIViewController<UITableViewDelegate,UITableViewDataSource,MBProgressHUDDelegate>
 @property (nonatomic, strong) UITableView *tableView;
@@ -113,6 +114,6 @@
 /**
  授权提示
  */
-- (void)showAlertView;
+- (void)showAlertView:(XBlock)block;
 
 @end

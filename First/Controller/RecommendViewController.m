@@ -21,22 +21,35 @@
 #import "ApplicantManVC.h"
 #import "UserLocation.h"
 #import "PersonalTailorVC.h"
-
-
-
+#import "ReconmadView.h"
+#import "RecommentTopBtn.h"
+#import "SYVerticalAutoScrollView.h"
+#import "FeatureView.h"
+#import "ReportController.h"
+#import "CreditState.h"
+#import "RecommendTableViewSecond.h"
+#import "SpecialTopView.h"
+#import "SpecialController.h"
 typedef NS_ENUM(NSInteger , RecommendBtnOnClick){
     RecommendBtnOnClickAllDK,
     RecommendBtnOnClickUnlogin,
     RecommendBtnOnClickComplete,
     RecommendBtnOnClickCustomization,
     RecommendBtnOnClickLocation,
+    RecommendBtnOnClickCreditState,
+    RecommendBtnOnClickOther,
 };
 typedef NS_ENUM(NSInteger , RecommenRequest) {
     RecommenRequestHotInfo,
     RecommenRequestClickLogRecord,
     RecommenRequestSpecialEntry,
     RecommenRequestSpecialInfo,
+    RecommenRequestCreditInfo,
 };
+ typedef NS_ENUM(NSInteger , RecommenTableViewSection) {
+     RecommenTableViewSectionOne,
+     RecommenTableViewSectionSecond,
+ };
 @interface RecommendViewController ()<SDCycleScrollViewDelegate,UITabBarControllerDelegate,UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout>
 {
     UIView *scrollbgView;        // 无列表数据
@@ -44,7 +57,8 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
     UIView *scrollbgViewUnlogin; // 未登录
     NSMutableArray *imageArry;   // banner图片源
     NSString *ad_id;             // banner点击日志
-    UIView * view;               // 头视图View
+    UIView * headerView;               // 头视图View
+    UIView *TopBtnView;         // 头视图View
 }
 @property (nonatomic, strong) QueryParamModel *query_param;
 @property (nonatomic, strong) ProductModel *productModel;
@@ -52,14 +66,21 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
 @property (nonatomic, strong) ClientGlobalInfoRM *clientGlobalInfoModel;
 @property (nonatomic, strong) WapUrlList *wapUrlLisModel;
 @property (nonatomic, strong) SpecialEntryModel *specialEntryModel;
+@property (nonatomic, strong) CreditInfoModel *creditInfoModel;
 @property (nonatomic, strong) SDCycleScrollView *sdcycleScrollView;
 @property (nonatomic, assign) NSInteger index;
 @property (nonatomic, strong) UICollectionView *collectionView;
+@property (nonatomic, strong) UICollectionView *collectionView1;
 @property (nonatomic, strong) UICollectionViewFlowLayout *flowLayout;
 @property (nonatomic, strong) NSDictionary *dataDic;
 @property (nonatomic, strong) UIButton *locationbtn;
 @property (nonatomic, strong) UIImageView *refreshView;
 @property (nonatomic, strong) NSMutableArray *loan_pro_list;
+@property (nonatomic, strong) NSMutableArray *tableViewSectionArry;
+@property (nonatomic, strong) NSTimer *timer;
+@property (nonatomic, strong) SpecialTopView *customView;
+@property (nonatomic, strong) NSMutableArray *custArr;
+@property (nonatomic, copy) NSNumber *loan_pro_list_row;//推荐个数
 @end
 
 @implementation RecommendViewController
@@ -68,12 +89,39 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
     
     [self.navigationController setNavigationBarHidden:YES animated:YES];
     self.tabBarController.delegate = self;
+    
+    UIView *statusBar = [[[UIApplication sharedApplication] valueForKey:@"statusBarWindow"] valueForKey:@"statusBar"];
+    statusBar.backgroundColor = [UIColor whiteColor];
+    
+    
+    if ([[UserInfo sharedInstance]isSignIn]){
+        //弹窗显示专属推荐
+        NSDate *tadayDate = [NSDate date];
+        NSDateFormatter *formatter = [[NSDateFormatter alloc]init];
+        [formatter setDateFormat:@"YYYY-MM-dd"];
+        NSString *locationStr = [formatter stringFromDate:tadayDate];
+        if (![locationStr isEqualToString:[WDUserDefaults objectForKey:@"tadayDate"]] && ![[UserInfo sharedInstance].phoneName isEqualToString:[WDUserDefaults objectForKey:@"UserName"]]) {
+            
+            if ([UserInfo sharedInstance].has_grant_authorization.integerValue != 1) {
+                [self showAlertView:^(id result) {
+                    [self createRemindView];
+                }];
+                
+            }else{
+                [self createRemindView];
+            }
+        }
+        
+        [WDUserDefaults setValue:locationStr forKey:@"tadayDate"];
+        [WDUserDefaults synchronize];
+    }
+    
+    [_customView run];
+}
+-(void)viewWillDisappear:(BOOL)animated{
+    [_customView stop];
 }
 
--(void)refresh{
-    [self prepareDataWithCount:RecommenRequestSpecialEntry];
-    
-}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -89,14 +137,47 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
         make.bottom.mas_equalTo(self.view).offset(49);
     }];
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
-    self.tableView.tableHeaderView = [self creatHeadView:CGRectMake(0, 0, ScreenWidth, AdaptationWidth(684))];
+    if (imageArry.count) {
+         self.tableView.tableHeaderView = [self creatHeadView:CGRectMake(0, 0, ScreenWidth, AdaptationWidth(423))];//57
+    }else{
+         self.tableView.tableHeaderView = [self creatHeadView:CGRectMake(0, 0, ScreenWidth, AdaptationWidth(323))];
+    }
+   
 
     /*!< 通知 >*/
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(scrollAndLoad) name:@"Recommend" object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refresh) name:@"Refresh" object:nil];
     [WDNotificationCenter addObserver:self selector:@selector(notificationLocation:) name:XLocationCityName object:nil];
     [WDNotificationCenter addObserver:self selector:@selector(ntificationAlert:) name:XNotificationAlert object:nil];
+    [WDNotificationCenter addObserver:self selector:@selector(notificationActivity:) name:@"ActivityProductVC" object:nil];
+   
     
+}
+
+-(void)createRemindView{
+	ReconmadView *view = [[ReconmadView alloc]initWithTitle:@"只需一步，100%下款" content:@"根据您的资料，为您推荐一定能贷的产品。" imgUrlStr:@"下款插图" cancel:@"cancel_btn" commit:@"获取推荐"  block:^(NSInteger block) {
+		switch (block) {
+			case 2:{ // 不再提醒
+                [WDUserDefaults setValue:[UserInfo sharedInstance].phoneName forKey:@"UserName"];
+                [WDUserDefaults synchronize];
+			}
+                break;
+			case 1:{ // 获取推荐
+                
+				[CreditState selectCreaditState:self with:nil];
+			}
+				break;
+			case 0:{ // 关闭
+				//				//强制关闭应用
+				//				exit(0);
+				
+			}
+                break;
+			default:
+				break;
+		}
+	}];
+	[[[UIApplication sharedApplication] keyWindow]addSubview:view];
 }
 
 - (void)setData{
@@ -112,6 +193,11 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
     //这个方法可直接实现回滚到顶部并且开始刷新
     [self.tableView.mj_header beginRefreshing];
 }
+-(void)refresh{
+
+    [self prepareDataWithCount:RecommenRequestSpecialEntry];
+    
+}
 - (void)notificationLocation:(NSNotification *)notification{
    
     [self performSelector:@selector(changeNotificationStatus)withObject:nil afterDelay:2.0f];//防止重复点击
@@ -125,19 +211,27 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
     vc.url = notification.object[@"url"];
     [self.navigationController pushViewController:vc animated:YES];
 }
+- (void)notificationActivity:(NSNotification *)notification{
+    [self setHudWithName:@"唤起" Time:2 andType:1];
+    
+    ProductDetailVC *vc = [[ProductDetailVC alloc]init];
+    vc.loan_pro_id = notification.userInfo[@"url"];
+    vc.hidesBottomBarWhenPushed = YES;
+    [self.navigationController pushViewController:vc animated:YES];
+}
 #pragma mark - 一一一一一 <* 头视图创建 *> 一一一一一
 - (UIView *)creatHeadView:(CGRect)rect{
     
-    view = [[UIView alloc]initWithFrame:rect];
-    view.backgroundColor = [UIColor clearColor];
+    headerView = [[UIView alloc]initWithFrame:rect];
+    headerView.backgroundColor = [UIColor clearColor];
     
     UIView *topView = [[UIView alloc]init];
     topView.backgroundColor = [UIColor clearColor];
-    [view addSubview:topView];
+    [headerView addSubview:topView];
     
 /*!< 推荐 >*/
     UILabel *titleLab = [[UILabel alloc]init];
-    [titleLab setFont:[UIFont fontWithName:@"PingFangSC-Medium" size:AdaptationWidth(30)]];
+    [titleLab setFont:[UIFont fontWithName:@"PingFangSC-Medium" size:AdaptationWidth(17)]];
     [titleLab setText:@"推荐"];
     [titleLab setTextColor:XColorWithRGB(77, 96, 114)];
     [topView addSubview:titleLab];
@@ -145,7 +239,7 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
 /*!< 定位 >*/
     _locationbtn = [[UIButton alloc]init];
     [_locationbtn setTitleColor:XColorWithRBBA(34, 58, 80, 0.8) forState:UIControlStateNormal];
-    [_locationbtn.titleLabel setFont:[UIFont fontWithName:@"PingFangSC-Light" size:16]];
+    [_locationbtn.titleLabel setFont:[UIFont fontWithName:@"PingFangSC-Light" size:AdaptationWidth(14)]];
     NSString *locationStr = [[UserLocation sharedInstance]getCityName];
     if (locationStr.length) {
         [_locationbtn setTitle:locationStr forState:UIControlStateNormal];
@@ -158,9 +252,9 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
     _locationbtn.contentHorizontalAlignment = UIControlContentHorizontalAlignmentRight;
     _locationbtn.titleLabel.backgroundColor = [UIColor clearColor];
     _locationbtn.imageView.backgroundColor = [UIColor clearColor];
-    _locationbtn.titleEdgeInsets = UIEdgeInsetsMake(0, -AdaptationWidth(36), 0, AdaptationWidth(36));
+//    _locationbtn.titleEdgeInsets = UIEdgeInsetsMake(0, -AdaptationWidth(36), 0, AdaptationWidth(36));
     [_locationbtn addTarget:self action:@selector(btnOnClick:) forControlEvents:UIControlEventTouchUpInside];
-    [view addSubview:_locationbtn];
+    [headerView addSubview:_locationbtn];
     
     _refreshView = [[UIImageView alloc]init];
     _refreshView.image = [UIImage imageNamed:@"icon_refresh"];
@@ -170,6 +264,7 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
     _refreshView.userInteractionEnabled = NO;
     [_locationbtn addSubview:_refreshView];
     
+    [self createTopBtn];
 /*!< 特色入口 >*/
     [self createCollectionView];
     
@@ -179,6 +274,7 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
     if (imageArry.count == 1 ) {
         _sdcycleScrollView.autoScroll = NO;
     }
+    [_sdcycleScrollView setCornerValue:AdaptationWidth(8)];
     _sdcycleScrollView.bannerImageViewContentMode = UIViewContentModeScaleToFill;
     _sdcycleScrollView.autoScrollTimeInterval = 3;
     _sdcycleScrollView.pageControlStyle = SDCycleScrollViewPageContolStyleClassic;
@@ -186,59 +282,145 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
     _sdcycleScrollView.layer.masksToBounds = YES;
     _sdcycleScrollView.layer.cornerRadius = AdaptationWidth(2);
     _sdcycleScrollView.pageDotColor = XColorWithRBBA(255, 255, 255, 0.4);
-    [view addSubview:_sdcycleScrollView];
+    [headerView addSubview:_sdcycleScrollView];
     if (imageArry.count == 0 ) {
         _sdcycleScrollView.hidden = YES;
     }
     [topView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.mas_equalTo(view).offset(AdaptationWidth(20));
-        make.left.right.mas_equalTo(view);
-        make.centerX.mas_equalTo(view);
-        make.height.mas_equalTo(AdaptationWidth(98));
+        make.top.mas_equalTo(headerView).offset(AdaptationWidth(20));
+        make.left.right.mas_equalTo(headerView);
+        make.centerX.mas_equalTo(headerView);
+        make.height.mas_equalTo(AdaptationWidth(72));
     }];
     [titleLab mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.mas_equalTo(topView).offset(AdaptationWidth(40));
-        make.left.mas_equalTo(topView).offset(AdaptationWidth(16));
-    }];
-    [_locationbtn mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.mas_equalTo(topView).offset(AdaptationWidth(50));
-        make.right.mas_equalTo(topView).offset(-AdaptationWidth(16));
-        make.left.mas_equalTo(titleLab.mas_right);
-        make.height.mas_equalTo(22);
+        make.top.mas_equalTo(topView).offset(AdaptationWidth(10));
+        make.left.mas_equalTo(topView).offset(AdaptationWidth(24));
     }];
     [_refreshView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.mas_equalTo(_locationbtn).offset(-AdaptationWidth(3));
-        make.right.mas_equalTo(_locationbtn);
+        make.centerY.mas_equalTo(titleLab);
+        make.right.mas_equalTo(topView).offset(-AdaptationWidth(16));
         make.width.height.mas_equalTo(AdaptationWidth(28));
     }];
+    [_locationbtn mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.centerY.mas_equalTo(_refreshView);
+        make.right.mas_equalTo(_refreshView.mas_left).offset(-AdaptationWidth(8));
+//        make.top.mas_equalTo(topView).offset(AdaptationWidth(30));
+//        make.right.mas_equalTo(topView).offset(-AdaptationWidth(16));
+//        make.left.mas_equalTo(titleLab.mas_right);
+        make.height.mas_equalTo(22);
+    }];
     [_sdcycleScrollView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.mas_equalTo(_collectionView.mas_bottom).offset(AdaptationWidth(22));
-        make.left.mas_equalTo(view).offset(AdaptationWidth(16));
+        make.top.mas_equalTo(_customView.mas_bottom).offset(AdaptationWidth(12));
+        make.left.mas_equalTo(headerView).offset(AdaptationWidth(16));
         make.width.mas_equalTo(AdaptationWidth(343));
         make.height.mas_equalTo(AdaptationWidth(84));
     }];
-    return view;
+    return headerView;
 }
-
+#pragma mark - 一一一一一 <* 贷款大全，信用查询 *> 一一一一一
+- (void)createTopBtn{
+    
+    TopBtnView  = [[UIView alloc]init];
+    TopBtnView.backgroundColor = [UIColor clearColor];
+    [headerView addSubview:TopBtnView];
+    
+    UIView *line = [[UIView alloc]init];
+    line.backgroundColor = XColorWithRGB(240, 240, 240);
+    [TopBtnView addSubview:line];
+    
+    [TopBtnView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.mas_equalTo(_refreshView.mas_bottom).offset(AdaptationWidth(16));
+        make.left.right.mas_equalTo(headerView);
+        make.height.mas_equalTo(AdaptationWidth(136));
+    }];
+    
+    RecommentTopBtn *btn1 = [[RecommentTopBtn alloc]init];
+    btn1.tag = 200;
+    [btn1 addTarget:self action:@selector(btnOnTopClick:) forControlEvents:UIControlEventTouchUpInside];
+    btn1.btnTitle = @"我要借钱";
+    [btn1 setImage:[UIImage imageNamed:@"top_needMoney"] forState:UIControlStateNormal];
+    [btn1 setImage:[UIImage imageNamed:@"top_needMoney"] forState:UIControlStateHighlighted];
+    [TopBtnView addSubview:btn1];
+    
+    [btn1 mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.top.mas_equalTo(TopBtnView);
+        make.width.mas_equalTo(AdaptationWidth(125));
+        make.height.mas_equalTo(AdaptationWidth(127));
+    }];
+    
+    RecommentTopBtn *btn2 = [[RecommentTopBtn alloc]init];
+    btn2.tag = 201;
+    [btn2 addTarget:self action:@selector(btnOnTopClick:) forControlEvents:UIControlEventTouchUpInside];
+    btn2.btnTitle = @"办信用卡";
+    [btn2 setImage:[UIImage imageNamed:@"top_getCard"] forState:UIControlStateNormal];
+    [btn2 setImage:[UIImage imageNamed:@"top_needMoney"] forState:UIControlStateHighlighted];
+    [TopBtnView addSubview:btn2];
+    
+    [btn2 mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.centerX.mas_equalTo(TopBtnView);
+        make.top.mas_equalTo(TopBtnView);
+        make.width.mas_equalTo(AdaptationWidth(125));
+        make.height.mas_equalTo(AdaptationWidth(127));
+    }];
+    
+    RecommentTopBtn *btn3 = [[RecommentTopBtn alloc]init];
+    btn3.tag = 202;
+    [btn3 addTarget:self action:@selector(btnOnTopClick:) forControlEvents:UIControlEventTouchUpInside];
+    btn3.btnTitle = @"信用查询";
+    [btn3 setImage:[UIImage imageNamed:@"top_query"] forState:UIControlStateNormal];
+    [btn3 setImage:[UIImage imageNamed:@"top_needMoney"] forState:UIControlStateHighlighted];
+    [TopBtnView addSubview:btn3];
+    
+    [btn3 mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.right.top.mas_equalTo(TopBtnView);
+        make.width.mas_equalTo(AdaptationWidth(125));
+        make.height.mas_equalTo(AdaptationWidth(127));
+    }];
+    
+    [line mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.right.mas_equalTo(TopBtnView);
+        make.bottom.mas_equalTo(TopBtnView.mas_bottom);
+        make.height.mas_equalTo(0.5);
+    }];
+}
 #pragma mark - 一一一一一 <* 特色入口 *> 一一一一一
 -(void)createCollectionView{
     _flowLayout = [[UICollectionViewFlowLayout alloc]init];
     _flowLayout.minimumLineSpacing = 0;
     _flowLayout.minimumInteritemSpacing = -1;
-    if (self.specialEntryModel.special_entry_list.count > 4) {
-        _collectionView = [[UICollectionView alloc]initWithFrame:CGRectMake(11, AdaptationWidth(128), ScreenWidth - 22, AdaptationWidth(164))collectionViewLayout:_flowLayout];
-                    
-    }else{
-        _collectionView = [[UICollectionView alloc]initWithFrame:CGRectMake(11, AdaptationWidth(128), ScreenWidth - 22, AdaptationWidth(82))collectionViewLayout:_flowLayout];
-    }
+    _collectionView = [[UICollectionView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth - 22, AdaptationWidth(91)) collectionViewLayout:_flowLayout];
     _collectionView.scrollEnabled = NO;
-    _collectionView.delaysContentTouches = NO;
     _collectionView.delegate = self;
     _collectionView.dataSource = self;
     _collectionView.backgroundColor = [UIColor whiteColor];
-    [view addSubview:_collectionView];
+//    [headerView addSubview:_collectionView];
+    
+    _collectionView1 = [[UICollectionView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth - 22, AdaptationWidth(91)) collectionViewLayout:_flowLayout];
+    _collectionView1.delegate = self;
+    _collectionView1.dataSource = self;
+    _collectionView1.scrollEnabled = NO;
+    _collectionView1.backgroundColor = [UIColor whiteColor];
+//    [headerView addSubview:_collectionView1];
 
     [_collectionView registerClass:[ReconmendCollectionCell class] forCellWithReuseIdentifier:NSStringFromClass([ReconmendCollectionCell class])];
+    [_collectionView1 registerClass:[ReconmendCollectionCell class] forCellWithReuseIdentifier:NSStringFromClass([ReconmendCollectionCell class])];
+    
+    
+    _custArr = [[NSMutableArray alloc]init];
+    [_custArr addObject:_collectionView];
+    if (self.specialEntryModel.special_entry_list.count > 4) {
+        [_custArr addObject:_collectionView1];
+        _collectionView.frame = CGRectMake(0, 0, ScreenWidth - 22, AdaptationWidth(182));
+        _collectionView1.frame = CGRectMake(0, 0, ScreenWidth - 22, AdaptationWidth(182));
+    }
+    
+    CGRect custRect = CGRectMake(11, AdaptationWidth(220), ScreenWidth - 22, AdaptationWidth(91));
+    float animationInterval = 3.5;
+    float animationDuration = 0.5;
+    _customView = [SpecialTopView viewWithFrame1:custRect customVies:_custArr animationInterval:animationInterval animationDuration:animationDuration dataSource:nil updator:^(id sender, NSMutableArray *data, int index) {
+        
+    }];
+    [headerView addSubview:_customView];
 }
 
 #pragma mark - 一一一一一 <* 尾视图创建 *> 一一一一一
@@ -284,7 +466,7 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
         [btn mas_makeConstraints:^(MASConstraintMaker *make) {
             make.top.mas_equalTo(view).offset(24);
             make.centerX.mas_equalTo(view);
-            make.width.mas_equalTo(AdaptationWidth(134));
+            make.width.mas_equalTo(AdaptationWidth(144));
             make.height.mas_equalTo(AdaptationWidth(41));
         }];
         
@@ -294,26 +476,95 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
 }
 
 #pragma mark - 一一一一一 <* UITableViewDataSource *> 一一一一一
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
+    
+    return self.tableViewSectionArry.count;
+}
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    RecommenTableViewSection row = [self.tableViewSectionArry[section]integerValue];
+    switch (row) {
+        case RecommenTableViewSectionOne:{
+            if (![[UserInfo sharedInstance]isSignIn] || self.loan_pro_list_row.integerValue == 0) {
+                return 1;
+            }
+            return self.loan_pro_list.count;
+        }
+            break;
+        case RecommenTableViewSectionSecond:
+            return self.dataSourceArr.count;
+            break;
+            
+        default:
+            break;
+    }
     return self.dataSourceArr.count;
 }
+
 -(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    RecommenTableViewSection row = [self.tableViewSectionArry[indexPath.section]integerValue];
+    switch (row) {
+        case RecommenTableViewSectionOne:{
+            if (![[UserInfo sharedInstance]isSignIn]) {
+                return AdaptationWidth(182);
+            }
+            if (![CreditState creditStateWith:self.creditInfoModel] && self.loan_pro_list.count == 0) {
+                return AdaptationWidth(182);
+            }
+            return  108;
+        }
+            break;
+        case RecommenTableViewSectionSecond:{
+            return 127;
+        }
+            break;
+        default:
+            break;
+    }
     return 127;
 }
 -(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
-
+    RecommenTableViewSection row = [self.tableViewSectionArry[section]integerValue];
+    switch (row) {
+        case RecommenTableViewSectionOne:{
+            if (![[UserInfo sharedInstance]isSignIn]) {
+                return 0.1;
+            }
+            if (![CreditState creditStateWith:self.creditInfoModel] && self.loan_pro_list.count == 0) {
+                return 0.1;
+            }
+        }
+            break;
+        default:
+            break;
+    }
     return 44;
+}
+- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section{
+    RecommenTableViewSection row = [self.tableViewSectionArry[section]integerValue];
+    switch (row) {
+        case RecommenTableViewSectionOne:{
+            if (![[UserInfo sharedInstance]isSignIn]) {
+                return 0.1;
+            }
+            if (![CreditState creditStateWith:self.creditInfoModel] && self.loan_pro_list.count == 0) {
+                return 0.1;
+            }
+            if ([CreditState creditStateWith:self.creditInfoModel] && self.loan_pro_list_row.integerValue <= 3) {
+                return 0.1;
+            }
+            return  AdaptationWidth(108);
+        }
+            break;
+        default:
+            break;
+    }
+    return 0.5;
 }
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
 
     UIView * view = [[UIView alloc]init];
     view.backgroundColor = [UIColor clearColor];
     UILabel *lab = [[UILabel alloc]init];
-    if (!self.dataSourceArr.count) {
-        [lab setText:@"暂无推荐，吃口土先"];
-    }else{
-        [lab setText:@"热门产品"];
-    }
     [lab setTextColor:XColorWithRBBA(34, 58, 80, 0.32)];
     [lab setFont:[UIFont fontWithName:@"PingFangSC-Medium" size:AdaptationWidth(20)]];
     [view addSubview:lab];
@@ -321,41 +572,354 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
         make.left.mas_equalTo(view).offset(AdaptationWidth(16));
         make.bottom.mas_equalTo(view);
     }];
+    
+    RecommenTableViewSection row = [self.tableViewSectionArry[section]integerValue];
+    switch (row) {
+        case RecommenTableViewSectionOne:{
+            if (![[UserInfo sharedInstance]isSignIn]) {
+                return nil;
+            }
+            if (![CreditState creditStateWith:self.creditInfoModel] && self.loan_pro_list.count == 0) {
+                return nil;
+            }
+            
+            [lab setText:@"数万额度，100%下款"];
+            
+        }
+            break;
+        case RecommenTableViewSectionSecond:
+            if (!self.dataSourceArr.count) {
+                [lab setText:@"暂无推荐，吃口土先"];
+            }else{
+                [lab setText:@"热门产品"];
+            }
+            break;
+            
+        default:
+            break;
+    }
+    
+    
+    
+    
      return view;
 }
-
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
-    static NSString *identifier = @"RecommendCell";
-    RecommendTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:identifier];
-    if (!cell) {
-       cell = [[NSBundle mainBundle]loadNibNamed:@"RecommendCell" owner:nil options:nil].lastObject;
+- (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section{
+    if (![[UserInfo sharedInstance]isSignIn]) {
+        return nil;
     }
-    cell.selectedBackgroundView = [[UIImageView alloc] initWithImage:nil];
-    cell.selectedBackgroundView.backgroundColor = XColorWithRGB(248, 249, 250);
-    cell.model =[ProductModel mj_objectWithKeyValues:self.dataSourceArr[indexPath.row]] ;
-    return cell;
-}
+    if (![CreditState creditStateWith:self.creditInfoModel] && self.loan_pro_list.count == 0) {
+        return nil;
+    }
+    if ([CreditState creditStateWith:self.creditInfoModel] && self.loan_pro_list_row.integerValue <= 3) {
+        return nil;
+    }
+    RecommenTableViewSection row = [self.tableViewSectionArry[section]integerValue];
+    switch (row) {
+        case RecommenTableViewSectionOne:{
+            UIView * Footerview = [[UIView alloc]init];
+            Footerview.backgroundColor = [UIColor clearColor];
+            UILabel *lab = [[UILabel alloc]init];
+            [lab setTextColor:XColorWithRBBA(34, 58, 80, 0.32)];
+            [lab setFont:[UIFont fontWithName:@"PingFangSC-Light" size:AdaptationWidth(14)]];
+            [Footerview addSubview:lab];
+            
+            [lab mas_makeConstraints:^(MASConstraintMaker *make) {
+                make.top.mas_equalTo(Footerview).offset(AdaptationWidth(16));
+                make.centerX.mas_equalTo(Footerview);
+               
+            }];
+            
+            UIButton *btn = [[UIButton alloc]init];
+            [btn setCornerValue:AdaptationWidth(20)];
+            
+            [btn setBackgroundColor:XColorWithRBBA(7, 137, 133, 0.08)];
+            [btn setTitleColor:XColorWithRGB(7, 137, 133) forState:UIControlStateNormal];
+            [btn.titleLabel setFont:[UIFont fontWithName:@"PingFangSC-Regular" size:15]];
+            [btn setImage:[UIImage imageNamed:@"tinyEntreGreen"] forState:UIControlStateNormal];
+            [btn setImage:[UIImage imageNamed:@"tinyEntreGreen"] forState:UIControlStateHighlighted];
 
-#pragma mark - 一一一一一 <* UITableViewDelegate *> 一一一一一
-- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
-    [tableView deselectRowAtIndexPath:indexPath animated:YES];// 取消选中
+            [btn sizeToFit];
+            btn.titleLabel.backgroundColor = [UIColor clearColor];
+            btn.imageView.backgroundColor = [UIColor clearColor];
+            
+            if (![CreditState creditStateWith:self.creditInfoModel]) {
+                btn.tag = RecommendBtnOnClickCreditState;
+                [lab setText:@"没有满意的产品？"];
+                [btn setTitle:@"完善资料, 100%下款" forState:UIControlStateNormal];
+               
+            }else{
+                btn.tag = RecommendBtnOnClickOther;
+                [lab setText:@"没有满意的？还有更多100%下款产品!"];
+                [btn setTitle:@"更多推荐" forState:UIControlStateNormal];
+                
+            }
+            
+            CGSize imageSize = btn.currentImage.size;
+            CGSize titleSize = btn.titleLabel.intrinsicContentSize;
+            btn.imageEdgeInsets = UIEdgeInsetsMake(0,titleSize.width, 0, -(titleSize.width));
+            btn.titleEdgeInsets = UIEdgeInsetsMake(0, -imageSize.width, 0, imageSize.width);
+            
+            [btn addTarget:self action:@selector(btnOnClick:) forControlEvents:UIControlEventTouchUpInside];
+            [Footerview addSubview:btn];
+            [btn mas_makeConstraints:^(MASConstraintMaker *make) {
+                make.top.mas_equalTo(lab.mas_bottom).offset(AdaptationWidth(16));
+                make.centerX.mas_equalTo(Footerview);
+                make.width.mas_equalTo(AdaptationWidth(108));
+                make.height.mas_equalTo(AdaptationWidth(41));
+            }];
+             if (![CreditState creditStateWith:self.creditInfoModel]) {
+                 [btn mas_updateConstraints:^(MASConstraintMaker *make) {
+                     make.width.mas_equalTo(AdaptationWidth(194));
+                 }];
+             }
+           
+            
+            return Footerview;
+        }
+            break;
+            default:
+            break;
+    }
+    return nil;
+}
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    
+    RecommenTableViewSection row = [self.tableViewSectionArry[indexPath.section]integerValue];
+    switch (row) {
+        case RecommenTableViewSectionOne:{
+            if (![[UserInfo sharedInstance]isSignIn]) {//未登录。
+                UITableViewCell *cell = [[UITableViewCell alloc]init];
+                cell.selectionStyle = UITableViewCellSelectionStyleNone;
+                UIButton *raiderBtn = [[UIButton alloc]init];
+//                raiderBtn.userInteractionEnabled  = NO;
+                [raiderBtn setBackgroundImage:[UIImage imageNamed:@"定制未登录卡片"] forState:UIControlStateNormal];
+                [raiderBtn setBackgroundImage:[UIImage imageNamed:@"定制未登录卡片点击态"] forState:UIControlStateHighlighted];
+                [raiderBtn addTarget:self action:@selector(buttonAction) forControlEvents:UIControlEventTouchUpInside];
+                [cell addSubview:raiderBtn];
+                
+                [raiderBtn mas_makeConstraints:^(MASConstraintMaker *make) {
+                    make.edges.mas_equalTo(cell);
+                }];
+                
+                
+                
+                UILabel *btnTitleLab = [[UILabel alloc]init];
+                btnTitleLab.textAlignment = NSTextAlignmentLeft;
+                btnTitleLab.text = @"100%下款";
+                [btnTitleLab setFont:[UIFont fontWithName:@"PingFangSC-Medium" size:AdaptationWidth(19)]];
+                [btnTitleLab setTextColor:XColorWithRBBA(34, 58, 80, 0.8)];
+                [raiderBtn addSubview:btnTitleLab];
+                
+                UIView *btnSubTitleLabBgView = [[UIView alloc]init];
+                [raiderBtn addSubview:btnSubTitleLabBgView];
+                
+                UILabel *btnSubTitleLab = [[UILabel alloc]init];
+                btnSubTitleLab.text = @"登录获得一定能贷的产品";
+                [btnSubTitleLab setFont:[UIFont fontWithName:@"PingFangSC-Light" size:AdaptationWidth(13)]];
+                [btnSubTitleLab setTextColor:XColorWithRBBA(34, 58, 80, 0.64)];
+                [btnSubTitleLabBgView addSubview:btnSubTitleLab];
+                
+                UILabel *levelLab = [[UILabel alloc]init];
+                [levelLab setCornerValue:2];
+                levelLab.textAlignment = NSTextAlignmentCenter;
+                levelLab.text = [NSString stringWithFormat:@"去下款"];
+                [levelLab setFont:[UIFont fontWithName:@"PingFangSC-Medium" size:AdaptationWidth(13)]];
+                [levelLab setTextColor:XColorWithRBBA(255, 255, 255, 1)];
+                [levelLab setBackgroundColor:XColorWithRBBA(252, 93, 109, 1)];
+                [raiderBtn addSubview:levelLab];
+                
+                
+                [btnTitleLab mas_makeConstraints:^(MASConstraintMaker *make) {
+                    make.left.mas_equalTo(raiderBtn).offset(AdaptationWidth(180));
+                    make.top.mas_equalTo(raiderBtn).offset(AdaptationWidth(40));
+                    make.height.mas_equalTo(AdaptationWidth(26));
+                }];
+                [btnSubTitleLabBgView mas_makeConstraints:^(MASConstraintMaker *make) {
+                    make.left.mas_equalTo(raiderBtn).offset(AdaptationWidth(180));
+                    make.top.mas_equalTo(btnTitleLab.mas_bottom).offset(AdaptationWidth(6));
+                    make.height.mas_equalTo(AdaptationWidth(18));
+                }];
+                [btnSubTitleLab mas_makeConstraints:^(MASConstraintMaker *make) {
+                    make.left.right.top.bottom.mas_equalTo(btnSubTitleLabBgView);
+                }];
+                [levelLab mas_makeConstraints:^(MASConstraintMaker *make) {
+                    make.left.mas_equalTo(raiderBtn).offset(AdaptationWidth(180));
+                    make.top.mas_equalTo(btnSubTitleLabBgView.mas_bottom).offset(AdaptationWidth(12));
+                    make.width.mas_equalTo(AdaptationWidth(72));
+                    make.height.mas_equalTo(AdaptationWidth(28));
+                }];
+                return cell;
+            }
+            if (self.loan_pro_list.count == 0) {//5项资料未填写完整，无推荐产品时显示
+                UITableViewCell *cell = [[UITableViewCell alloc]init];
+                cell.selectionStyle = UITableViewCellSelectionStyleNone;
+                UIButton *raiderBtn = [[UIButton alloc]init];
+//                raiderBtn.userInteractionEnabled  = NO;
+                [raiderBtn setBackgroundImage:[UIImage imageNamed:@"等级太低卡片"] forState:UIControlStateNormal];
+                [raiderBtn setBackgroundImage:[UIImage imageNamed:@"等级太低卡片点击态"] forState:UIControlStateHighlighted];
+                [raiderBtn addTarget:self action:@selector(buttonAction) forControlEvents:UIControlEventTouchUpInside];
+                [cell addSubview:raiderBtn];
+                
+                [raiderBtn mas_makeConstraints:^(MASConstraintMaker *make) {
+                    make.edges.mas_equalTo(cell);
+                }];
+        
+                UILabel *btnTitleLab = [[UILabel alloc]init];
+                btnTitleLab.textAlignment = NSTextAlignmentLeft;
+                btnTitleLab.text = @"仅需一步, 100%下款";
+                btnTitleLab.numberOfLines = 1;
+                [btnTitleLab setFont:[UIFont fontWithName:@"PingFangSC-Medium" size:AdaptationWidth(18)]];
+                [btnTitleLab setTextColor:XColorWithRBBA(34, 58, 80, 0.8)];
+                [raiderBtn addSubview:btnTitleLab];
+                
+                UILabel *levelLab = [[UILabel alloc]init];
+                [levelLab setCornerValue:2];
+                levelLab.textAlignment = NSTextAlignmentCenter;
+                levelLab.text = [NSString stringWithFormat:@"去下款"];
+                [levelLab setFont:[UIFont fontWithName:@"PingFangSC-Medium" size:AdaptationWidth(13)]];
+                [levelLab setTextColor:XColorWithRBBA(255, 255, 255, 1)];
+                [levelLab setBackgroundColor:XColorWithRBBA(252, 93, 109, 1)];
+                [raiderBtn addSubview:levelLab];
+        
+                [btnTitleLab mas_makeConstraints:^(MASConstraintMaker *make) {
+                    make.left.mas_equalTo(cell).offset(AdaptationWidth(28));
+                    make.top.mas_equalTo(cell).offset(AdaptationWidth(53));
+                }];
+                
+                [levelLab mas_makeConstraints:^(MASConstraintMaker *make) {
+                    make.left.mas_equalTo(cell).offset(AdaptationWidth(28));
+                    make.top.mas_equalTo(btnTitleLab.mas_bottom).offset(AdaptationWidth(16));
+                    make.width.mas_equalTo(AdaptationWidth(72));
+                    make.height.mas_equalTo(AdaptationWidth(28));
+                }];
+                
+                return cell;
+            }
+            static NSString *identifier = @"RecommendTableViewCellSecond";
+            RecommendTableViewSecond *cell = [tableView dequeueReusableCellWithIdentifier:identifier];
+            if (!cell) {
+                cell = [[NSBundle mainBundle]loadNibNamed:@"RecommendTableViewCellSecond" owner:nil options:nil].lastObject;
+            }
+            cell.selectedBackgroundView = [[UIImageView alloc] initWithImage:nil];
+            cell.selectedBackgroundView.backgroundColor = XColorWithRGB(248, 249, 250);
+            
+            ProductModel *model =[ProductModel mj_objectWithKeyValues:self.loan_pro_list[indexPath.row]] ;
+            cell.model = model;
+            switch (indexPath.row) {
+                case 0:{
+                    NSString *rateStr;
+                    switch ([model.loan_rate_type integerValue]) {
+                        case 1:
+                            rateStr = @"参考日利率:";
+                            break;
+                        case 2:
+                            rateStr = @"参考月利率:";
+                            break;
+                        case 3:
+                            rateStr = @"参考年利率:";
+                            break;
+                            
+                        default:
+                            break;
+                    }
+                    if (model.loan_year_rate.intValue > 36) {
+                        [cell.cellInfo setText:[NSString stringWithFormat:@"浮动利率"]];
+                        cell.cellInfo.hidden = YES;
+                    }else{
+                        
+                        if ([model.min_loan_rate isEqualToString:model.loan_rate]) {
+                            if (model.loan_rate.length > 5) {
+                                NSString *substring = [model.loan_rate substringToIndex:5];
+                                [cell.cellInfo setText:[NSString stringWithFormat:@"%@%@%%",rateStr,substring]];
+                            }else{
+                                [cell.cellInfo setText:[NSString stringWithFormat:@"%@%@%%",rateStr,model.loan_rate]];
+                            }
+                            
+                        }else{
+                            [cell.cellInfo setText:[NSString stringWithFormat:@"%@%@%%~%@%%",rateStr,model.min_loan_rate,model.loan_rate]];
+                        }
+                    }
+                }
+                    break;
+                case 1:
+                case 2:
+                    cell.cellInfo.text = model.recommend_desc;
+                    break;
+                    
+                default:
+                    break;
+            }
+            return cell;
+            
+            
+        }
+            break;
+        case RecommenTableViewSectionSecond:{
+            static NSString *identifier = @"RecommendCell";
+            RecommendTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:identifier];
+            if (!cell) {
+                cell = [[NSBundle mainBundle]loadNibNamed:@"RecommendCell" owner:nil options:nil].lastObject;
+            }
+            cell.selectedBackgroundView = [[UIImageView alloc] initWithImage:nil];
+            cell.selectedBackgroundView.backgroundColor = XColorWithRGB(248, 249, 250);
+            cell.model =[ProductModel mj_objectWithKeyValues:self.dataSourceArr[indexPath.row]] ;
+            return cell;
+        }
+            break;
+        default:
+            break;
+    }
+    
+    return nil;
+}
+-(void)buttonAction{
     if(![[UserInfo sharedInstance]isSignIn] ){
         dispatch_async(dispatch_get_main_queue(), ^{
             [self getBlackLogin:self];//判断是否登录状态
         });
         return;
     }
-    //是否名额已满
-    NSInteger row = [self.dataSourceArr[indexPath.row][@"apply_is_full"]integerValue];
-    if (row == 1) {
-        [self setHudWithName:@"名额已满" Time:0.5 andType:3];
+    if (![CreditState creditStateWith:self.creditInfoModel] && self.loan_pro_list.count == 0) {
+        [CreditState selectCreaditState:self with:self.creditInfoModel];
         return;
     }
+}
+
+#pragma mark - 一一一一一 <* UITableViewDelegate *> 一一一一一
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];// 取消选中
+
+    RecommenTableViewSection row = [self.tableViewSectionArry[indexPath.section]integerValue];
+    switch (row) {
+        case RecommenTableViewSectionOne:{
+            
+            ProductDetailVC *vc = [[ProductDetailVC alloc]init];
+            vc.loan_pro_id = self.loan_pro_list[indexPath.row][@"loan_pro_id"];
+            vc.hidesBottomBarWhenPushed = YES;
+            [self.navigationController pushViewController:vc animated:YES];
+        }
+            break;
+        case RecommenTableViewSectionSecond:{
+            
+            //是否名额已满
+            NSInteger index = [self.dataSourceArr[indexPath.row][@"apply_is_full"]integerValue];
+            if (index == 1) {
+                [self setHudWithName:@"名额已满" Time:0.5 andType:3];
+                return;
+            }
+            
+            ProductDetailVC *vc = [[ProductDetailVC alloc]init];
+            vc.loan_pro_id = self.dataSourceArr[indexPath.row][@"loan_pro_id"];
+            vc.hidesBottomBarWhenPushed = YES;
+            [self.navigationController pushViewController:vc animated:YES];
+        }
+            break;
+        default:
+            break;
+    }
     
-    ProductDetailVC *vc = [[ProductDetailVC alloc]init];
-    vc.loan_pro_id = self.dataSourceArr[indexPath.row][@"loan_pro_id"];
-    vc.hidesBottomBarWhenPushed = YES;
-    [self.navigationController pushViewController:vc animated:YES];
+    
 }
 
 #pragma mark - sdcycscrollview delegate
@@ -425,44 +989,66 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
             [[UserLocation sharedInstance]UserLocation];
         }
             break;
+        case RecommendBtnOnClickCreditState:{//去认证
+            [CreditState selectCreaditState:self with:self.creditInfoModel];
+        }
+            break;
+        case RecommendBtnOnClickOther:{//更多推荐
+            [CreditState selectCreaditState:self with:nil];
+        }
+            break;
         default:
             break;
     }
 }
 
--(void)raiderBtnOnClick:(UIButton *)btn{
-    
+- (void)btnOnTopClick:(RecommentTopBtn *)btn{
+   
     switch (btn.tag) {
-        case 0:
-        case 1:
-        case 2:{
-            self.specialproductModel = [ProductModel mj_objectWithKeyValues:self.loan_pro_list[btn.tag]];
-            ProductDetailVC *vc = [[ProductDetailVC alloc]init];
-            vc.loan_pro_id = self.specialproductModel.loan_pro_id;
+        case 200:{
+            AllDKViewController *vc = [[AllDKViewController alloc]init];
+            vc.loan_product_type = @0;
             vc.hidesBottomBarWhenPushed = YES;
             [self.navigationController pushViewController:vc animated:YES];
-            
         }
             break;
-        case 3:{
-            PersonalTailorVC *vc = [PersonalTailorVC new];
+        case 201:{
+            if(![[UserInfo sharedInstance]isSignIn]){
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self getBlackLogin:self];//判断是否登录状态
+                });
+                return;
+            }
+                [TalkingData trackEvent:@"【信用助手】页"];
+                XRootWebVC *vc = [[XRootWebVC alloc]init];
+                vc.hidesBottomBarWhenPushed = YES;
+                vc.url = self.clientGlobalInfoModel.wap_url_list.credit_url;
+                [self.navigationController pushViewController:vc animated:YES];
+        }
+            break;
+        case 202:{
+            if(![[UserInfo sharedInstance]isSignIn]){
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self getBlackLogin:self];//判断是否登录状态
+                });
+                return;
+            }
+            ReportController *vc = [[ReportController alloc]init];
             vc.hidesBottomBarWhenPushed = YES;
             [self.navigationController pushViewController:vc animated:YES];
-        }
+        } 
             break;
             
         default:
             break;
     }
 }
-
 #pragma mark - 一一一一一 <* UICollectionViewDataSource *> 一一一一一
-- (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
+- (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView{
     return 1;
 }
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
-    
-    return self.specialEntryModel.special_entry_list.count;
+   return self.specialEntryModel.special_entry_list.count;
 }
 - (__kindof UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     ReconmendCollectionCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:NSStringFromClass([ReconmendCollectionCell class]) forIndexPath:indexPath];
@@ -480,21 +1066,8 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
         return;
     }
     [collectionView deselectItemAtIndexPath:indexPath animated:YES];
+        [TalkingData trackEvent:@"【特色入口】页"];
     switch (indexPath.row) {
-//        case 0:{
-//            AllDKViewController *vc = [[AllDKViewController alloc]init];
-//            vc.hidesBottomBarWhenPushed = YES;
-//            [self.navigationController pushViewController:vc animated:YES];
-//        }
-//            break;
-//        case 1:{
-//
-//            XRootWebVC *vc = [[XRootWebVC alloc]init];
-//            vc.hidesBottomBarWhenPushed = YES;
-//            vc.url = self.wapUrlLisModel.credit_url;
-//            [self.navigationController pushViewController:vc animated:YES];
-//        }
-//            break;
         case 0:
         case 1:
         case 2:
@@ -515,15 +1088,16 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
                 [[UIApplication sharedApplication]openURL:[NSURL URLWithString:[NSString stringWithFormat:@"http://%@",self.specialEntryModel.special_entry_list[indexPath.row][@"special_entry_url"]]]];
             }
             if (indx.integerValue == 3) {
-                AllDKViewController *vc = [[AllDKViewController alloc]init];
+                SpecialController *vc = [[SpecialController alloc]init];
                 vc.titleStr = self.specialEntryModel.special_entry_list[indexPath.row][@"special_entry_title"];
                 vc.special_entry_id = self.specialEntryModel.special_entry_list[indexPath.row][@"special_entry_id"];
                 vc.loan_product_type = self.specialEntryModel.special_entry_list[indexPath.row][@"loan_product_type"];
                 vc.loan_classify_ids_str = self.specialEntryModel.special_entry_list[indexPath.row][@"loan_classify_ids_str"];
+                vc.list_properties = self.specialEntryModel.special_entry_list[indexPath.row][@"list_properties"];
                 vc.hidesBottomBarWhenPushed = YES;
                 [self.navigationController pushViewController:vc animated:YES];
             }
-            
+
         }
             break;
         default:
@@ -537,8 +1111,7 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
 
 #pragma mark - UICollectionViewDelegateFlowLayout
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
-    
-    return CGSizeMake([self fixSlitWith:self.collectionView.bounds colCount:4 space:AdaptationWidth(0.01)], AdaptationWidth(82));
+    return CGSizeMake([self fixSlitWith:self.collectionView1.bounds colCount:4 space:AdaptationWidth(0.01)], AdaptationWidth(91));
 }
 - (CGFloat)fixSlitWith:(CGRect)rect colCount:(CGFloat)colCount space:(CGFloat)space {
     CGFloat totalSpace = (colCount - 1) * space;                  // 总共留出的距离
@@ -554,558 +1127,14 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
     rect.size.width = realWidth;
     return (rect.size.width - totalSpace) / colCount;        // 每个cell的真实宽度
 }
-
-#pragma mark - 一一一一一 <* 未登录 *> 一一一一一
--(void)userUnlogin{
-    
-    NSInteger btnNum = 1;
-    NSArray *arr = @[@{@"artical_title":@"1111"}];
-    NSMutableArray *raiderArry = [NSMutableArray arrayWithArray:arr];
-    
-    scrollbgViewUnlogin = [[UIView alloc]init];
-    scrollbgViewUnlogin.backgroundColor = [UIColor clearColor];
-    [view addSubview:scrollbgViewUnlogin];
-    
-    UILabel *personlab = [[UILabel alloc]init];
-    [personlab setFont:[UIFont fontWithName:@"PingFangSC-Medium" size:AdaptationWidth(20)]];
-    [personlab setText:@"私人定制"];
-    [personlab setTextColor:XColorWithRBBA(34, 58, 80, 0.32)];
-    [scrollbgViewUnlogin addSubview:personlab];
-    
-    UIScrollView *scroll = [[UIScrollView alloc]init];
-    scroll.directionalLockEnabled = YES;
-    scroll.scrollEnabled =YES;
-    scroll.bounces = NO;
-    scroll.showsVerticalScrollIndicator = NO;
-    scroll.showsHorizontalScrollIndicator = NO;
-    scroll.contentSize = CGSizeMake(btnNum * AdaptationWidth(358) + (btnNum +1)*AdaptationWidth(8) , AdaptationWidth(182));
-    [scrollbgViewUnlogin addSubview:scroll];
-    
-    UIView *scrollcontentsizeView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, scroll.contentSize.width, scroll.contentSize.height)];
-    scrollcontentsizeView.backgroundColor = [UIColor clearColor];
-    [scroll addSubview:scrollcontentsizeView];
-    
-    [raiderArry enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop){
-        
-        UIButton *raiderBtn = [[UIButton alloc]init];
-        [raiderBtn setBackgroundImage:[UIImage imageNamed:@"定制未登录卡片"] forState:UIControlStateNormal];
-        [raiderBtn setBackgroundImage:[UIImage imageNamed:@"定制未登录卡片点击态"] forState:UIControlStateHighlighted];
-        raiderBtn.tag = RecommendBtnOnClickUnlogin;
-        [raiderBtn addTarget:self action:@selector(btnOnClick:) forControlEvents:UIControlEventTouchUpInside];
-        [scroll addSubview:raiderBtn];
-        
-        [raiderBtn mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.left.mas_equalTo(scrollcontentsizeView).offset(AdaptationWidth(8)+ idx*(AdaptationWidth(359)) + idx * AdaptationWidth(8));
-            make.top.mas_equalTo(scrollcontentsizeView);
-            make.bottom.mas_equalTo(scrollcontentsizeView);
-            make.width.mas_equalTo(AdaptationWidth(359));
-        }];
-        
-        UIImageView *imageView = [[UIImageView alloc]init];
-        imageView.layer.masksToBounds = YES;
-        imageView.layer.cornerRadius = AdaptationWidth(2);
-        imageView.backgroundColor = XColorWithRBBA(252, 93, 109, 1);
-        [raiderBtn addSubview:imageView];
-        
-        UILabel *btnTitleLab = [[UILabel alloc]init];
-        btnTitleLab.textAlignment = NSTextAlignmentLeft;
-        btnTitleLab.text = @"您还未登录";
-        [btnTitleLab setFont:[UIFont fontWithName:@"PingFangSC-Medium" size:AdaptationWidth(19)]];
-        [btnTitleLab setTextColor:XColorWithRBBA(34, 58, 80, 0.8)];
-        [raiderBtn addSubview:btnTitleLab];
-        
-        UIView *btnSubTitleLabBgView = [[UIView alloc]init];
-        //        btnSubTitleLabBgView.backgroundColor = XColorWithRBBA(255, 242, 244, 1);
-        //        [btnSubTitleLabBgView setCornerValue:AdaptationWidth(2)];
-        [raiderBtn addSubview:btnSubTitleLabBgView];
-        
-        UILabel *btnSubTitleLab = [[UILabel alloc]init];
-        btnSubTitleLab.text = @"小贷无法为您定制产品哦";
-        [btnSubTitleLab setFont:[UIFont fontWithName:@"PingFangSC-Regular" size:AdaptationWidth(13)]];
-        [btnSubTitleLab setTextColor:XColorWithRBBA(34, 58, 80, 0.48)];
-        [btnSubTitleLabBgView addSubview:btnSubTitleLab];
-        
-        UILabel *levelLab = [[UILabel alloc]init];
-        levelLab.textAlignment = NSTextAlignmentCenter;
-        levelLab.text = [NSString stringWithFormat:@"戳我登录"];
-        [levelLab setFont:[UIFont fontWithName:@"PingFangSC-Medium" size:AdaptationWidth(13)]];
-        [levelLab setTextColor:XColorWithRBBA(255, 255, 255, 1)];
-        [raiderBtn addSubview:levelLab];
-        
-        
-        [imageView mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.left.mas_equalTo(raiderBtn).offset(AdaptationWidth(172));
-            make.top.mas_equalTo(btnSubTitleLabBgView.mas_bottom).offset(AdaptationWidth(12));
-            make.width.mas_equalTo(AdaptationWidth(72));
-            make.height.mas_equalTo(AdaptationWidth(28));
-        }];
-        [btnTitleLab mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.left.mas_equalTo(raiderBtn).offset(AdaptationWidth(172));
-            make.top.mas_equalTo(raiderBtn).offset(AdaptationWidth(40));
-            make.height.mas_equalTo(AdaptationWidth(26));
-        }];
-        [btnSubTitleLabBgView mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.left.mas_equalTo(raiderBtn).offset(AdaptationWidth(172));
-            make.top.mas_equalTo(btnTitleLab.mas_bottom).offset(AdaptationWidth(6));
-            make.height.mas_equalTo(AdaptationWidth(18));
-        }];
-        [btnSubTitleLab mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.left.right.top.bottom.mas_equalTo(btnSubTitleLabBgView);
-        }];
-        [levelLab mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.centerX.mas_equalTo(imageView.mas_centerX);
-            make.centerY.mas_equalTo(imageView.mas_centerY);
-            make.width.mas_equalTo(AdaptationWidth(72));
-            make.height.mas_equalTo(AdaptationWidth(18));
-        }];
-    }];
-    if (imageArry.count == 0 ) {
-        [scrollbgViewUnlogin mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.left.right.mas_equalTo(view);
-            make.top.mas_equalTo(_collectionView.mas_bottom).offset(AdaptationWidth(10));
-            make.bottom.mas_equalTo(view);
-        }];
-    }else{
-        [scrollbgViewUnlogin mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.left.right.mas_equalTo(view);
-            make.top.mas_equalTo(_sdcycleScrollView.mas_bottom).offset(AdaptationWidth(12));
-            make.bottom.mas_equalTo(view);
-        }];
-    }
-    [personlab mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.mas_equalTo(scrollbgViewUnlogin).offset(AdaptationWidth(16));
-        make.left.mas_equalTo(scrollbgViewUnlogin).offset(AdaptationWidth(16));
-    }];
-    [scroll mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.mas_equalTo(scrollbgViewUnlogin);
-        make.right.mas_equalTo(scrollbgViewUnlogin);
-        make.top.mas_equalTo(scrollbgViewUnlogin).offset(AdaptationWidth(60));
-        make.bottom.mas_equalTo(scrollbgViewUnlogin);
-    }];
-}
-#pragma mark - 一一一一一 <* 私人定制 无数据 *> 一一一一一
--(void)customizeWithNoData:(NSString *)message{
-    
-    NSInteger btnNum = 1;
-    NSArray *arr = @[@{@"artical_title":@"1111"}];
-    NSMutableArray *raiderArry = [NSMutableArray arrayWithArray:arr];
-    
-    scrollbgView = [[UIView alloc]init];
-    scrollbgView.backgroundColor = [UIColor clearColor];
-    [view addSubview:scrollbgView];
-    
-    UILabel *personlab = [[UILabel alloc]init];
-    [personlab setFont:[UIFont fontWithName:@"PingFangSC-Medium" size:AdaptationWidth(20)]];
-    [personlab setText:@"私人定制"];
-    [personlab setTextColor:XColorWithRBBA(34, 58, 80, 0.32)];
-    [scrollbgView addSubview:personlab];
-    
-    UIScrollView *scroll = [[UIScrollView alloc]init];
-    scroll.directionalLockEnabled = YES;
-    scroll.scrollEnabled =YES;
-    scroll.bounces = NO;
-    scroll.showsVerticalScrollIndicator = NO;
-    scroll.showsHorizontalScrollIndicator = NO;
-    scroll.contentSize = CGSizeMake(btnNum * AdaptationWidth(358) + (btnNum +1)*AdaptationWidth(8) , AdaptationWidth(182));
-    [scrollbgView addSubview:scroll];
-    
-    UIView *scrollcontentsizeView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, scroll.contentSize.width, scroll.contentSize.height)];
-    scrollcontentsizeView.backgroundColor = [UIColor clearColor];
-    [scroll addSubview:scrollcontentsizeView];
-    
-    [raiderArry enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop){
-        
-        UIButton *raiderBtn = [[UIButton alloc]init];
-        
-        if ([message isEqualToString:@"D"] || [message isEqualToString:@"E"]  ) {
-            raiderBtn.tag = RecommendBtnOnClickComplete;
-            [raiderBtn setBackgroundImage:[UIImage imageNamed:@"等级太低卡片"] forState:UIControlStateNormal];
-            [raiderBtn setBackgroundImage:[UIImage imageNamed:@"等级太低卡片点击态"] forState:UIControlStateHighlighted];
-        }else{
-            raiderBtn.tag = RecommendBtnOnClickCustomization;
-            [raiderBtn setBackgroundImage:[UIImage imageNamed:@"一键定制卡片"] forState:UIControlStateNormal];
-            [raiderBtn setBackgroundImage:[UIImage imageNamed:@"一键定制卡片点击态"] forState:UIControlStateHighlighted];
-        }
-        [raiderBtn addTarget:self action:@selector(btnOnClick:) forControlEvents:UIControlEventTouchUpInside];
-        [scroll addSubview:raiderBtn];
-        
-        [raiderBtn mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.left.mas_equalTo(scrollcontentsizeView).offset(AdaptationWidth(8)+ idx*(AdaptationWidth(359)) + idx * AdaptationWidth(8));
-            make.top.mas_equalTo(scrollcontentsizeView);
-            make.bottom.mas_equalTo(scrollcontentsizeView);
-            make.width.mas_equalTo(AdaptationWidth(359));
-        }];
-        
-        UIImageView *imageView = [[UIImageView alloc]init];
-        imageView.layer.masksToBounds = YES;
-        imageView.layer.cornerRadius = AdaptationWidth(12);
-        imageView.backgroundColor = XColorWithRBBA(252, 93, 109, 1);
-        [raiderBtn addSubview:imageView];
-        
-        UILabel *btnTitleLab = [[UILabel alloc]init];
-        btnTitleLab.textAlignment = NSTextAlignmentLeft;
-        if ([message isEqualToString:@"D"] || [message isEqualToString:@"E"]  ) {
-            NSString *labelText = @"等级太低, 无法为您推荐";
-            NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:labelText];
-            NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
-            [paragraphStyle setLineSpacing:2.0];
-            [attributedString addAttribute:NSParagraphStyleAttributeName value:paragraphStyle range:NSMakeRange(0, [labelText length])];
-            btnTitleLab.attributedText = attributedString;
-            [btnTitleLab sizeToFit];
-            btnTitleLab.numberOfLines = 2;
-        }else{
-            btnTitleLab.text = @"找合适的产品太难？";
-            btnTitleLab.numberOfLines = 1;
-        }
-
-        [btnTitleLab setFont:[UIFont fontWithName:@"PingFangSC-Medium" size:AdaptationWidth(16)]];
-        [btnTitleLab setTextColor:XColorWithRBBA(34, 58, 80, 0.8)];
-        [raiderBtn addSubview:btnTitleLab];
-        
-        UIView *btnSubTitleLabBgView = [[UIView alloc]init];
-        btnSubTitleLabBgView.backgroundColor = XColorWithRBBA(255, 242, 244, 1);
-        [btnSubTitleLabBgView setCornerValue:AdaptationWidth(2)];
-        [raiderBtn addSubview:btnSubTitleLabBgView];
-        
-        UILabel *btnSubTitleLab = [[UILabel alloc]init];
-        if ([message isEqualToString:@"D"] || [message isEqualToString:@"E"]  ) {
-            btnSubTitleLabBgView.backgroundColor = [UIColor clearColor];
-            btnSubTitleLab.text = @"戳我提升等级，获得定制推荐";
-            [btnSubTitleLab setTextColor:XColorWithRBBA(34, 58, 80, 0.48)];
-        }else{
-            btnSubTitleLab.text = @"试试一键定制";
-            [btnSubTitleLab setTextColor:XColorWithRBBA(252, 93, 109, 1)];
-        }
-        [btnSubTitleLab setFont:[UIFont fontWithName:@"PingFangSC-Regular" size:AdaptationWidth(13)]];
-        [btnSubTitleLabBgView addSubview:btnSubTitleLab];
-        
-        UILabel *levelLab = [[UILabel alloc]init];
-        levelLab.textAlignment = NSTextAlignmentLeft;
-        levelLab.text = [NSString stringWithFormat:@"信用等级"];
-        [levelLab setFont:[UIFont fontWithName:@"PingFangSC-Medium" size:AdaptationWidth(12)]];
-        [levelLab setTextColor:XColorWithRBBA(255, 255, 255, 1)];
-        [raiderBtn addSubview:levelLab];
-        
-        UILabel *level = [[UILabel alloc]init];
-        [level setFont:[UIFont fontWithName:@"iconfont" size:AdaptationWidth(26)]];
-        [level setTextColor:[UIColor whiteColor]];
-        if ([message isEqualToString:@"E"]) {
-            level.text =  @"\U0000e60c";
-        }
-        if ([message isEqualToString:@"D"]) {
-            level.text =@"\U0000e60f";
-        }
-        if ([message isEqualToString:@"C"]) {
-            level.text =@"\U0000e60e";
-        }
-        if ([message isEqualToString:@"B"]) {
-            level.text =@"\U0000e60d";
-        }
-        [raiderBtn addSubview:level];
-        
-        [imageView mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.left.mas_equalTo(raiderBtn).offset(AdaptationWidth(28));
-            make.top.mas_equalTo(raiderBtn).offset(AdaptationWidth(38));
-            make.width.height.mas_equalTo(AdaptationWidth(64));
-        }];
-
-        if ([message isEqualToString:@"D"] || [message isEqualToString:@"E"]  ) {
-            [btnSubTitleLab mas_makeConstraints:^(MASConstraintMaker *make) {
-                make.left.right.top.bottom.mas_equalTo(btnSubTitleLabBgView);
-            }];
-            [btnTitleLab mas_makeConstraints:^(MASConstraintMaker *make) {
-                make.left.mas_equalTo(imageView.mas_right).offset(AdaptationWidth(16));
-                make.top.mas_equalTo(raiderBtn).offset(AdaptationWidth(46));
-//                make.height.mas_equalTo(AdaptationWidth(48));
-                make.width.mas_equalTo(AdaptationWidth(112));
-            }];
-            [btnSubTitleLabBgView mas_makeConstraints:^(MASConstraintMaker *make) {
-                make.left.mas_equalTo(raiderBtn).offset(AdaptationWidth(28));
-                make.top.mas_equalTo(imageView.mas_bottom).offset(AdaptationWidth(30));
-                make.height.mas_equalTo(AdaptationWidth(18));
-            }];
-        }else{
-            [btnSubTitleLab mas_makeConstraints:^(MASConstraintMaker *make) {
-                make.left.mas_equalTo(btnSubTitleLabBgView).offset(AdaptationWidth(4));
-                make.right.mas_equalTo(btnSubTitleLabBgView).offset(-AdaptationWidth(4));
-                make.top.mas_equalTo(btnSubTitleLabBgView).offset(AdaptationWidth(4));
-                make.bottom.mas_equalTo(btnSubTitleLabBgView).offset(-AdaptationWidth(4));
-            }];
-            [btnTitleLab mas_makeConstraints:^(MASConstraintMaker *make) {
-                make.left.mas_equalTo(imageView.mas_right).offset(AdaptationWidth(16));
-                make.right.mas_equalTo(raiderBtn).offset(-AdaptationWidth(24));
-                make.top.mas_equalTo(raiderBtn).offset(AdaptationWidth(50));
-                make.height.mas_equalTo(AdaptationWidth(30));
-            }];
-            [btnSubTitleLabBgView mas_makeConstraints:^(MASConstraintMaker *make) {
-                make.left.mas_equalTo(imageView.mas_right).offset(AdaptationWidth(16));
-                make.top.mas_equalTo(btnTitleLab.mas_bottom).offset(AdaptationWidth(4));
-                make.height.mas_equalTo(AdaptationWidth(26));
-            }];
-        }
-        
-        [levelLab mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.left.mas_equalTo(imageView).offset(AdaptationWidth(7));
-            make.top.mas_equalTo(imageView).offset(AdaptationWidth(8));
-            make.height.mas_equalTo(AdaptationWidth(17));
-        }];
-        [level mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.left.mas_equalTo(imageView).offset(AdaptationWidth(19));
-            make.top.mas_equalTo(imageView).offset(AdaptationWidth(30));
-//            make.height.mas_equalTo(AdaptationWidth(25));
-//            make.width.mas_equalTo(AdaptationWidth(25));
-        }];
-    }];
-    if (imageArry.count == 0 ) {
-        [scrollbgView mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.left.right.mas_equalTo(view);
-            make.top.mas_equalTo(_collectionView.mas_bottom).offset(AdaptationWidth(10));
-            make.bottom.mas_equalTo(view);
-        }];
-    }else{
-        [scrollbgView mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.left.right.mas_equalTo(view);
-            make.top.mas_equalTo(_sdcycleScrollView.mas_bottom).offset(AdaptationWidth(12));
-            make.bottom.mas_equalTo(view);
-        }];
-    }
-    [personlab mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.mas_equalTo(scrollbgView).offset(AdaptationWidth(16));
-        make.left.mas_equalTo(scrollbgView).offset(AdaptationWidth(16));
-    }];
-    [scroll mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.mas_equalTo(scrollbgView);
-        make.right.mas_equalTo(scrollbgView);
-        make.top.mas_equalTo(scrollbgView).offset(AdaptationWidth(60));
-        make.bottom.mas_equalTo(scrollbgView);
-    }];
-}
-#pragma mark - 一一一一一 <* 私人定制 有数据 *> 一一一一一
--(void)customize:(NSNumber *)count with:(NSMutableArray *)list{
-    NSInteger btnNum = count.integerValue;
-    NSMutableArray *raiderArry = [NSMutableArray arrayWithArray:list];
-    if (btnNum > 3) {
-        [raiderArry addObject:@{@"":@""}];
-    }
-    scrollbgViewList = [[UIView alloc]init];
-    scrollbgViewList.backgroundColor = [UIColor clearColor];
-    [view addSubview:scrollbgViewList];
-    
-    UILabel *personlab = [[UILabel alloc]init];
-    [personlab setFont:[UIFont fontWithName:@"PingFangSC-Medium" size:AdaptationWidth(20)]];
-    [personlab setText:@"私人定制"];
-    [personlab setTextColor:XColorWithRBBA(34, 58, 80, 0.32)];
-    [scrollbgViewList addSubview:personlab];
-    
-    UIScrollView *scroll = [[UIScrollView alloc]init];
-    scroll.directionalLockEnabled = YES;
-    scroll.scrollEnabled =YES;
-    scroll.showsVerticalScrollIndicator = NO;
-    scroll.showsHorizontalScrollIndicator = NO;
-    scroll.contentSize = CGSizeMake(btnNum * AdaptationWidth(259) + (btnNum +1)*AdaptationWidth(8) , AdaptationWidth(208));
-    [scrollbgViewList addSubview:scroll];
-    
-    UIView *scrollcontentsizeView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, scroll.contentSize.width, scroll.contentSize.height)];
-    scrollcontentsizeView.backgroundColor = [UIColor clearColor];
-    [scroll addSubview:scrollcontentsizeView];
-    
-    [raiderArry enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop){
-        
-        UIButton *raiderBtn = [[UIButton alloc]init];
-        [raiderBtn setBackgroundImage:[UIImage imageNamed:@"card"] forState:UIControlStateNormal];
-        [raiderBtn setBackgroundImage:[UIImage imageNamed:@"card_p"] forState:UIControlStateHighlighted];
-        raiderBtn.tag = idx;
-        [raiderBtn addTarget:self action:@selector(raiderBtnOnClick:) forControlEvents:UIControlEventTouchUpInside];
-        [scroll addSubview:raiderBtn];
-        
-        [raiderBtn mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.left.mas_equalTo(scrollcontentsizeView).offset(AdaptationWidth(8)+ idx*(AdaptationWidth(259)) + idx * AdaptationWidth(8));
-            make.top.mas_equalTo(scrollcontentsizeView);
-            make.bottom.mas_equalTo(scrollcontentsizeView);
-            make.width.mas_equalTo(AdaptationWidth(259));
-        }];
-        if (idx < 3) {
-            self.specialproductModel = [ProductModel mj_objectWithKeyValues:list[idx]];
-            UIImageView *topimageView = [[UIImageView alloc]init];
-            switch (idx) {
-                case 0:
-                    topimageView.image = [UIImage imageNamed:@"第一"];
-                    break;
-                case 1:
-                    topimageView.image = [UIImage imageNamed:@"第二"];
-                    break;
-                case 2:
-                    topimageView.image = [UIImage imageNamed:@"第三"];
-                    break;
-                    
-                default:
-                    break;
-            }
-            [raiderBtn addSubview:topimageView];
-            
-            UIImageView *imageView = [[UIImageView alloc]init];
-            imageView.layer.masksToBounds = YES;
-            NSURL *imageUrl = [NSURL URLWithString:self.specialproductModel.loan_pro_logo_url];
-            UIImage *image = [UIImage imageWithData:[NSData dataWithContentsOfURL:imageUrl]];
-            imageView.image = image;
-            imageView.layer.cornerRadius = AdaptationWidth(16);
-            imageView.backgroundColor = XColorWithRGB(255, 242, 244);
-            [raiderBtn addSubview:imageView];
-            
-            UILabel *btnTitleLab = [[UILabel alloc]init];
-            btnTitleLab.textAlignment = NSTextAlignmentLeft;
-            btnTitleLab.text = self.specialproductModel.loan_pro_name;
-            [btnTitleLab setFont:[UIFont fontWithName:@"PingFangSC-Medium" size:AdaptationWidth(20)]];
-            [btnTitleLab setTextColor:XColorWithRBBA(34, 58, 80, 0.8)];
-            [raiderBtn addSubview:btnTitleLab];
-            
-            
-            if (self.specialproductModel.recommend_desc.length) {
-                UIView *btnSubTitleLabBgView = [[UIView alloc]init];
-                switch (idx) {
-                    case 0:
-                        btnSubTitleLabBgView.backgroundColor = XColorWithRBBA(255, 242, 244, 1);
-                        break;
-                    case 1:
-                        btnSubTitleLabBgView.backgroundColor = XColorWithRBBA(236, 246, 246, 1);
-                        break;
-                    case 2:
-                        btnSubTitleLabBgView.backgroundColor = XColorWithRBBA(253, 244, 232, 1);
-                        break;
-                        
-                    default:
-                        break;
-                }
-                [btnSubTitleLabBgView setCornerValue:AdaptationWidth(2)];
-                [raiderBtn addSubview:btnSubTitleLabBgView];
-                
-                UILabel *btnSubTitleLab = [[UILabel alloc]init];
-                btnSubTitleLab.text = [NSString stringWithFormat: @"%@",self.specialproductModel.recommend_desc];
-                [btnSubTitleLab setFont:[UIFont fontWithName:@"PingFangSC-Regular" size:AdaptationWidth(13)]];
-                switch (idx) {
-                    case 0:
-                        [btnSubTitleLab setTextColor:XColorWithRBBA(252, 93, 109, 1)];
-                        break;
-                    case 1:
-                        [btnSubTitleLab setTextColor:XColorWithRBBA(7, 137, 133, 1)];
-                        break;
-                    case 2:
-                        [btnSubTitleLab setTextColor:XColorWithRBBA(255, 176, 53, 1)];
-                        break;
-                        
-                    default:
-                        break;
-                }
-                [btnSubTitleLabBgView addSubview:btnSubTitleLab];
-                
-                [btnSubTitleLabBgView mas_makeConstraints:^(MASConstraintMaker *make) {
-                    make.left.mas_equalTo(imageView.mas_right).offset(AdaptationWidth(16));
-                    make.top.mas_equalTo(btnTitleLab.mas_bottom).offset(AdaptationWidth(4));
-                    make.height.mas_equalTo(AdaptationWidth(26));
-                }];
-                [btnSubTitleLab mas_makeConstraints:^(MASConstraintMaker *make) {
-                    make.left.mas_equalTo(btnSubTitleLabBgView).offset(AdaptationWidth(4));
-                    make.right.mas_equalTo(btnSubTitleLabBgView).offset(-AdaptationWidth(4));
-                    make.top.mas_equalTo(btnSubTitleLabBgView).offset(AdaptationWidth(4));
-                    make.bottom.mas_equalTo(btnSubTitleLabBgView).offset(-AdaptationWidth(4));
-                }];
-                
-                [btnTitleLab mas_makeConstraints:^(MASConstraintMaker *make) {
-                    make.left.mas_equalTo(imageView.mas_right).offset(AdaptationWidth(16));
-                    make.right.mas_equalTo(raiderBtn).offset(-AdaptationWidth(24));
-                    make.top.mas_equalTo(raiderBtn).offset(AdaptationWidth(50));
-                    make.height.mas_equalTo(AdaptationWidth(30));
-                }];
-            }else{
-                [btnTitleLab mas_makeConstraints:^(MASConstraintMaker *make) {
-                    make.left.mas_equalTo(imageView.mas_right).offset(AdaptationWidth(16));
-                    make.right.mas_equalTo(raiderBtn).offset(-AdaptationWidth(24));
-                    make.centerY.mas_equalTo(imageView);
-                    make.height.mas_equalTo(AdaptationWidth(30));
-                }];
-            }
-            
-            UIView *line = [[UIView alloc]init];
-            line.backgroundColor = XColorWithRGB(233, 233, 235);
-            [raiderBtn addSubview:line];
-            
-            UILabel *moneyLab = [[UILabel alloc]init];
-            moneyLab.textAlignment = NSTextAlignmentLeft;
-            
-            moneyLab.text = [NSString stringWithFormat:@"可贷额度 (元)：%@",self.specialproductModel.loan_credit_str];
-            [moneyLab setFont:[UIFont fontWithName:@"PingFangSC-Regular" size:AdaptationWidth(15)]];
-            [moneyLab setTextColor:XColorWithRBBA(34, 58, 80, 0.48)];
-            [raiderBtn addSubview:moneyLab];
-            
-            [topimageView mas_makeConstraints:^(MASConstraintMaker *make) {
-                make.right.mas_equalTo(raiderBtn).offset(-AdaptationWidth(20));
-                make.top.mas_equalTo(raiderBtn).offset(AdaptationWidth(7));
-                make.height.mas_equalTo(AdaptationWidth(42));
-                make.width.mas_equalTo(AdaptationWidth(32));
-            }];
-            [imageView mas_makeConstraints:^(MASConstraintMaker *make) {
-                make.left.mas_equalTo(raiderBtn).offset(AdaptationWidth(24));
-                make.top.mas_equalTo(raiderBtn).offset(AdaptationWidth(48));
-                make.width.height.mas_equalTo(AdaptationWidth(64));
-            }];
-            
-
-
-            [line mas_makeConstraints:^(MASConstraintMaker *make) {
-                make.left.mas_equalTo(raiderBtn).offset(AdaptationWidth(8));
-                make.right.mas_equalTo(raiderBtn).offset(-AdaptationWidth(8));
-                make.top.mas_equalTo(raiderBtn).offset(AdaptationWidth(136));
-                make.height.mas_equalTo(0.5);
-            }];
-            [moneyLab mas_makeConstraints:^(MASConstraintMaker *make) {
-                make.left.mas_equalTo(raiderBtn).offset(AdaptationWidth(24));
-                make.top.mas_equalTo(line).offset(AdaptationWidth(16));
-                make.height.mas_equalTo(AdaptationWidth(21));
-            }];
-        }else{
-            UILabel *moreLab = [[UILabel alloc]init];
-            moreLab.textAlignment = NSTextAlignmentCenter;
-            moreLab.text = @"查看更多";
-            [moreLab setFont:[UIFont fontWithName:@"PingFangSC-Medium" size:AdaptationWidth(20)]];
-            [moreLab setTextColor:XColorWithRBBA(34, 58, 80, 0.8)];
-            [raiderBtn addSubview:moreLab];
-            
-            [moreLab mas_makeConstraints:^(MASConstraintMaker *make) {
-                make.left.mas_equalTo(raiderBtn).offset(AdaptationWidth(86));
-                make.top.mas_equalTo(raiderBtn).offset(AdaptationWidth(84));
-                make.height.mas_equalTo(AdaptationWidth(30));
-                make.width.mas_equalTo(AdaptationWidth(100));
-            }];
-        }
-    }];
-    if (imageArry.count == 0 ) {
-        [scrollbgViewList mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.left.right.mas_equalTo(view);
-            make.top.mas_equalTo(_collectionView.mas_bottom).offset(AdaptationWidth(10));
-            make.bottom.mas_equalTo(view);
-        }];
-    }else{
-        [scrollbgViewList mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.left.right.mas_equalTo(view);
-            make.top.mas_equalTo(_sdcycleScrollView.mas_bottom).offset(AdaptationWidth(12));
-            make.bottom.mas_equalTo(view);
-        }];
-    }
-    [personlab mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.mas_equalTo(scrollbgViewList).offset(AdaptationWidth(16));
-        make.left.mas_equalTo(scrollbgViewList).offset(AdaptationWidth(16));
-    }];
-    [scroll mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.mas_equalTo(scrollbgViewList);
-        make.right.mas_equalTo(scrollbgViewList);
-        make.top.mas_equalTo(scrollbgViewList).offset(AdaptationWidth(60));
-        make.bottom.mas_equalTo(scrollbgViewList);
-    }];
-}
-
 #pragma mark - 网络
 - (void)setRequestParams{
     switch (self.requestCount) {
+        case RecommenRequestCreditInfo:{
+            self.cmd = XGetCreditInfo;
+            self.dict = [NSDictionary dictionary];
+        }
+            break;
         case RecommenRequestHotInfo:
             self.cmd = XGetHotLoanProList;
             self.dict = [self.query_param mj_keyValues];
@@ -1126,7 +1155,11 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
             break;
         case RecommenRequestSpecialInfo:{
             self.cmd = XGetSpecialLoanProList;
-            self.dict = @{};
+            if ([CreditState creditStateWith:self.creditInfoModel]) {
+                self.dict =@{@"query_type":@1};
+            }else{
+                self.dict =@{@"query_type":@2};
+            }
         }
             break;
         default:
@@ -1135,12 +1168,28 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
 }
 - (void)requestSuccessWithDictionary:(XResponse *)response{
     switch (self.requestCount) {
+        case RecommenRequestCreditInfo:{
+            [[CreditInfoModel sharedInstance]saveCreditStateInfo:[CreditInfoModel mj_objectWithKeyValues:response.content]];
+
+            if ([CreditState creditStateWith:self.creditInfoModel] && self.loan_pro_list.count == 0) {
+                [self.tableViewSectionArry removeObject:@(RecommenTableViewSectionOne)];
+            }
+            [self.tableView reloadData];
+        }
+            break;
         case RecommenRequestHotInfo:{
             self.dataSourceArr = response.content[@"loan_pro_list"];
             self.tableView.tableFooterView = [self creatFooterView];
-            [self.tableView reloadData];
-             [self prepareDataWithCount:RecommenRequestSpecialInfo];
             
+            [self.tableViewSectionArry removeAllObjects];
+            [self.tableViewSectionArry addObject:@(RecommenTableViewSectionOne)];
+            [self.tableViewSectionArry addObject:@(RecommenTableViewSectionSecond)];
+            if ([[UserInfo sharedInstance]isSignIn]) {
+                [self prepareDataWithCount:RecommenRequestSpecialInfo];
+                
+                return;
+            }
+            [self.tableView reloadData];      
         }
             break;
         case RecommenRequestSpecialEntry:{
@@ -1152,69 +1201,10 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
         }
             break;
         case RecommenRequestSpecialInfo:{
+            self.loan_pro_list_row = response.content[@"loan_pro_list_count"];
             self.loan_pro_list = response.content[@"loan_pro_list"];
-            /*!< 无banner >*/
-            if (imageArry.count == 0 ) {
-                if (![[UserInfo sharedInstance]isSignIn]) {
-                    /*!< 未登录 >*/
-                    if (self.specialEntryModel.special_entry_list.count > 4) {
-                        self.tableView.tableHeaderView = [self creatHeadView:CGRectMake(0, 0, ScreenWidth, AdaptationWidth(548))];
-                    }else{
-                        self.tableView.tableHeaderView = [self creatHeadView:CGRectMake(0, 0, ScreenWidth, AdaptationWidth(486))];
-                    }
-                }else{
-                    /*!< 登录 >*/
-                    if (self.loan_pro_list.count != 0) {
-                        /*!< 有推荐数据 >*/
-                        if (self.specialEntryModel.special_entry_list.count > 4) {
-                        self.tableView.tableHeaderView = [self creatHeadView:CGRectMake(0, 0, ScreenWidth, AdaptationWidth(574))];
-                        }else{
-                            self.tableView.tableHeaderView = [self creatHeadView:CGRectMake(0, 0, ScreenWidth, AdaptationWidth(512))];
-                        }
-                    }else{
-                        /*!< 无推荐数据 >*/
-                        if (self.specialEntryModel.special_entry_list.count > 4) {
-                        self.tableView.tableHeaderView = [self creatHeadView:CGRectMake(0, 0, ScreenWidth, AdaptationWidth(302))];
-                        }else{
-                            self.tableView.tableHeaderView = [self creatHeadView:CGRectMake(0, 0, ScreenWidth, AdaptationWidth(240))];
-                        }
-                    }
-                }
-            }else{
-                if (self.loan_pro_list.count == 0 ) {
-                    [scrollbgViewList removeFromSuperview];
-                    if (self.specialEntryModel.special_entry_list.count > 4) {
-                    self.tableView.tableHeaderView = [self creatHeadView:CGRectMake(0, 0, ScreenWidth, AdaptationWidth(418))];
-                    }else{
-                        self.tableView.tableHeaderView = [self creatHeadView:CGRectMake(0, 0, ScreenWidth, AdaptationWidth(356))];
-                    }
-                }else{
-                    if (self.specialEntryModel.special_entry_list.count > 4) {
-                    self.tableView.tableHeaderView = [self creatHeadView:CGRectMake(0, 0, ScreenWidth, AdaptationWidth(684))];
-                    }else{
-                        self.tableView.tableHeaderView = [self creatHeadView:CGRectMake(0, 0, ScreenWidth, AdaptationWidth(622))];
-                    }
-                }
-            }
-            if(![[UserInfo sharedInstance]isSignIn]){
-                if (scrollbgViewUnlogin == nil) {
-                    [scrollbgViewList removeFromSuperview];
-                    [scrollbgView removeFromSuperview];
-                    [self userUnlogin];
-                }else{
-                    [scrollbgViewUnlogin removeFromSuperview];
-                    [self userUnlogin];
-                }
-            }else if(self.loan_pro_list.count != 0){
-                if (scrollbgViewList == nil) {
-                    [scrollbgView removeFromSuperview];
-                    [scrollbgViewUnlogin removeFromSuperview];
-                    [self customize:response.content[@"loan_pro_list_count"] with:self.loan_pro_list];
-                }else{
-                    [scrollbgViewList removeFromSuperview];
-                    [self customize:response.content[@"loan_pro_list_count"] with:self.loan_pro_list];
-                }
-            }
+            
+            [self prepareDataWithCount:RecommenRequestCreditInfo];
             
         }
             
@@ -1225,42 +1215,12 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
     }
 }
 -(void)requestFaildWithDictionary:(XResponse *)response{
-    /*!< 无banner >*/
-    if (imageArry.count == 0 ) {
-        if (self.specialEntryModel.special_entry_list.count > 4) {
-            self.tableView.tableHeaderView = [self creatHeadView:CGRectMake(0, 0, ScreenWidth, AdaptationWidth(548))];
-        }else{
-            self.tableView.tableHeaderView = [self creatHeadView:CGRectMake(0, 0, ScreenWidth, AdaptationWidth(476))];
-        }
-    }else{
-        if (self.specialEntryModel.special_entry_list.count > 4) {
-            self.tableView.tableHeaderView = [self creatHeadView:CGRectMake(0, 0, ScreenWidth, AdaptationWidth(656))];
-        }else{
-            self.tableView.tableHeaderView = [self creatHeadView:CGRectMake(0, 0, ScreenWidth, AdaptationWidth(584))];
-        }
+    [super requestFaildWithDictionary:response];
+    if (self.requestCount == RecommenRequestSpecialInfo) {
+        self.loan_pro_list_row = nil;
+        [self.loan_pro_list removeAllObjects];
+       [self prepareDataWithCount:RecommenRequestCreditInfo];
     }
-    if(![[UserInfo sharedInstance]isSignIn]){
-        if (scrollbgViewUnlogin == nil) {
-            [scrollbgViewList removeFromSuperview];
-            [scrollbgView removeFromSuperview];
-            [self userUnlogin];
-        }else{
-            [scrollbgViewUnlogin removeFromSuperview];
-            [self userUnlogin];
-        }
-    }else{
-        if ([response.errCode.description isEqualToString:@"31"] || [response.errCode.description isEqualToString:@"34"]) {
-            if (scrollbgView == nil) {
-                [scrollbgViewList removeFromSuperview];
-                [scrollbgViewUnlogin removeFromSuperview];
-                [self customizeWithNoData:response.errMsg];
-            }else{
-                [scrollbgView removeFromSuperview];
-                [self customizeWithNoData:response.errMsg];
-            }
-        }
-   }
-   
 }
 
 #pragma  mark - 刷新
@@ -1269,6 +1229,12 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
 }
 
 #pragma mark - 懒加载
+- (NSMutableArray *)tableViewSectionArry{
+    if (!_tableViewSectionArry) {
+        _tableViewSectionArry = [NSMutableArray array];
+    }
+    return _tableViewSectionArry;
+}
 -(NSMutableArray *)loan_pro_list{
     if (!_loan_pro_list) {
         _loan_pro_list = [NSMutableArray array];
@@ -1311,7 +1277,12 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
     }
     return _specialEntryModel;
 }
-
+- (CreditInfoModel *)creditInfoModel{
+    if (!_creditInfoModel) {
+        _creditInfoModel = [[CreditInfoModel sharedInstance]getCreditStateInfo];
+    }
+    return _creditInfoModel;
+}
 #pragma mark - Tabbar 点击刷新
 - (BOOL)tabBarController:(UITabBarController *)tabBarController shouldSelectViewController:(UIViewController *)viewController{
     if ([tabBarController.selectedViewController isEqual:viewController] && tabBarController.selectedIndex == self.index )  {

@@ -35,6 +35,10 @@
 @property (nonatomic, copy) NSNumber *cooperation_type;
 @property (nonatomic, copy) NSString *cooperation_url;
 @property (nonatomic, copy) NSString *recommend_desc;
+@property (nonatomic, assign) BOOL itemIsSelected;
+@property (nonatomic, copy) NSNumber *pre_loan_visit;
+@property (nonatomic, copy) NSNumber *agency_fee;
+@property (nonatomic, copy) NSNumber *service_fee_rate;
 @end
 //“loan_pro_id”: xxx // 贷款产品uuid
 //“loan_pro_name”: “xxx”, // 产品名称
@@ -72,4 +76,8 @@
 //“loan_process”:xxxx // 借款申请流程, json数组[“111”,”2222”]
 //“cooperation_type”: “xxx”, // 产品合作方式：1落地页 2注册信息对接 3商户后台
 //“cooperation_url”: “xxx”, // 合作方提供的跳转链接
+
+//“pre_loan_visit”: “xxx”, // 贷前回访：1 需要 0不需要
+//“agency_fee”: “xxx”, // 中介服务费 -1 表示面议
+//“service_fee_rate”: “xxx”, // 手续费比例 -1.0表示面议
 

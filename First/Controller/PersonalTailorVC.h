@@ -13,4 +13,5 @@
 @property (nonatomic ,assign) NSInteger quotaIndex;
 @property (nonatomic ,assign) NSInteger dataIndex;
 @property (nonatomic ,assign) NSInteger sortIndex;
+@property (nonatomic ,copy) NSNumber *isAllProduct;//1全流程 2半流程
 @end

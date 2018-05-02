@@ -9,12 +9,18 @@
 #import "OperatorAuthenticationSecondVC.h"
 #import "XCountDownButton.h"
 #import "OperatorModel.h"
+#import "CreditInfoModel.h"
+#import "PersonalTailorVC.h"
 typedef NS_ENUM(NSInteger ,OperatorRequestSceond) {
     OperatorRequestSceondCode,
     OperatorRequestSceondSure,
+    CreditRequestDetailInfo,
+    HalfWithAllProduct,
+
 };
 @interface OperatorAuthenticationSecondVC ()
-
+@property (nonatomic, strong)CreditInfoModel *creditInfoModel;
+@property (nonatomic ,copy) NSNumber *isAllProduct;//1全流程 2流程
 @end
 
 @implementation OperatorAuthenticationSecondVC
@@ -25,7 +31,7 @@ typedef NS_ENUM(NSInteger ,OperatorRequestSceond) {
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    [self prepareDataWithCount:OperatorRequestSceondCode];
+//    [self prepareDataWithCount:OperatorRequestSceondCode];
     [self setUI];
 }
 - (void)setUI{
@@ -120,7 +126,7 @@ typedef NS_ENUM(NSInteger ,OperatorRequestSceond) {
 {
     
     _getVerificationCodeButton.userInteractionEnabled = NO;
-    
+
     [_getVerificationCodeButton startCountDownWithSecond:60];
     
     [_getVerificationCodeButton countDownChanging:^NSString *(XCountDownButton *countDownButton,NSUInteger second) {
@@ -137,25 +143,35 @@ typedef NS_ENUM(NSInteger ,OperatorRequestSceond) {
     switch (self.requestCount) {
         case OperatorRequestSceondCode:
             self.cmd  = XPostOperatorVerify;
-            self.dict = @{@"operator_phone":self.phoneStr,
-                          @"operator_password":self.pwdStr,
-                          @"operator_website":[OperatorModel sharedInstance].operator_website,
-                          @"operator_token":[OperatorModel sharedInstance].operator_token,
-                          @"captcha":@"",
-                          @"type":@"RESEND_CAPTCHA"
-                          };
+            self.dict = [NSDictionary dictionaryWithObjectsAndKeys:
+                         self.phoneStr,@"operator_phone",
+                         self.pwdStr,@"operator_password",
+                         [OperatorModel sharedInstance].operator_website,@"operator_website",
+                         [OperatorModel sharedInstance].operator_token,@"operator_token",
+                         @"",@"captcha",
+                         @"RESEND_CAPTCHA",@"type", nil];
             break;
         case OperatorRequestSceondSure:
             self.cmd = XPostOperatorVerify;
-            self.dict = @{@"operator_phone":self.phoneStr,
-                          @"operator_password":self.pwdStr,
-                          @"operator_website":[OperatorModel sharedInstance].operator_website,
-                          @"operator_token":[OperatorModel sharedInstance].operator_token,
-                          @"captcha":_verificationText.text,
-                          @"type":@"SUBMIT_CAPTCHA"
-                          };
-            break;
+            self.dict = [NSDictionary dictionaryWithObjectsAndKeys:
+                         self.phoneStr,@"operator_phone",
+                         self.pwdStr,@"operator_password",
+                         [OperatorModel sharedInstance].operator_website,@"operator_website",
+                         [OperatorModel sharedInstance].operator_token,@"operator_token",
+                         _verificationText.text,@"captcha",
+                         @"SUBMIT_CAPTCHA",@"type", nil];
             
+            break;
+        case CreditRequestDetailInfo:{
+            self.cmd = XGetCreditInfo;
+            self.dict = [NSDictionary dictionary];
+        }
+            break;
+        case HalfWithAllProduct:{
+            self.cmd  = XGetSpecialLoanProList;
+            self.dict =@{@"query_type":self.isAllProduct};
+        }
+            break;
         default:
             break;
     }
@@ -170,6 +186,11 @@ typedef NS_ENUM(NSInteger ,OperatorRequestSceond) {
             NSString *result = response.content[@"process_code"];
             if ([result isEqualToString:@"10008"]) {
                 [self setHudWithName:@"运营商认证成功" Time:0.5 andType:1];
+                
+                if (self.isBlock.integerValue) {
+                    [self prepareDataWithCount:CreditRequestDetailInfo];
+                    return;
+                }
                 [self.navigationController popToRootViewControllerAnimated:NO];
                 return;
             }
@@ -182,10 +203,47 @@ typedef NS_ENUM(NSInteger ,OperatorRequestSceond) {
             
         }
             break;
+        case CreditRequestDetailInfo:{
+            [[CreditInfoModel sharedInstance]saveCreditStateInfo:[CreditInfoModel mj_objectWithKeyValues:response.content]];
             
+            if ([CreditState creditStateWith:self.creditInfoModel]) {
+                self.isAllProduct = @1;
+            }else{
+                self.isAllProduct = @2;
+            }
+            [self prepareDataWithCount:HalfWithAllProduct];
+            
+            
+        }
+            break;
+        case HalfWithAllProduct:{
+            NSNumber *row = response.content[@"loan_pro_list_count"];
+            if(row.integerValue > 0){
+                PersonalTailorVC *vc = [[PersonalTailorVC alloc]init];
+                vc.isAllProduct = self.isAllProduct;
+                [self.navigationController pushViewController:vc animated:YES];
+                return;
+            }
+            
+            if (self.isBlock.integerValue == 1) {
+                [CreditState selectCreaditState:self with:self.creditInfoModel];
+                return;
+            }
+            if (self.isBlock.integerValue == 2) {
+                [CreditState selectOperatorCreaditState:self];
+                return;
+            }
+        }
+            break;
         default:
             break;
     }
+}
+- (CreditInfoModel *)creditInfoModel{
+    if (!_creditInfoModel) {
+        _creditInfoModel = [[CreditInfoModel sharedInstance]getCreditStateInfo];
+    }
+    return _creditInfoModel;
 }
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
