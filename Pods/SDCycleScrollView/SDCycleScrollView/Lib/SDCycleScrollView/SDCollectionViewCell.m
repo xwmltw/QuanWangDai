@@ -32,10 +32,11 @@
 
 #import "SDCollectionViewCell.h"
 #import "UIView+SDExtension.h"
-
+#import "Masonry.h"
 @implementation SDCollectionViewCell
 {
     __weak UILabel *_titleLabel;
+    __weak UIImageView *_titleimageView;
 }
 
 
@@ -44,6 +45,10 @@
     if (self = [super initWithFrame:frame]) {
         [self setupImageView];
         [self setupTitleLabel];
+        self.numLabel = [[UILabel alloc]init];
+        self.numLabel.font = [UIFont fontWithName:@"PingFangSC-Regular" size:14];
+        self.numLabel.textColor = [UIColor whiteColor];
+        [self.contentView addSubview:self.numLabel];
     }
     
     return self;
@@ -76,11 +81,14 @@
 
 - (void)setupTitleLabel
 {
+
     UILabel *titleLabel = [[UILabel alloc] init];
     _titleLabel = titleLabel;
+    titleLabel.font = [UIFont fontWithName:@"PingFangSC-Medium" size:16];
     _titleLabel.hidden = YES;
     [self.contentView addSubview:titleLabel];
 }
+
 
 - (void)setTitle:(NSString *)title
 {
@@ -88,7 +96,14 @@
     _titleLabel.text = [NSString stringWithFormat:@"   %@", title];
     if (_titleLabel.hidden) {
         _titleLabel.hidden = NO;
+        [self setImageView];
     }
+}
+-(void)setImageView{
+    UIImageView *imageView = [[UIImageView alloc] init];
+    imageView.image = [UIImage imageNamed:@"area_hue"];
+    [self.contentView addSubview:imageView];
+    _titleimageView = imageView;
 }
 
 -(void)setTitleLabelTextAlignment:(NSTextAlignment)titleLabelTextAlignment
@@ -108,8 +123,21 @@
         CGFloat titleLabelW = self.sd_width;
         CGFloat titleLabelH = _titleLabelHeight;
         CGFloat titleLabelX = 0;
-        CGFloat titleLabelY = self.sd_height - titleLabelH;
-        _titleLabel.frame = CGRectMake(titleLabelX, titleLabelY, titleLabelW, titleLabelH);
+        CGFloat titleLabelY = self.sd_height - titleLabelH ;
+        _titleimageView.frame = CGRectMake(titleLabelX, titleLabelY, titleLabelW, titleLabelH);
+        [self->_titleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.right.mas_equalTo(self.numLabel).offset(-10);
+            make.bottom.mas_equalTo(self.contentView);
+            make.height.mas_equalTo(titleLabelH);
+            make.left.mas_equalTo(self.contentView);
+        }];
+//        _titleLabel.frame = CGRectMake(titleLabelX, titleLabelY, titleLabelW - 34, titleLabelH);
+        [self.numLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.right.mas_equalTo(self.contentView).offset(-12);
+            make.bottom.mas_equalTo(self.contentView).offset(-17);
+        }];
+
+        [self.contentView bringSubviewToFront:_titleLabel];
     }
 }
 

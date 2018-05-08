@@ -158,9 +158,8 @@
  *   string:表示请求的cmd dict:表示请求的参数
  */
 -(void)prepareDataGetUrlWithModel:(id)model andparmeter:(NSDictionary *)dict{
-    
-    MBProgressHUD *hud = nil;
 
+    MBProgressHUD *hud = nil;
     if ([model isEqual:XGetOperatorInfo] || [model isEqual:XPostOperatorVerify] ) {
         UIWindow *topWindow = [[UIApplication sharedApplication] keyWindow];
         UIViewController *appRootVC = topWindow.rootViewController;
@@ -204,20 +203,11 @@
         if (hud) {
             [hud hideAnimated:YES];
         }
-
-        [self.tableView.mj_footer endRefreshing];
-        [self.tableView.mj_header endRefreshing];
-
         if (error) {
             MyLog(@"网络请求失败返回数据%@",error);
-            
-//            UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"加载失败" message:@"网络连接失败" preferredStyle:UIAlertControllerStyleAlert];
-//            UIAlertAction *okAction = [UIAlertAction actionWithTitle:@"重新加载" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action){
-//                [self prepareDataWithCount:self.requestCount];
-//            }];
-//
-//            [alertController addAction:okAction];
-//            [self presentViewController:alertController animated:YES completion:nil];
+            [self.tableView.mj_footer endRefreshing];
+            [self.tableView.mj_header endRefreshing];
+
             if (!(_bgView == nil)) {
                 _bgView.hidden = YES;
                 [_bgView removeFromSuperview];
@@ -277,8 +267,16 @@
             NSString *base64String2 = [SecurityUtil decryptAESData:base64String];
             NSDictionary *keyDict = [SecurityUtil dictionaryWithJsonString:base64String2];
             MyLog(@"网络请求成功返回数据%@",keyDict);
-            
+
             XResponse *response = [XResponse mj_objectWithKeyValues:keyDict];
+            if ([model isEqual:XGetArticleList] && [response.content[@"article_list"] count] == 0) {
+                [self.tableView.mj_footer endRefreshingWithNoMoreData];
+                [self.tableView.mj_header endRefreshing];
+                return;
+            }else{
+                [self.tableView.mj_footer endRefreshing];
+                [self.tableView.mj_header endRefreshing];
+            }
             if (response.errCode.integerValue == 2) {//session过期或者失效
                 ServiceURLVC *vc = [[ServiceURLVC alloc]init];
                 [vc getServiceURL:^(id result) {
@@ -332,8 +330,8 @@
         hud.delegate = self;
         hud.mode = MBProgressHUDModeCustomView;
         hud.detailsLabel.text = name;
-        hud.contentColor = XColorWithRBBA(34, 58, 80, 0.8);
-        hud.bezelView.backgroundColor = XColorWithRBBA(34, 58, 80, 0.8);
+        hud.contentColor = XColorWithRBBA(255, 255, 255, 1);
+        hud.bezelView.backgroundColor = XColorWithRBBA(0, 0, 0, 1);
         [hud hideAnimated:YES afterDelay:time];
     });
 }
@@ -440,9 +438,12 @@
     header.stateLabel.hidden = YES;
     _tableView.mj_header = header;
     
-    MJRefreshAutoNormalFooter *footer =[MJRefreshAutoNormalFooter footerWithRefreshingTarget:self refreshingAction:@selector(footerRefresh)];
+    MJRefreshAutoNormalFooter *footer = [MJRefreshAutoNormalFooter footerWithRefreshingTarget:self refreshingAction:@selector(footerRefresh)];
     _tableView.mj_footer = footer;
     [footer setTitle:@"" forState:MJRefreshStateIdle];
+    [footer setTitle:@"正在加载..." forState:MJRefreshStateRefreshing];
+    footer.stateLabel.font = [UIFont fontWithName:@"PingFangSC-Light" size:AdaptationWidth(12)];
+    footer.stateLabel.textColor = XColorWithRBBA(34, 58, 80, 0.32);
     _tableView.mj_footer.hidden = YES;
     [self.view addSubview:_tableView];
 }

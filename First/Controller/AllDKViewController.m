@@ -195,7 +195,7 @@ typedef NS_ENUM(NSInteger ,AllDKViewRequest) {
         [self setHudWithName:@"名额已满" Time:0.5 andType:1];
         return;
     }
-
+    [TalkingData trackEvent:@"【贷款大全】-点击产品"];
     ProductDetailVC *vc = [[ProductDetailVC alloc]init];
     vc.loan_pro_id = self.dataSourceArr[indexPath.row][@"loan_pro_id"];
     vc.hidesBottomBarWhenPushed = YES;
@@ -359,6 +359,7 @@ typedef NS_ENUM(NSInteger ,AllDKViewRequest) {
     if (titleArry.count > 3) {
         switch (indexPath.column) {
             case 0:
+                [TalkingData trackEvent:@"【贷款大全】-贷款类型"];
                 if (indexPath.row == 0) {
                     self.productListModel.loan_pro_type = nil;
                     self.productListModel.loan_classify_id = nil;
@@ -373,6 +374,7 @@ typedef NS_ENUM(NSInteger ,AllDKViewRequest) {
                 self.typeIndex = indexPath.row;
                 break;
             case 1:
+                [TalkingData trackEvent:@"【贷款大全】-可贷额度"];
                 if (indexPath.row == 0) {
                     quotaSelect = NO;
                     self.productListModel.loan_credit = nil;
@@ -383,6 +385,7 @@ typedef NS_ENUM(NSInteger ,AllDKViewRequest) {
                 self.quotaIndex = indexPath.row;
                 break;
             case 2:
+                [TalkingData trackEvent:@"【贷款大全】-借款期限"];
                 if (indexPath.row == 0) {
                     dataSelect = NO;
                     self.productListModel.loan_deadline = nil;
@@ -393,6 +396,7 @@ typedef NS_ENUM(NSInteger ,AllDKViewRequest) {
                 self.dataIndex = indexPath.row;
                 break;
             case 3:
+                [TalkingData trackEvent:@"【贷款大全】-排序"];
                 if (indexPath.row == 0) {
                     sortSelect = NO;
                     self.productListModel.order_type = nil;
@@ -410,6 +414,7 @@ typedef NS_ENUM(NSInteger ,AllDKViewRequest) {
         switch (indexPath.column) {
                 
             case 0:
+                [TalkingData trackEvent:@"【贷款大全】-可贷额度"];
                 if (indexPath.row == 0) {
                     quotaSelect = NO;
                     self.productListModel.loan_credit = nil;
@@ -420,6 +425,7 @@ typedef NS_ENUM(NSInteger ,AllDKViewRequest) {
                 self.quotaIndex = indexPath.row;
                 break;
             case 1:
+                [TalkingData trackEvent:@"【贷款大全】-借款期限"];
                 if (indexPath.row == 0) {
                     dataSelect = NO;
                     self.productListModel.loan_deadline = nil;
@@ -430,6 +436,7 @@ typedef NS_ENUM(NSInteger ,AllDKViewRequest) {
                 self.dataIndex = indexPath.row;
                 break;
             case 2:
+                [TalkingData trackEvent:@"【贷款大全】-排序"];
                 if (indexPath.row == 0) {
                     sortSelect = NO;
                     self.productListModel.order_type = nil;

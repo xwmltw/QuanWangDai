@@ -32,6 +32,7 @@
 
 @interface AppDelegate ()<ServiceURLVCDelegate,JPUSHRegisterDelegate>
 @property(nonatomic,strong)UITabBarController *tabVC;//导航栏控制器
+
 @end
 
 @implementation AppDelegate
@@ -85,11 +86,12 @@
     self.window = [[UIWindow alloc]initWithFrame:[[UIScreen mainScreen] bounds]];
     self.window.backgroundColor = [UIColor whiteColor];
     ServiceURLVC *vc = [[ServiceURLVC alloc]init];
+    UINavigationController *nav = [[UINavigationController alloc]initWithRootViewController:vc];
     [vc getServiceURL:nil];
     vc.delegate = self;
-    self.window.rootViewController = vc;
+    self.window.rootViewController = nav;
     [self.window makeKeyAndVisible];
-    
+
     NSDictionary *activityDictionary = [launchOptions objectForKey:UIApplicationLaunchOptionsUserActivityDictionaryKey];
     if (activityDictionary) {
         NSUserActivity *userActivity = [activityDictionary valueForKey:@"UIApplicationLaunchOptionsUserActivityKey"];
@@ -108,11 +110,10 @@
             return YES;
         }
     }
-    
+
+
     return YES;
 }
-
-
 - (void)addThreeConfig:(NSDictionary *)launchOptions{
     //键盘
     [IQKeyboardManager sharedManager].toolbarDoneBarButtonItemText = @"完成";
@@ -165,6 +166,7 @@
     self.tabVC.viewControllers = [XBaseViewController setAdultTabBar];
     self.window.rootViewController = self.tabVC;
 }
+
 #pragma mark - jpush delegate
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken{
     [JPUSHService registerDeviceToken:deviceToken];

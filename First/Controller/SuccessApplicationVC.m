@@ -314,7 +314,7 @@
         [self setHudWithName:@"名额已满" Time:0.5 andType:3];
         return;
     }
-    
+    [TalkingData trackEvent:@"【申请成功】-点击产品"];
     ProductDetailVC *vc = [[ProductDetailVC alloc]init];
     vc.loan_pro_id = self.dataSourceArr[indexPath.row][@"loan_pro_id"];
     vc.hidesBottomBarWhenPushed = YES;
@@ -324,11 +324,12 @@
 - (void)btnOnClick:(UIButton *)btn{
     if (btn.tag == 100) {
         if (self.dataSourceArr.count > 3) {
+            [TalkingData trackEvent:@"【申请成功】-继续申请"];
             PersonalTailorVC *vc = [[PersonalTailorVC alloc]init];
             vc.isAllProduct = @1;
             [self.navigationController pushViewController:vc animated:YES];
         }else{
-           
+           [TalkingData trackEvent:@"【申请成功】-去办信用卡"];
             XRootWebVC *vc = [[XRootWebVC alloc]init];
             vc.hidesBottomBarWhenPushed = YES;
             vc.url = self.clientGlobalInfoRM.wap_url_list.credit_url;
@@ -342,6 +343,7 @@
         [self.navigationController popToRootViewControllerAnimated:YES];
     }
     if (btn.tag == 102) {
+        [TalkingData trackEvent:@"【申请成功】-复制"];
         [self setHudWithName:@"复制成功" Time:1 andType:0];
         UIPasteboard *paste = [UIPasteboard generalPasteboard];
         paste.string = copyStr;

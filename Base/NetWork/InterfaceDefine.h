@@ -103,7 +103,9 @@ static NSString *const XNotificationAlert = @"XNotificationAlert";
 #define XPayCreditReportOrder @"qwd_payCreditReportOrder"       /*!< 支付信用报告订单*/
 #define XRechargeCreditReport @"qwd_rechargeCreditReport"       /*!< 用户购买信用报告*/
 #define XBatchApplyLoan @"qwd_batchApplyLoan"                   /*!< 一键申请产品*/
-
-
-
+#define XGetHelpCenterList @"qwd_getHelpCenterList"             /*!< 获取帮助中心(常见问题)列表*/
+#define XGetArticleCatList @"qwd_getArticleCatList"             /*!< 获取文章分类列表接口*/
+#define XGetArticleList @"qwd_getArticleList"                   /*!< 获取文章列表(攻略和资讯)*/
+#define XGetArticleDetail @"qwd_getArticleDetail"               /*!< 获取文章详情接口*/
+#define XGetArticleAdInfoList @"qwd_getArticleAdInfoList"       /*!< 获取文章模块广告列表*/
 #endif /* InterfaceDefine_h */

@@ -155,6 +155,7 @@ typedef NS_ENUM(NSInteger , ApplyRequest) {
     [self performSelector:@selector(connetAction:)withObject:button afterDelay:0.3f];
 }
 -(void)connetAction:(UIButton *)button{
+    [TalkingData trackEvent:@"【申请记录】-联系商户"];
     self.applyListModel =[ApplyListModel mj_objectWithKeyValues:self.dataSourceArr[button.tag]];
     if (!self.applyListModel.contact_wechat_number.length && !self.applyListModel.contact_wechat_public.length && !self.applyListModel.contact_qq.length) {
         NSString * str = [[NSString alloc] initWithFormat:@"telprompt://%@",self.applyListModel.contact_telephone];
@@ -170,6 +171,7 @@ typedef NS_ENUM(NSInteger , ApplyRequest) {
     }
 }
 -(void)ViewAction:(UIButton *)button{
+    [TalkingData trackEvent:@"【申请记录】-去借款"];
     if (self.loan_pro_list.count > 3) {
         PersonalTailorVC *vc = [[PersonalTailorVC alloc]init];
         vc.hidesBottomBarWhenPushed = YES;

@@ -30,6 +30,7 @@
 #import "RecommendTableViewSecond.h"
 #import "SpecialTopView.h"
 #import "SpecialController.h"
+#import "XDeviceHelper.h"
 typedef NS_ENUM(NSInteger , RecommendBtnOnClick){
     RecommendBtnOnClickAllDK,
     RecommendBtnOnClickUnlogin,
@@ -86,7 +87,7 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
 @implementation RecommendViewController
 
 - (void)viewWillAppear:(BOOL)animated{
-    
+
     [self.navigationController setNavigationBarHidden:YES animated:YES];
     self.tabBarController.delegate = self;
     
@@ -132,10 +133,22 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
     [self prepareDataWithCount:RecommenRequestSpecialEntry];
     
     [self createTableViewWithFrame:CGRectZero];
-    [self.tableView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.left.right.mas_equalTo(self.view);
-        make.bottom.mas_equalTo(self.view).offset(49);
-    }];
+    NSString *platform = [XDeviceHelper getDevicePlatform];
+    
+    if ([platform isEqualToString:@"iPhone10,3"]){
+        [self.tableView mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.top.mas_equalTo(self.view).offset(24);
+            make.left.right.mas_equalTo(self.view);
+            make.bottom.mas_equalTo(self.view).offset(49);
+        }];
+    }else{
+        [self.tableView mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.top.left.right.mas_equalTo(self.view);
+            make.bottom.mas_equalTo(self.view).offset(49);
+        }];
+    }
+   
+    
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     if (imageArry.count) {
          self.tableView.tableHeaderView = [self creatHeadView:CGRectMake(0, 0, ScreenWidth, AdaptationWidth(423))];//57
@@ -158,12 +171,13 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
 	ReconmadView *view = [[ReconmadView alloc]initWithTitle:@"只需一步，100%下款" content:@"根据您的资料，为您推荐一定能贷的产品。" imgUrlStr:@"下款插图" cancel:@"cancel_btn" commit:@"获取推荐"  block:^(NSInteger block) {
 		switch (block) {
 			case 2:{ // 不再提醒
+                [TalkingData trackEvent:@"【推荐弹窗】-不再提醒"];
                 [WDUserDefaults setValue:[UserInfo sharedInstance].phoneName forKey:@"UserName"];
                 [WDUserDefaults synchronize];
 			}
                 break;
 			case 1:{ // 获取推荐
-                
+                [TalkingData trackEvent:@"【推荐弹窗】-获取推荐"];
 				[CreditState selectCreaditState:self with:nil];
 			}
 				break;
@@ -199,7 +213,7 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
     
 }
 - (void)notificationLocation:(NSNotification *)notification{
-   
+   [TalkingData trackEvent:@"【推荐】-定位刷新"];
     [self performSelector:@selector(changeNotificationStatus)withObject:nil afterDelay:2.0f];//防止重复点击
     [_locationbtn setTitle:notification.object forState:UIControlStateNormal];
 }
@@ -214,6 +228,12 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
 - (void)notificationActivity:(NSNotification *)notification{
     [self setHudWithName:@"唤起" Time:2 andType:1];
     
+    if(![[UserInfo sharedInstance]isSignIn]){
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self getBlackLogin:self];//判断是否登录状态
+        });
+        return;
+    }
     ProductDetailVC *vc = [[ProductDetailVC alloc]init];
     vc.loan_pro_id = notification.userInfo[@"url"];
     vc.hidesBottomBarWhenPushed = YES;
@@ -339,7 +359,7 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
     [btn1 addTarget:self action:@selector(btnOnTopClick:) forControlEvents:UIControlEventTouchUpInside];
     btn1.btnTitle = @"我要借钱";
     [btn1 setImage:[UIImage imageNamed:@"top_needMoney"] forState:UIControlStateNormal];
-    [btn1 setImage:[UIImage imageNamed:@"top_needMoney"] forState:UIControlStateHighlighted];
+    [btn1 setImage:[UIImage imageNamed:@"我要借钱点击态"] forState:UIControlStateHighlighted];
     [TopBtnView addSubview:btn1];
     
     [btn1 mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -353,7 +373,7 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
     [btn2 addTarget:self action:@selector(btnOnTopClick:) forControlEvents:UIControlEventTouchUpInside];
     btn2.btnTitle = @"办信用卡";
     [btn2 setImage:[UIImage imageNamed:@"top_getCard"] forState:UIControlStateNormal];
-    [btn2 setImage:[UIImage imageNamed:@"top_needMoney"] forState:UIControlStateHighlighted];
+    [btn2 setImage:[UIImage imageNamed:@"办信用卡点击态"] forState:UIControlStateHighlighted];
     [TopBtnView addSubview:btn2];
     
     [btn2 mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -368,7 +388,7 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
     [btn3 addTarget:self action:@selector(btnOnTopClick:) forControlEvents:UIControlEventTouchUpInside];
     btn3.btnTitle = @"信用查询";
     [btn3 setImage:[UIImage imageNamed:@"top_query"] forState:UIControlStateNormal];
-    [btn3 setImage:[UIImage imageNamed:@"top_needMoney"] forState:UIControlStateHighlighted];
+    [btn3 setImage:[UIImage imageNamed:@"信用查询点击态"] forState:UIControlStateHighlighted];
     [TopBtnView addSubview:btn3];
     
     [btn3 mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -880,6 +900,7 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
         });
         return;
     }
+    [TalkingData trackEvent:@"【推荐】-去下款"];
     if (![CreditState creditStateWith:self.creditInfoModel] && self.loan_pro_list.count == 0) {
         [CreditState selectCreaditState:self with:self.creditInfoModel];
         return;
@@ -893,7 +914,7 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
     RecommenTableViewSection row = [self.tableViewSectionArry[indexPath.section]integerValue];
     switch (row) {
         case RecommenTableViewSectionOne:{
-            
+            [TalkingData trackEvent:@"【推荐】-点击产品"];
             ProductDetailVC *vc = [[ProductDetailVC alloc]init];
             vc.loan_pro_id = self.loan_pro_list[indexPath.row][@"loan_pro_id"];
             vc.hidesBottomBarWhenPushed = YES;
@@ -957,6 +978,7 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
 - (void)btnOnClick:(UIButton *)btn{
     switch (btn.tag) {
         case RecommendBtnOnClickAllDK:{    // 全部贷款产品
+            [TalkingData trackEvent:@"【推荐】-全部贷款产品"];
             AllDKViewController *VC = [[AllDKViewController alloc]init];
             VC.hidesBottomBarWhenPushed = YES;
             [self.navigationController pushViewController:VC animated:YES];
@@ -990,10 +1012,12 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
         }
             break;
         case RecommendBtnOnClickCreditState:{//去认证
+            [TalkingData trackEvent:@"【推荐】-完善资料，100%下款"];
             [CreditState selectCreaditState:self with:self.creditInfoModel];
         }
             break;
         case RecommendBtnOnClickOther:{//更多推荐
+            [TalkingData trackEvent:@"【推荐】-更多推荐"];
             [CreditState selectCreaditState:self with:nil];
         }
             break;
@@ -1006,6 +1030,7 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
    
     switch (btn.tag) {
         case 200:{
+            [TalkingData trackEvent:@"【推荐】-我要贷款"];
             AllDKViewController *vc = [[AllDKViewController alloc]init];
             vc.loan_product_type = @0;
             vc.hidesBottomBarWhenPushed = YES;
@@ -1019,6 +1044,7 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
                 });
                 return;
             }
+            [TalkingData trackEvent:@"【推荐】-办信用卡"];
                 [TalkingData trackEvent:@"【信用助手】页"];
                 XRootWebVC *vc = [[XRootWebVC alloc]init];
                 vc.hidesBottomBarWhenPushed = YES;
@@ -1033,6 +1059,7 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
                 });
                 return;
             }
+            [TalkingData trackEvent:@"【推荐】-查询信用"];
             ReportController *vc = [[ReportController alloc]init];
             vc.hidesBottomBarWhenPushed = YES;
             [self.navigationController pushViewController:vc animated:YES];
@@ -1066,7 +1093,8 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
         return;
     }
     [collectionView deselectItemAtIndexPath:indexPath animated:YES];
-        [TalkingData trackEvent:@"【特色入口】页"];
+    [TalkingData trackEvent:@"【特色入口】页"];
+    [TalkingData trackEvent:[NSString stringWithFormat:@"【推荐】-特色入口%ld",(long)indexPath.row]];
     switch (indexPath.row) {
         case 0:
         case 1:
@@ -1193,8 +1221,9 @@ typedef NS_ENUM(NSInteger , RecommenRequest) {
         }
             break;
         case RecommenRequestSpecialEntry:{
+//            NSLog(@"%@",response.content);
             if (![self.specialEntryModel.md5_hash isEqualToString:response.content[@"md5_hash"]]) {
-                [[SpecialEntryModel sharedInstance]saveSpecialEntryModel:response.content];
+                [[SpecialEntryModel sharedInstance] saveSpecialEntryModel:response.content];
                 [self.collectionView reloadData];
             }
             [self prepareDataWithCount:RecommenRequestHotInfo];

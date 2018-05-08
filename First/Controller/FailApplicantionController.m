@@ -274,7 +274,11 @@ typedef NS_ENUM(NSInteger ,FailApplicantionRequest) {
 //        [self setHudWithName:@"名额已满" Time:0.5 andType:3];
 //        return;
 //    }
-    
+    if (self.errCode.integerValue == 33) {
+        [TalkingData trackEvent:@"【申请失败-资质不符】-点击产品"];
+    }else{
+        [TalkingData trackEvent:@"【申请失败-30天重复申请】-点击产品"];
+    }
     ProductDetailVC *vc = [[ProductDetailVC alloc]init];
     ProductModel *model = self.modelArray[indexPath.row];
     vc.loan_pro_id = model.loan_pro_id;
@@ -290,8 +294,18 @@ typedef NS_ENUM(NSInteger ,FailApplicantionRequest) {
             return;
         }
         if ([btn.titleLabel.text isEqualToString:@"一键申请"]) {
+            if (self.errCode.integerValue == 33) {
+                [TalkingData trackEvent:@"【申请失败-资质不符】-一键申请"];
+            }else{
+                [TalkingData trackEvent:@"【申请失败-30天重复申请】-一键申请"];
+            }
             [self prepareDataWithCount:FailApplicantionRequestBatch];
         }else{
+            if (self.errCode.integerValue == 33) {
+                [TalkingData trackEvent:@"【申请失败-资质不符】-去办信用卡"];
+            }else{
+                [TalkingData trackEvent:@"【申请失败-30天重复申请】-去办信用卡"];
+            }
             XRootWebVC *vc = [[XRootWebVC alloc]init];
             vc.hidesBottomBarWhenPushed = YES;
             vc.url = self.clientGlobalInfoRM.wap_url_list.credit_url;

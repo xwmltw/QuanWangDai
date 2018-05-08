@@ -8,13 +8,13 @@
 
 #import "XBaseViewController.h"
 #import <WebKit/WebKit.h>
-
+typedef void(^dismissBlock)(NSString *content);
 @interface XRootWebVC : XBaseViewController
 @property(nonatomic,strong) WKWebView *webView;
 @property(nonatomic,strong) UIProgressView *progressView;
 @property(nonatomic,copy) NSString *url;
-
-
+@property (nonatomic,copy) dismissBlock dismissBlock;
+@property (nonatomic,assign) BOOL isLunch;
 /**
  void
  

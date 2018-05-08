@@ -34,10 +34,13 @@
 @interface ClientGlobalInfoRM : ParamModel
 @property (nonatomic, copy) NSNumber *current_time_millis;          /*!< 时间毫秒<整形数字> */
 @property (nonatomic, copy) NSArray *banner_ad_list;                /*!< 客户端banner广告 */
+@property (nonatomic, copy) NSArray *open_screen_ad_list;          /*!< 客户端开屏广告 >*/
+@property (nonatomic, copy) NSString *wechat_public_logo;           /*!< 微信公众号logo地址 >*/
+@property (nonatomic, copy) NSString *qq_group_numbr;               /*!< QQ群号码 >*/
 @property (nonatomic, strong) ClientVersionModel *version_info;     /*!< 版本更新信息 */
 @property (nonatomic, strong) WapUrlList *wap_url_list; /*!< 链接 */
 @property (nonatomic, copy) NSString* customer_contact; /*!< 客服电话 */
-@property (nonatomic, copy) NSNumber *recomment_entry_hide; /*!< 是否显示隐藏 */
+@property (nonatomic, copy) NSNumber *recomment_entry_hide; /*!< 是否显示隐藏 1隐藏 其他不隐藏 */
 @property (nonatomic, strong) NSArray *notice_manage_list;  /*!< 公告 >*/
 
  - (void)setClientGlobalInfoModel;

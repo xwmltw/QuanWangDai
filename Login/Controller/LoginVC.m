@@ -883,7 +883,7 @@ typedef NS_ENUM(NSInteger ,XLoginRequest) {
         if ([[UserInfo sharedInstance]getUserInfo].has_grant_authorization.integerValue == 0 && self.clientGlobalInfoModel.recomment_entry_hide.integerValue != 1) {
             XBlockExec(self.loginblock, nil);
         }
-        [[NSNotificationCenter defaultCenter]postNotificationName:@"Login" object:self userInfo:dict];
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"Login" object:self userInfo:dict];
         
     }
 }

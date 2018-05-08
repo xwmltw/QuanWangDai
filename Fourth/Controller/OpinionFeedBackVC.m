@@ -10,10 +10,8 @@
 #import "XPlaceHolderTextView.h"
 #import "ParamModel.h"
 #import "XRootWebVC.h"
+#import "ContactAlertViewController.h"
 
-typedef NS_ENUM(NSInteger , OpinionFeedBackRequest) {
-    OpinionFeedBackRequestPostInfo,
-};
 @interface OpinionFeedBackVC ()
 @property (nonatomic, strong) ClientGlobalInfoRM *clientGlobalInfoModel;
 @end
@@ -30,16 +28,6 @@ typedef NS_ENUM(NSInteger , OpinionFeedBackRequest) {
 }
 - (void)viewDidLoad {
     [super viewDidLoad];
-    UIButton *problemBtn = [[UIButton alloc]initWithFrame:CGRectMake(0, 0, AdaptationWidth(65), AdaptationWidth(30))];
-    problemBtn.tag = 200;
-    [problemBtn setTitle:@"常见问题" forState:UIControlStateNormal];
-    [problemBtn setTitleColor:XColorWithRGB(34, 58, 80) forState:UIControlStateNormal];
-    [problemBtn.titleLabel setFont:[UIFont fontWithName:@"PingFangSC-Regular" size:AdaptationWidth(16)]];
-    [problemBtn addTarget:self action:@selector(btnOnClick:) forControlEvents:UIControlEventTouchUpInside];
-    
-    UIBarButtonItem *rightItem = [[UIBarButtonItem alloc]initWithCustomView:problemBtn];
-    self.navigationItem.rightBarButtonItem = rightItem;
-    
     [self setUI];
 }
 
@@ -114,24 +102,23 @@ typedef NS_ENUM(NSInteger , OpinionFeedBackRequest) {
 }
 - (void)btnOnClick:(UIButton *)btn{
     switch (btn.tag) {
-        case 100:
+        case 100:{
             if (!textView.text.length) {
                 [self setHudWithName:@"请写下您的宝贵意见" Time:2 andType:1];
                 return;
             }
-            [self prepareDataWithCount:OpinionFeedBackRequestPostInfo];
+            ContactAlertViewController *rate = [[ContactAlertViewController alloc]init];
+            rate.textstr = textView.text;
+            UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:rate];
+            nav.navigationBar.hidden = YES;
+            nav.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+            nav.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
+            [self presentViewController:nav animated:YES completion:nil];
+        }
             break;
         case 101:{
             NSString *tel = [NSString stringWithFormat:@"tel://4001689788"];
             [[UIApplication sharedApplication] openURL:[NSURL URLWithString:tel]];
-        }
-            break;
-        case 200:
-        {
-            XRootWebVC *vc = [[XRootWebVC alloc]init];
-            vc.url = self.clientGlobalInfoModel.wap_url_list.question_url;
-            [self.navigationController pushViewController:vc animated:YES];
-            
         }
             break;
             
@@ -161,30 +148,7 @@ typedef NS_ENUM(NSInteger , OpinionFeedBackRequest) {
     }
     XBlockExec(block,nil);
 }
-#pragma mark - 网络
-- (void)setRequestParams{
-    switch (self.requestCount) {
-        case OpinionFeedBackRequestPostInfo:
-            self.cmd = XPostFeedback;
-            self.dict = [NSDictionary dictionaryWithObjectsAndKeys:textView.text,@"feedback_desc", nil];
-            break;
-            
-        default:
-            break;
-    }
-    
-}
-- (void)requestSuccessWithDictionary:(XResponse *)response{
-    switch (self.requestCount) {
-        case OpinionFeedBackRequestPostInfo:
-            [self setHudWithName:@"反馈成功" Time:0.5 andType:0];
-            [self.navigationController popViewControllerAnimated:YES];
-            break;
-            
-        default:
-            break;
-    }
-}
+
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.

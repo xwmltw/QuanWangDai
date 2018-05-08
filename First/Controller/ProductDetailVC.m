@@ -727,6 +727,7 @@ typedef NS_ENUM(NSInteger ,RequiredType) {
     }
     if ( textField.tag == 100)
     {
+        [TalkingData trackEvent:@"【贷款详情】-想借多少"];
         if(textField.text.integerValue *100 > self.detailModel.loan_max_credit.integerValue){
             UIAlertView *alert = [[UIAlertView alloc] initWithTitle:nil message:@"借款金额不能超过最大值" delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil, nil] ;
             [alert show];
@@ -746,6 +747,7 @@ typedef NS_ENUM(NSInteger ,RequiredType) {
     }
     if ( textField.tag == 101)
     {
+        [TalkingData trackEvent:@"【贷款详情】-想借多久"];
         if(self.detailModel.loan_max_deadline.integerValue < textField.text.integerValue  ){
            
             UIAlertView *alert = [[UIAlertView alloc] initWithTitle:nil message:@"借款期限不能超过最大值" delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil, nil] ;
@@ -883,6 +885,7 @@ typedef NS_ENUM(NSInteger ,RequiredType) {
 }
 #pragma  mark - btn
 -(void)rateAction{
+    [TalkingData trackEvent:@"【贷款详情】-帮助"];
 	RatePresentController *rate = [[RatePresentController alloc]init];
     rate.moneyStr = self.tfMoney.text;
     rate.dateStr = self.tfDate.text;
@@ -909,7 +912,7 @@ typedef NS_ENUM(NSInteger ,RequiredType) {
     }
     
     //talkingdata
-    [TalkingData trackEvent:@"申请借款按钮"];
+    [TalkingData trackEvent:@"【贷款详情】-申请借款"];
     [self prepareDataWithCount:ProductDetailRequestStaticInfo];
    
 }

@@ -68,7 +68,7 @@
     [button setImage:[UIImage imageNamed:@"XX"] forState:UIControlStateNormal];
     button.imageEdgeInsets = UIEdgeInsetsMake(0, -AdaptationWidth(28), 0, AdaptationWidth(38));
     button.titleEdgeInsets = UIEdgeInsetsMake(0, AdaptationWidth(28), 0, -AdaptationWidth(28));
-    [button addTarget:self action:@selector(BarbuttonClick:) forControlEvents:UIControlEventTouchUpInside];
+    [button addTarget:self action:@selector(BarbuttonClick) forControlEvents:UIControlEventTouchUpInside];
     [view addSubview:button];
     
     lineview  = [[UIView alloc] initWithFrame:CGRectMake(36, (button.frame.size.height- AdaptationWidth(16)) / 2, 0.5 , AdaptationWidth(16))];
@@ -78,6 +78,13 @@
     self.navigationItem.leftBarButtonItem = self.item;
     
 }
+-(void)BarbuttonClick{
+    if (self.isLunch == YES) {
+        self.dismissBlock(@"首页广告");
+    }
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
 -(void) createWebViewWithURL:(NSString *)url{
     
     self.progressView = [[UIProgressView alloc] init];

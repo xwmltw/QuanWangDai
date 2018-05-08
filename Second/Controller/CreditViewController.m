@@ -250,6 +250,7 @@ typedef NS_ENUM(NSInteger ,CreditRequest) {
     if(indexPath.section == SectionBorrow){
         switch (indexPath.row) {
             case 0:{
+                [TalkingData trackEvent:@"【信用助手】-身份认证"];
                 IdentityAuthenticationVC *vc = [[IdentityAuthenticationVC alloc]init];
                 vc.creditInfoModel = creditModel;
                 vc.hidesBottomBarWhenPushed = YES;
@@ -257,11 +258,13 @@ typedef NS_ENUM(NSInteger ,CreditRequest) {
             }
                 break;
             case 1:{
+                
                 if (creditModel.zhima_status.integerValue == 1) {
                     [self setHudWithName:@"芝麻信用已认证" Time:0.5 andType:3];
                     return;
                 }
                 if (creditModel.identity_status.integerValue == 1) {
+                    [TalkingData trackEvent:@"【信用助手】-芝麻信用认证"];
                     ZMAuthenticationVC *vc = [[ZMAuthenticationVC alloc]init];
                     vc.hidesBottomBarWhenPushed = YES;
                     [self.navigationController pushViewController:vc animated:YES];
@@ -272,6 +275,7 @@ typedef NS_ENUM(NSInteger ,CreditRequest) {
                 break;
             case 2:{
                 if (creditModel.identity_status.integerValue == 1) {
+                    [TalkingData trackEvent:@"【信用助手】-基本信息认证"];
                     BaseInfoVC *vc = [[BaseInfoVC alloc]init];
                     vc.creditInfoModel = creditModel;
                     vc.hidesBottomBarWhenPushed = YES;
@@ -285,6 +289,7 @@ typedef NS_ENUM(NSInteger ,CreditRequest) {
             case 3:{
                 if (creditModel.identity_status.integerValue == 1) {
                     if (creditModel.base_info_status.integerValue == 1) {
+                        [TalkingData trackEvent:@"【信用助手】-运营商认证"];
                         OperatorAuthenticationVC *vc = [[OperatorAuthenticationVC alloc]init];
                         vc.creditInfoModel = creditModel;
                         vc.hidesBottomBarWhenPushed = YES;
@@ -311,10 +316,12 @@ typedef NS_ENUM(NSInteger ,CreditRequest) {
                         return;
                     }
                     if (creditModel.bank_status.integerValue == 1) {
+                        [TalkingData trackEvent:@"【信用助手】-银行卡"];
                         CertifiedBankVC *vc = [[CertifiedBankVC alloc]init];
                         vc.hidesBottomBarWhenPushed = YES;
                         [self.navigationController pushViewController:vc animated:YES];
                     }else{
+                        [TalkingData trackEvent:@"【信用助手】-银行卡"];
                         AuthenticationBankVC *vc = [[AuthenticationBankVC alloc]init];
                         vc.hidesBottomBarWhenPushed = YES;
                         [self.navigationController pushViewController:vc animated:YES];
@@ -328,11 +335,13 @@ typedef NS_ENUM(NSInteger ,CreditRequest) {
                         return;
                     }
                     if (self.clientGlobalInfoRM.recomment_entry_hide.integerValue == 1){
+                        [TalkingData trackEvent:@"【信用助手】-工作信息"];
                         WorkInfoVC *vc = [[WorkInfoVC alloc]init];
                         vc.creditInfoModel = creditModel;
                         vc.hidesBottomBarWhenPushed = YES;
                         [self.navigationController pushViewController:vc animated:YES];
                     }else{
+                        [TalkingData trackEvent:@"【信用助手】-借贷平台信息"];
                         PlatformViewController *plat = [[PlatformViewController alloc]init];
                         plat.hidesBottomBarWhenPushed = YES;
                         [self.navigationController pushViewController:plat animated:YES];
@@ -342,6 +351,7 @@ typedef NS_ENUM(NSInteger ,CreditRequest) {
                     break;
                 case 2:{
                     if (self.clientGlobalInfoRM.recomment_entry_hide.integerValue == 1){
+                        [TalkingData trackEvent:@"【信用助手】-申请人资质"];
                         ApplicantManVC *vc = [[ApplicantManVC alloc]init];
                         vc.creditInfoModel = creditModel;
                         vc.hidesBottomBarWhenPushed = YES;
@@ -351,6 +361,7 @@ typedef NS_ENUM(NSInteger ,CreditRequest) {
                             [self setHudWithName:@"请先完成身份认证" Time:0.5 andType:3];
                             return;
                         }
+                        [TalkingData trackEvent:@"【信用助手】-工作信息"];
                         WorkInfoVC *vc = [[WorkInfoVC alloc]init];
                         vc.creditInfoModel = creditModel;
                         vc.hidesBottomBarWhenPushed = YES;
@@ -359,6 +370,7 @@ typedef NS_ENUM(NSInteger ,CreditRequest) {
                 }
                     break;
                 case 3:{
+                    [TalkingData trackEvent:@"【信用助手】-申请人资质"];
                     ApplicantManVC *vc = [[ApplicantManVC alloc]init];
                     vc.creditInfoModel = creditModel;
                     vc.hidesBottomBarWhenPushed = YES;

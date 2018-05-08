@@ -9,11 +9,19 @@
 #import <Foundation/Foundation.h>
 
 @interface InformationModel : NSObject
-@property (nonatomic, copy) NSString *strategy_url;
-@property (nonatomic, copy) NSString *zixun_url;
+//@property (nonatomic, copy) NSString *strategy_url;
+//@property (nonatomic, copy) NSString *zixun_url;
 @property (nonatomic, copy) NSArray *strategy_list;
-@property (nonatomic, copy) NSArray *zixun_list;
+//@property (nonatomic, copy) NSArray *zixun_list;
+@property (nonatomic, copy) NSString *md5_hash;
+@property (nonatomic, copy) NSString *article_cat_id;
+@property (nonatomic, copy) NSString *article_cat_name;
+@property (nonatomic, copy) NSNumber *is_strategy;
 @end
+//“article_cat_id”: xxx, // 分类id
+//“article_cat_name”: “xxx”, // 文章分类名称
+//“is_strategy”: “xxx”, // 是否是攻略文章的分类： 1是 0否
+
 //“strategy_url”: xxxx // 贷款攻略页面url
 //“zixun_url”: xxxx // 资讯中心页面url
 //“strategy_list”: [ // 贷款攻略

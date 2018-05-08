@@ -31,6 +31,7 @@ typedef NS_ENUM(NSInteger, MyDataRequest) {
 static NSString *identifier = @"myDataCell";
 - (void)viewDidLoad {
     [super viewDidLoad];
+    [TalkingData trackEvent:@"【我的贷款资料】页"];
     [self prepareDataWithCount:MyDataRequestInfo];
     [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(Refresh) name:@"Refresh" object:nil];
 }

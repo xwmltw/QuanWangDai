@@ -37,7 +37,7 @@ typedef NS_ENUM(NSInteger , ReportRequest) {
     view.userInteractionEnabled = YES;
     
     UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
-    button.frame = CGRectMake(0, 0, 134, 44);
+    button.frame = CGRectMake(0, 0, AdaptationWidth(134), 44);
     button.titleLabel.font = [UIFont fontWithName:@"PingFangSC-Medium" size:AdaptationWidth(17)];
     [button setTitle:@"我的信用报告" forState:UIControlStateNormal];
     [button setTitleColor:XColorWithRBBA(34, 58, 80, 0.8) forState:UIControlStateNormal];
@@ -68,6 +68,7 @@ typedef NS_ENUM(NSInteger , ReportRequest) {
 }
 
 -(void)rightbuttonClick{
+    [TalkingData trackEvent:@"【我的信用报告】-帮助"];
     HelpViewController *help = [[HelpViewController alloc]init];
     UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:help];
     nav.navigationBar.hidden = YES;
@@ -161,6 +162,7 @@ typedef NS_ENUM(NSInteger , ReportRequest) {
     }
     
     if (_reportDetailModel.buy_report_status.integerValue == 0) {
+         [TalkingData trackEvent:@"【我的信用报告】-购买"];
         self.payView = [[PayView alloc] initWithFrame:CGRectMake(0, ScreenHeight, ScreenWidth, AdaptationWidth(210)) andNSString:@"选择支付方式"];
         self.payView.delegate = self;
         [self.payView.online setTitle:[NSString stringWithFormat:@"确定支付 ￥%.2f",(_reportDetailModel.report_price.floatValue/100)] forState:UIControlStateNormal];
@@ -196,6 +198,7 @@ typedef NS_ENUM(NSInteger , ReportRequest) {
     }
 }
 -(void)exampleclickAction:(UIButton *)button{
+    [TalkingData trackEvent:@"【我的信用报告】-报告示例"];
     switch (button.tag) {
         case 0:{
             XRootWebVC *vc = [[XRootWebVC alloc]init];

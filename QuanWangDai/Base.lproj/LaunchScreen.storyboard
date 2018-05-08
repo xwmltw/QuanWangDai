@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13196" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13771" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13173"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13772"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
         <!--View Controller-->
         <scene sceneID="EHf-IW-A2E">
             <objects>
-                <viewController id="01J-lp-oVM" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="LaunchScreen" useStoryboardIdentifierAsRestorationIdentifier="YES" id="01J-lp-oVM" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="QcF-MW-oDL"/>
                         <viewControllerLayoutGuide type="bottom" id="YId-zy-6aV"/>
@@ -29,10 +29,10 @@
                                 </constraints>
                             </imageView>
                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="slogan_logo" translatesAutoresizingMaskIntoConstraints="NO" id="ndY-Xh-SYy">
-                                <rect key="frame" x="156" y="565" width="62" height="62"/>
+                                <rect key="frame" x="159" y="555" width="56" height="56"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="62" id="HTH-SY-1lh"/>
-                                    <constraint firstAttribute="width" constant="62" id="yjO-PP-KsZ"/>
+                                    <constraint firstAttribute="height" constant="56" id="HTH-SY-1lh"/>
+                                    <constraint firstAttribute="width" constant="56" id="yjO-PP-KsZ"/>
                                 </constraints>
                             </imageView>
                         </subviews>
@@ -40,7 +40,7 @@
                         <constraints>
                             <constraint firstItem="Wxj-q0-cof" firstAttribute="top" secondItem="QcF-MW-oDL" secondAttribute="bottom" constant="244" id="7Z9-R1-zs2"/>
                             <constraint firstItem="ndY-Xh-SYy" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="J57-I6-3cE"/>
-                            <constraint firstItem="YId-zy-6aV" firstAttribute="top" secondItem="ndY-Xh-SYy" secondAttribute="bottom" constant="40" id="YDn-XI-hvk"/>
+                            <constraint firstItem="YId-zy-6aV" firstAttribute="top" secondItem="ndY-Xh-SYy" secondAttribute="bottom" constant="56" id="YDn-XI-hvk"/>
                             <constraint firstItem="Wxj-q0-cof" firstAttribute="centerX" secondItem="ndY-Xh-SYy" secondAttribute="centerX" id="eMO-Pc-pl5"/>
                         </constraints>
                     </view>

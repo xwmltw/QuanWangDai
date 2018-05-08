@@ -75,10 +75,8 @@
 
 -(void)btnOnClick{
     
-  
+  [TalkingData trackEvent:@"【获取报告中】-先去借款"];
     [self prepareDataWithCount:0];
-    
-    
 }
 - (void)setRequestParams{
     self.cmd = XGetSpecialLoanProList;

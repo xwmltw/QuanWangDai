@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="13771" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina4_0" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment version="2320" identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13772"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" id="KGk-i7-Jjw" customClass="ImformationEntryCell">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="108"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
+                <rect key="frame" x="0.0" y="0.0" width="375" height="107.5"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="高额信用卡" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="heI-TK-O7f">
+                        <rect key="frame" x="92" y="24" width="102" height="24"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                        <color key="textColor" red="0.1333333333" green="0.2274509804" blue="0.31372549020000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="RGI-6z-t1U">
+                        <rect key="frame" x="16" y="24" width="60" height="60"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="60" id="3YL-Ec-nyr"/>
+                            <constraint firstAttribute="width" constant="60" id="Zwa-VY-c26"/>
+                        </constraints>
+                    </imageView>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="额度最高50000元" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="pqu-Ed-f97">
+                        <rect key="frame" x="92" y="56" width="115" height="17"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                        <color key="textColor" red="0.1333333333" green="0.2274509804" blue="0.31372549020000001" alpha="0.47999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="19o-Lb-H0C">
+                        <rect key="frame" x="92" y="107" width="283" height="0.5"/>
+                        <color key="backgroundColor" red="0.9137254901960784" green="0.9137254901960784" blue="0.92156862745098034" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="0.5" id="Lb8-aL-y4h"/>
+                        </constraints>
+                    </view>
+                </subviews>
+                <constraints>
+                    <constraint firstAttribute="bottom" secondItem="19o-Lb-H0C" secondAttribute="bottom" id="8UV-cN-nh8"/>
+                    <constraint firstItem="RGI-6z-t1U" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="16" id="Fam-dY-SuH"/>
+                    <constraint firstAttribute="trailing" secondItem="19o-Lb-H0C" secondAttribute="trailing" id="GmN-tb-eA8"/>
+                    <constraint firstItem="pqu-Ed-f97" firstAttribute="leading" secondItem="RGI-6z-t1U" secondAttribute="trailing" constant="16" id="Ri1-oz-ub3"/>
+                    <constraint firstItem="pqu-Ed-f97" firstAttribute="top" secondItem="heI-TK-O7f" secondAttribute="bottom" constant="8" id="V63-6R-H3K"/>
+                    <constraint firstItem="RGI-6z-t1U" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="24" id="Z3l-Zw-v20"/>
+                    <constraint firstItem="heI-TK-O7f" firstAttribute="leading" secondItem="RGI-6z-t1U" secondAttribute="trailing" constant="16" id="a5p-xy-QVU"/>
+                    <constraint firstItem="19o-Lb-H0C" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="92" id="hIr-qq-qaA"/>
+                    <constraint firstItem="heI-TK-O7f" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="24" id="w7V-0U-HBU"/>
+                </constraints>
+            </tableViewCellContentView>
+            <viewLayoutGuide key="safeArea" id="aW0-zy-SZf"/>
+            <connections>
+                <outlet property="entry_image" destination="RGI-6z-t1U" id="gSV-V6-v3b"/>
+                <outlet property="miantitle" destination="heI-TK-O7f" id="SXq-2q-XG9"/>
+                <outlet property="subdiscrition" destination="pqu-Ed-f97" id="ipu-ih-fqO"/>
+            </connections>
+        </tableViewCell>
+    </objects>
+</document>

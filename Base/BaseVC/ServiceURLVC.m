@@ -15,6 +15,9 @@
 #import "XDeviceHelper.h"
 #import "UpdateView.h"
 #import "FeRollingLoader.h"
+#import "LLFullScreenAdView.h"
+#import "UIImageView+WebCache.h"
+#import "XRootWebVC.h"
 typedef NS_ENUM(NSInteger ,SeviceURLRequest) {
     SeviceURLRequestSignIn,
     SeviceURLRequestGlobalInfo,
@@ -24,21 +27,28 @@ typedef NS_ENUM(NSInteger ,SeviceURLRequest) {
 
 @property (nonatomic,strong) UIView *bgView;;
 @property (nonatomic ,strong) ClientGlobalInfoRM *clientGlobalModel;
+@property (nonatomic,strong) UIView *launchView;
+@property (nonatomic,strong) LLFullScreenAdView *adView;
 @end
 
 @implementation ServiceURLVC
-
+-(void)viewWillAppear:(BOOL)animated{
+    self.navigationController.navigationBar.hidden = YES;
+}
+-(void)viewDidDisappear:(BOOL)animated{
+    self.navigationController.navigationBar.hidden = NO;
+}
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
     if ([[[UIDevice currentDevice] systemVersion] floatValue] < 8.0) {
-        
         UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"温馨提示" message:@"您手机系统版本过低，该应用只支持iOS8.0以上使用" delegate:self cancelButtonTitle:nil otherButtonTitles:@"知道了", nil];
         [alert show];
     }
-//    else {
-//        [self getServiceURL:nil];
-//    }
+    /*!< 加载首屏 >*/
+    [self loadlaunchView];
 }
+
 #pragma mark - 网络
 - (void)setRequestParams{
     switch (self.requestCount) {
@@ -77,18 +87,80 @@ typedef NS_ENUM(NSInteger ,SeviceURLRequest) {
 
         }
             break;
-        case SeviceURLRequestGlobalInfo:
+        case SeviceURLRequestGlobalInfo:{
             _clientGlobalModel = [ClientGlobalInfoRM mj_objectWithKeyValues:response.content];
             [_clientGlobalModel setClientGlobalInfoModel];
             [self prepareDataWithCount:SeviceURLRequestPostDevInfo];
-            [self isNeedUpdate];
-            
+            //    NSString *urlString = @"http://s8.mogucdn.com/p2/170223/28n_4eb3la6b6b0h78c23d2kf65dj1a92_750x1334.jpg";
+            self.clientGlobalModel = [ClientGlobalInfoRM getClientGlobalInfoModel];
+            [self.adView reloadAdImageWithUrl:self.clientGlobalModel.open_screen_ad_list[0][@"img_url"]];
+            __weak ServiceURLVC *weakself = self;
+            self.adView.dismissImageBlock = ^(NSString *content) {// 广告消失事件
+                NSLog(@"%@", content);
+                /*!< 是否需要更新 >*/
+                [weakself isNeedUpdate];
+
+            };
+        }
             break;
             
         default:
             break;
     }
-   
+}
+-(void)loadlaunchView{
+    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"LaunchScreen" bundle:nil];
+    UIViewController *viewController = [storyboard instantiateViewControllerWithIdentifier:@"LaunchScreen"];
+    self.launchView = viewController.view;
+    [self.launchView removeAllSubviews];
+    [self.view addSubview:self.launchView];
+    
+    self.adView = [[LLFullScreenAdView alloc] init];
+    self.adView.tag = 199;
+    self.adView.duration = 5;
+    self.adView.skipType = SkipButtonTypeNormalTimeAndText;
+    __weak ServiceURLVC *weakself = self;
+    self.adView.adImageTapBlock = ^(NSString *content) {  // 广告点击事件
+        NSLog(@"%@", content);
+        weakself.clientGlobalModel = [ClientGlobalInfoRM getClientGlobalInfoModel];
+        switch ([weakself.clientGlobalModel.open_screen_ad_list[0][@"ad_type"] integerValue]) {
+            case 1:{  /*!< 应用内打开 >*/
+                XRootWebVC *vc = [[XRootWebVC alloc]init];
+                vc.hidesBottomBarWhenPushed = YES;
+                vc.url = weakself.clientGlobalModel.open_screen_ad_list[0][@"ad_detail_url"];
+                vc.isLunch = YES;
+                vc.dismissBlock = ^(NSString *content){
+                    [weakself isNeedUpdate];
+                };
+                [weakself.navigationController pushViewController:vc animated:YES];
+            }
+                break;
+            case 2:{  /*!< 应用外打开 >*/
+                [[UIApplication sharedApplication]openURL:[NSURL URLWithString:weakself.clientGlobalModel.open_screen_ad_list[0][@"ad_detail_url"]]];
+            }
+                break;
+            case 3:{  /*!< 文章页打开 >*/
+                
+            }
+                break;
+                
+            default:
+                break;
+        }
+
+    };
+    [self.launchView addSubview:self.adView];
+    
+    UIImageView *imageView = [[UIImageView alloc]init];
+    imageView.image = [UIImage imageNamed:@"slogan_logo"];
+    [self.launchView addSubview:imageView];
+    [imageView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.bottom.mas_equalTo(self.view).offset(- AdaptationWidth(32));
+        make.centerX.mas_equalTo(self.view);
+        make.width.height.mas_equalTo(56);
+    }];
+    [self.view bringSubviewToFront:self.adView];
+    [self.view bringSubviewToFront:imageView];
 }
 - (void)requestFaildWithDictionary:(XResponse *)response{
     
@@ -96,9 +168,6 @@ typedef NS_ENUM(NSInteger ,SeviceURLRequest) {
 
 - (void)getServiceURL:(XBlock)block{
 
-
-    
-    
     NSMutableDictionary *allParams = [NSMutableDictionary dictionary];
     [allParams setObject:@"qwd_createSession" forKey:@"service"];
     NSMutableDictionary *content = [[[BaseInfoPM alloc]init] mj_keyValues];
@@ -122,7 +191,6 @@ typedef NS_ENUM(NSInteger ,SeviceURLRequest) {
 //         MyLog(@"网络请求失败%@",error);
 //    }];
     
-    
     NSMutableURLRequest *request =[[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:SERVICEURL]];
     [request setHTTPMethod:@"POST"];
     //requestManager.responseSerializer.acceptableContentTypes = [NSSet setWithObject:@"text/html"];
@@ -136,22 +204,12 @@ typedef NS_ENUM(NSInteger ,SeviceURLRequest) {
 
     NSURLSessionDataTask * tesk = [requestManager dataTaskWithRequest:request uploadProgress:nil downloadProgress:nil completionHandler:^(NSURLResponse * _Nonnull response, id  _Nullable responseObject, NSError * _Nullable error) {
         
-        
-        
         if (error) {
             MyLog(@"网络请求失败返回数据%@",error);
-//            UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"加载失败" message:@"网络连接失败" preferredStyle:UIAlertControllerStyleAlert];
-//            UIAlertAction *okAction = [UIAlertAction actionWithTitle:@"重新加载" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action){
-//                [self getServiceURL:nil];
-//            }];
-//
-//            [alertController addAction:okAction];
-//            [self presentViewController:alertController animated:YES completion:nil];
             if (!(_bgView == nil)) {
                 _bgView.hidden = YES;
                 [_bgView removeFromSuperview];
             }
-            
             _bgView = [[UIView alloc]init];
             _bgView.backgroundColor = [UIColor whiteColor];
 
@@ -203,7 +261,6 @@ typedef NS_ENUM(NSInteger ,SeviceURLRequest) {
             NSString *base64String = [[NSString alloc]initWithData:responseObject encoding:NSUTF8StringEncoding];
             NSString *base64String2 = [SecurityUtil decryptAESData:base64String];
             NSDictionary *keyDict = [SecurityUtil dictionaryWithJsonString:base64String2];
-//             MyLog(@"网络请求成功返回数据%@",keyDict);
             XResponse *response = [XResponse mj_objectWithKeyValues:keyDict];
             XSessionMgr *model = [XSessionMgr mj_objectWithKeyValues:response.content];
             
@@ -220,18 +277,14 @@ typedef NS_ENUM(NSInteger ,SeviceURLRequest) {
         }
     }];
     [tesk resume];
-    
-
 }
--(void)refreshButtonClick
-{
+-(void)refreshButtonClick{
     [self getServiceURL:nil];
     _bgView.hidden = YES;
     [_bgView removeFromSuperview];
 }
 
-- (void)isNeedUpdate
-{
+- (void)isNeedUpdate{
     ClientVersionModel *model = _clientGlobalModel.version_info;
     if ([model.need_force_update isEqualToString:@"1"]) {
         //强制更新
@@ -257,6 +310,7 @@ typedef NS_ENUM(NSInteger ,SeviceURLRequest) {
     }
     
 }
+
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.

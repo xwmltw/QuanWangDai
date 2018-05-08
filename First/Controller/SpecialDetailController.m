@@ -25,7 +25,7 @@ typedef NS_ENUM(NSInteger , SpecialDetailRequest) {
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-
+    [TalkingData trackEvent:@"【贷款类型】页"];
     [self prepareDataWithCount:SpecialDetailRecordRequest];
     
     [self createTableViewWithFrame:CGRectZero];

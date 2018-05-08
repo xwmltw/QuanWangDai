@@ -132,15 +132,22 @@ typedef NS_ENUM(NSInteger ,SpecialViewRequest) {
 - (void)setData{
     typeArry = [NSMutableArray array];
     if (self.loan_product_type.integerValue) {//特色入口贷款类型id
-        if (self.loan_classify_ids_str.length) {
-            specialArry = [self.loan_classify_ids_str componentsSeparatedByString:@","];
-            [self.loanTypeInfo.loan_classify_list enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-                for (int i = 0; specialArry.count > i; i++) {
-                    if ([specialArry[i] isEqualToString:[NSString stringWithFormat:@"%@",obj[@"loan_classify_id"]]]) {
-                        [typeArry addObject:obj];
+        
+        if (self.loan_classify_ids_str.length > 1) {
+            
+             specialArry = [self.loan_classify_ids_str componentsSeparatedByString:@","];
+            if (specialArry.count > 1) {
+                
+                [self.loanTypeInfo.loan_classify_list enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                    for (int i = 0; specialArry.count > i; i++) {
+                        if ([specialArry[i] isEqualToString:[NSString stringWithFormat:@"%@",obj[@"loan_classify_id"]]]) {
+                            
+                            [typeArry addObject:obj];
+                        }
                     }
-                }
-            }];
+                }];
+            }
+            
         }else{
             if (self.list_properties.integerValue != 1) {
                     //   全部类型
@@ -162,7 +169,7 @@ typedef NS_ENUM(NSInteger ,SpecialViewRequest) {
     
     if (typeArry.count < 1 ) {
 //        self.tableView.tableHeaderView = nil;
-    }else if(typeArry.count < 4){
+    }else if(typeArry.count <= 4){
         self.tableView.tableHeaderView = [self creatHeaderView:CGRectMake(0, 0, ScreenWidth, AdaptationWidth(107))];
     }else{
         self.tableView.tableHeaderView = [self creatHeaderView:CGRectMake(0, 0, ScreenWidth, AdaptationWidth(201))];
@@ -221,7 +228,7 @@ typedef NS_ENUM(NSInteger ,SpecialViewRequest) {
     }
     _flowLayout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
     
-    if (typeArry.count < 4) {
+    if (typeArry.count <= 4) {
         _collectionView = [[UICollectionView alloc]initWithFrame:CGRectMake(16, 0, ScreenWidth - AdaptationWidth(32), AdaptationWidth(91)) collectionViewLayout:_flowLayout];
         _collectionView.scrollEnabled = YES;
         _collectionView.pagingEnabled = YES;
@@ -331,7 +338,10 @@ typedef NS_ENUM(NSInteger ,SpecialViewRequest) {
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     [collectionView deselectItemAtIndexPath:indexPath animated:YES];
     
-    [TalkingData trackEvent:@"【贷款类型】页"];
+    if (typeArry.count <= indexPath.row) {
+        return;
+    }
+    [TalkingData trackEvent:[NSString stringWithFormat:@"特色入口】-贷款类型%ld",(long)indexPath.row]];
     SpecialDetailController *vc = [[SpecialDetailController alloc]init];
     vc.productListModel = self.productListModel;
     vc.productListModel.loan_classify_id =typeArry[indexPath.row][@"loan_classify_id"];
@@ -408,6 +418,7 @@ typedef NS_ENUM(NSInteger ,SpecialViewRequest) {
         [self setHudWithName:@"名额已满" Time:0.5 andType:1];
         return;
     }
+    [TalkingData trackEvent:@"【特色入口】-点击产品"];
     ProductDetailVC *vc = [[ProductDetailVC alloc]init];
     vc.loan_pro_id = self.dataSourceArr[indexPath.row][@"loan_pro_id"];
     vc.hidesBottomBarWhenPushed = YES;
@@ -517,6 +528,7 @@ typedef NS_ENUM(NSInteger ,SpecialViewRequest) {
         switch (indexPath.column) {
                 
             case 0:
+                [TalkingData trackEvent:@"【特色入口】-可贷额度"];
                 if (indexPath.row == 0) {
                     quotaSelect = NO;
                     self.productListModel.loan_credit = nil;
@@ -527,6 +539,7 @@ typedef NS_ENUM(NSInteger ,SpecialViewRequest) {
                 self.quotaIndex = indexPath.row;
                 break;
             case 1:
+                [TalkingData trackEvent:@"【特色入口】-借款期限"];
                 if (indexPath.row == 0) {
                     dataSelect = NO;
                     self.productListModel.loan_deadline = nil;
@@ -537,6 +550,7 @@ typedef NS_ENUM(NSInteger ,SpecialViewRequest) {
                 self.dataIndex = indexPath.row;
                 break;
             case 2:
+                [TalkingData trackEvent:@"【特色入口】-排序"];
                 if (indexPath.row == 0) {
                     sortSelect = NO;
                     self.productListModel.order_type = nil;

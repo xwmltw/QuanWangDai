@@ -200,12 +200,13 @@ typedef NS_ENUM(NSInteger, OperatorsCreditRequest) {
             [XAlertView alertWithTitle:@"温馨提示" message:@"请您认真阅读《全网贷个人信息收集授权书》，若无异议请先勾选“我已同意《全网贷个人信息收集授权书》”，再重新提交资料" cancelButtonTitle:nil confirmButtonTitle:@"知道了" viewController:self completion:^(UIAlertAction *action, NSInteger buttonIndex) {}];
             return;
         }
+        [TalkingData trackEvent:@"【运营商认证】-确认"];
         [self prepareDataWithCount:OperatorsCreditRequestVerify];
     }
     if (btn.tag == 101) {
 //        ForgetOperatorPasswordVC *vc = [[ForgetOperatorPasswordVC alloc]init];
 //        [self.navigationController pushViewController:vc animated:YES];
-
+        [TalkingData trackEvent:@"【运营商认证】-忘记密码"];
         UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"忘记密码?" message:@"如果您忘记了服务密码，请拨打运营商客服热线进行密码重置。\n\n\n 移动请拨10086 转人工服务\n 联通请拨10010 转人工服务\n 电信请拨10000 转人工服务" preferredStyle:UIAlertControllerStyleAlert];
         UIView *subView1 = alertController.view.subviews[0];
         UIView *subView2 = subView1.subviews[0];

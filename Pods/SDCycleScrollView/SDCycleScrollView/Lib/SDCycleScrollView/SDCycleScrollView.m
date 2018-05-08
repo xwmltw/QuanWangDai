@@ -597,8 +597,9 @@ NSString * const ID = @"SDCycleScrollViewCell";
         cell.imageView.image = (UIImage *)imagePath;
     }
     
-    if (_titlesGroup.count && itemIndex < _titlesGroup.count) {
+    if (_titlesGroup.count && itemIndex < _titlesGroup.count ) {
         cell.title = _titlesGroup[itemIndex];
+        cell.numLabel.text = [NSString stringWithFormat:@"%ld/%d",itemIndex + 1,_titlesGroup.count];
     }
     
     if (!cell.hasConfigured) {

@@ -31,7 +31,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     //talkingdata
-    [TalkingData trackEvent:@"申请结果-一键申请"];
+    [TalkingData trackEvent:@"【申请结果-一键申请】页"];
     [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(timerAction) userInfo:nil repeats:YES];
     
     [self prepareDataWithCount:0];
@@ -216,6 +216,7 @@
 #pragma mark - btn
 - (void)btnOnClick:(UIButton *)btn{
     if (btn.tag == 100) {
+        [TalkingData trackEvent:@"【申请结果-一键申请】-去办信用卡"];
         XRootWebVC *vc = [[XRootWebVC alloc]init];
         vc.hidesBottomBarWhenPushed = YES;
         vc.url = self.clientGlobalInfoRM.wap_url_list.credit_url;

@@ -305,7 +305,7 @@ typedef NS_ENUM(NSInteger , DataDetailRequest) {
     RequiredType type = [requiredArry[indexPath.row]integerValue];
     switch (type) {
         case IDENTITYCARD:{
-            
+            [TalkingData trackEvent:@"完善资料】-身份认证"];
             IdentityAuthenticationVC *vc = [[IdentityAuthenticationVC alloc]init];
             vc.creditInfoModel = self.creditInfoModel;
             [self.navigationController pushViewController:vc animated:YES];
@@ -316,6 +316,7 @@ typedef NS_ENUM(NSInteger , DataDetailRequest) {
         case BASICINFO:
         {
             if (self.creditInfoModel.identity_status.integerValue == 1) {
+                [TalkingData trackEvent:@"【完善资料】-基本信息认证"];
                 BaseInfoVC *vc = [[BaseInfoVC alloc]init];
                 vc.creditInfoModel = self.creditInfoModel;
                 [self.navigationController pushViewController:vc animated:YES];
@@ -331,6 +332,7 @@ typedef NS_ENUM(NSInteger , DataDetailRequest) {
                 return;
             }
             if (self.creditInfoModel.identity_status.integerValue == 1) {
+                [TalkingData trackEvent:@"【完善资料】-芝麻信用认证"];
                 ZMAuthenticationVC *vc = [[ZMAuthenticationVC alloc]init];
                 [self.navigationController pushViewController:vc animated:YES];
             }else{
@@ -343,6 +345,7 @@ typedef NS_ENUM(NSInteger , DataDetailRequest) {
         {
             if (self.creditInfoModel.identity_status.integerValue == 1) {
                 if (self.creditInfoModel.base_info_status.integerValue == 1) {
+                    [TalkingData trackEvent:@"【完善资料】-运营商认证"];
                     OperatorAuthenticationVC *vc = [[OperatorAuthenticationVC alloc]init];
                     [self.navigationController pushViewController:vc animated:YES];
                 }else{
@@ -358,9 +361,11 @@ typedef NS_ENUM(NSInteger , DataDetailRequest) {
         {
             if (self.creditInfoModel.identity_status.integerValue == 1) {
                 if (self.creditInfoModel.bank_status.integerValue == 1) {
+                    [TalkingData trackEvent:@"【完善资料】-银行卡"];
                     CertifiedBankVC *vc = [[CertifiedBankVC alloc]init];
                     [self.navigationController pushViewController:vc animated:YES];
                 }else{
+                    [TalkingData trackEvent:@"【完善资料】-银行卡"];
                     AuthenticationBankVC *vc = [[AuthenticationBankVC alloc]init];
                     [self.navigationController pushViewController:vc animated:YES];
                 }
@@ -372,6 +377,7 @@ typedef NS_ENUM(NSInteger , DataDetailRequest) {
         case LOANINFO:
         {
             if (self.creditInfoModel.identity_status.integerValue == 1) {
+                [TalkingData trackEvent:@"【完善资料】-借贷平台信息"];
                 PlatformViewController *vc = [[PlatformViewController alloc]init];
                 [self.navigationController pushViewController:vc animated:YES];
             }else{
@@ -383,6 +389,7 @@ typedef NS_ENUM(NSInteger , DataDetailRequest) {
         case BUSINESSINFO:
         {
             if (self.creditInfoModel.identity_status.integerValue == 1) {
+                [TalkingData trackEvent:@"【完善资料】-工作信息"];
                 WorkInfoVC *vc = [[WorkInfoVC alloc]init];
                 [self.navigationController pushViewController:vc animated:YES];
             }else{
@@ -393,6 +400,7 @@ typedef NS_ENUM(NSInteger , DataDetailRequest) {
             break;
         case APPLICANT:{
            if (self.creditInfoModel.identity_status.integerValue == 1) {
+               [TalkingData trackEvent:@"【完善资料】-申请人资质"];
                ApplicantManVC *vc = [[ApplicantManVC alloc]init];
                [self.navigationController pushViewController:vc animated:YES];
            }else{
@@ -471,6 +479,7 @@ typedef NS_ENUM(NSInteger , DataDetailRequest) {
         }];
         return;
     }
+    [TalkingData trackEvent:@"【完善资料】-完成申请"];
     [self prepareDataWithCount:DataDetailRequestApplyLoan];
 }
 

@@ -150,6 +150,7 @@ typedef NS_ENUM(NSInteger , BuyRequest) {
 }
 
 -(void)BtnAction{
+    [TalkingData trackEvent:@"【交易记录】-去购买"];
     ReportController *vc = [[ReportController alloc]init];
     vc.hidesBottomBarWhenPushed = YES;
     [self.navigationController pushViewController:vc animated:YES];

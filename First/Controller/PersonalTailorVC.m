@@ -168,6 +168,7 @@ typedef NS_ENUM(NSInteger ,PersonalTailorRequest) {
 }
 #pragma  mark -btn
 - (void)btnOnClick:(UIButton *)btn{
+    [TalkingData trackEvent:@"【产品推荐】-去完善"];
     [CreditState selectCreaditState:self with:nil];
 }
 - (void)segmentOnClick:(UISegmentedControl *)sender{
@@ -507,6 +508,12 @@ typedef NS_ENUM(NSInteger ,PersonalTailorRequest) {
 
         switch (indexPath.column) {
             case 0:
+                if (self.speedOrLine.integerValue == 3) {
+                    [TalkingData trackEvent:@"【专属产品推荐-极速贷】-可贷额度"];
+                }else{
+                    [TalkingData trackEvent:@"【专属产品推荐-线上网贷】-可贷额度"];
+                }
+                
                 if (indexPath.row == 0) {
                     quotaSelect = NO;
                     self.productListModel.loan_credit = nil;
@@ -517,6 +524,12 @@ typedef NS_ENUM(NSInteger ,PersonalTailorRequest) {
                 self.quotaIndex = indexPath.row;
                 break;
             case 1:
+                if (self.speedOrLine.integerValue == 3) {
+                    [TalkingData trackEvent:@"【专属产品推荐-极速贷】-借款期限"];
+                }else{
+                    [TalkingData trackEvent:@"【专属产品推荐-线上网贷】-借款期限"];
+                }
+               
                 if (indexPath.row == 0) {
                     dataSelect = NO;
                     self.productListModel.loan_deadline = nil;
@@ -527,6 +540,7 @@ typedef NS_ENUM(NSInteger ,PersonalTailorRequest) {
                 self.dataIndex = indexPath.row;
                 break;
             case 2:
+                [TalkingData trackEvent:@"【专属产品推荐-线上网贷】-可贷额度"];
                 if (indexPath.row == 0) {
                    
                     self.productListModel.pre_loan_visit = nil;
@@ -537,6 +551,7 @@ typedef NS_ENUM(NSInteger ,PersonalTailorRequest) {
                 self.sortIndex = indexPath.row;
                 break;
             case 3:{
+                [TalkingData trackEvent:@"【专属产品推荐-线上网贷】-借款期限"];
                 if (indexPath.row == 0) {
                     self.productListModel.shop_visit = nil;
                 }else{

@@ -23,8 +23,8 @@
         _leftbtn = [[UIButton alloc]init];
 		_leftbtn.tag = 1000;
         [_leftbtn addTarget:self action:@selector(btnOnClick:) forControlEvents:UIControlEventTouchUpInside];
-        [_leftbtn setImage:[UIImage imageNamed:@"获取专属贷款"] forState:UIControlStateNormal];
-        [_leftbtn setImage:[UIImage imageNamed:@"获取专属贷款"] forState:UIControlStateHighlighted];
+        [_leftbtn setBackgroundImage:[UIImage imageNamed:@"获取专属贷款"] forState:UIControlStateNormal];
+        [_leftbtn setBackgroundImage:[UIImage imageNamed:@"获取专属贷款"] forState:UIControlStateHighlighted];
         [self.contentView addSubview:_leftbtn];
         
         _leftlab  = [[UILabel alloc]init];
@@ -38,8 +38,8 @@
 		_rightbtn = [[UIButton alloc]init];
 		_rightbtn.tag = 1001;
 		[_rightbtn addTarget:self action:@selector(btnOnClick:) forControlEvents:UIControlEventTouchUpInside];
-		[_rightbtn setImage:[UIImage imageNamed:@"查看我的信用"] forState:UIControlStateNormal];
-		[_rightbtn setImage:[UIImage imageNamed:@"查看我的信用"] forState:UIControlStateHighlighted];
+		[_rightbtn setBackgroundImage:[UIImage imageNamed:@"查看我的信用"] forState:UIControlStateNormal];
+		[_rightbtn setBackgroundImage:[UIImage imageNamed:@"查看我的信用"] forState:UIControlStateHighlighted];
 		[self.contentView addSubview:_rightbtn];
 		
 		_rightlab  = [[UILabel alloc]init];
@@ -72,31 +72,31 @@
 // this is Apple's recommended place for adding/updating constraints
 - (void)updateConstraints {
     [_leftbtn mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.mas_equalTo(self.contentView);
+        make.left.mas_equalTo(self);
         make.height.mas_equalTo(AdaptationWidth(80));
-		make.width.mas_equalTo(self.contentView.frame.size.width / 2);
-        make.bottom.mas_equalTo(self.contentView);
+		make.width.mas_equalTo(ScreenWidth / 2);
+        make.bottom.mas_equalTo(self);
     }];
     
     [_leftlab mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.mas_equalTo(_leftbtn).offset(AdaptationWidth(20));
         make.top.mas_equalTo(_leftbtn).offset(AdaptationWidth(20));
-		make.height.mas_equalTo(AdaptationWidth(46));
+		make.height.mas_equalTo(AdaptationWidth(50));
 		make.width.mas_equalTo(AdaptationWidth(65));
     }];
 	
 	[_rightbtn mas_makeConstraints:^(MASConstraintMaker *make) {
-		make.left.mas_equalTo(_leftbtn.mas_right).offset(-1);
+		make.left.mas_equalTo(_leftbtn.mas_right).offset(-3);
 		make.height.mas_equalTo(AdaptationWidth(80));
-        make.right.mas_equalTo(self.contentView);
+        make.right.mas_equalTo(self);
 //        make.width.mas_equalTo(self.contentView.frame.size.width / 2);
-		make.bottom.mas_equalTo(self.contentView);
+		make.bottom.mas_equalTo(self);
 	}];
 	
 	[_rightlab mas_makeConstraints:^(MASConstraintMaker *make) {
 		make.left.mas_equalTo(_rightbtn).offset(AdaptationWidth(20));
 		make.top.mas_equalTo(_rightbtn).offset(AdaptationWidth(20));
-		make.height.mas_equalTo(AdaptationWidth(46));
+		make.height.mas_equalTo(AdaptationWidth(50));
 		make.width.mas_equalTo(AdaptationWidth(65));
 	}];
 	
